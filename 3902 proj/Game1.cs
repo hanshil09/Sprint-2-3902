@@ -1,51 +1,87 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using TransformersGame.Controllers;
+using TransformersGame.Core;
+using TransformersGame.Entities;
+using TransformersGame.Factories;
 
 namespace _3902_proj;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+    private readonly GraphicsDeviceManager graphics;
+    private SpriteBatch spriteBatch = null!;
+    private KeyboardController keyboardController = null!;
+    private Player player = null!;
+    private GameState gameState;
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        Window.Title = "Transformers - Press Enter to Start";
     }
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
+        graphics.PreferredBackBufferWidth = 960;
+        graphics.PreferredBackBufferHeight = 540;
+        graphics.ApplyChanges();
+        gameState = GameState.StartMenu;
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        spriteBatch = new SpriteBatch(GraphicsDevice);
+        PlaceholderSpriteFactory spriteFactory = new(GraphicsDevice);
+        player = new Player(new Vector2(440, 250), spriteFactory);
+        keyboardController = new KeyboardController(this, player);
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
-        // TODO: Add your update logic here
-
+        keyboardController.Update();
+        if (gameState == GameState.Gameplay)
+        {
+            player.Update(gameTime);
+            KeepPlayerOnScreen();
+        }
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        // TODO: Add your drawing code here
-
+        GraphicsDevice.Clear(gameState == GameState.StartMenu ? new Color(18, 24, 38) : new Color(42, 55, 70));
+        if (gameState == GameState.Gameplay)
+        {
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            player.Draw(spriteBatch);
+            spriteBatch.End();
+        }
         base.Draw(gameTime);
+    }
+
+    public void StartGame()
+    {
+        gameState = GameState.Gameplay;
+        Window.Title = "Transformers - WASD/Arrows Move, Space Transform, E Damage, R Reset, Q Quit";
+    }
+
+    public void ResetGame()
+    {
+        player.Reset(new Vector2(440, 250));
+        gameState = GameState.StartMenu;
+        Window.Title = "Transformers - Press Enter to Start";
+    }
+
+    public bool IsGameplayActive => gameState == GameState.Gameplay;
+
+    private void KeepPlayerOnScreen()
+    {
+        Viewport viewport = GraphicsDevice.Viewport;
+        player.Position = Vector2.Clamp(player.Position, Vector2.Zero,
+            new Vector2(viewport.Width - player.Width, viewport.Height - player.Height));
     }
 }

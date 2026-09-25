@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\MB\\Coding projects\\3902 proj\\Sprint-2-3902\\3902 proj\\3902 proj.csproj": {}
+    "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj": {}
   },
   "projects": {
-    "C:\\Users\\MB\\Coding projects\\3902 proj\\Sprint-2-3902\\3902 proj\\3902 proj.csproj": {
+    "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\MB\\Coding projects\\3902 proj\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
+        "projectUniqueName": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
         "projectName": "3902 proj",
-        "projectPath": "C:\\Users\\MB\\Coding projects\\3902 proj\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
-        "packagesPath": "C:\\Users\\MB\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\MB\\Coding projects\\3902 proj\\Sprint-2-3902\\3902 proj\\obj\\",
+        "projectPath": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
+        "packagesPath": "C:\\Users\\hansh\\.nuget\\packages\\",
+        "outputPath": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\MB\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\hansh\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -24,6 +24,7 @@
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {}
           }
@@ -38,10 +39,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "MonoGame.Content.Builder.Task": {
@@ -64,12 +66,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.19, 9.0.19]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[9.0.19, 9.0.19]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.19, 9.0.19]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[9.0.19, 9.0.19]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
