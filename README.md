@@ -58,8 +58,16 @@ The starter includes these commands:
 - `StartGameCommand`
 - `ResetGameCommand`
 - `QuitCommand`
+- `NextObjectCommand`
+- `PreviousObjectCommand`
 
 This follows the Command design pattern demonstrated in the course examples. New controls should normally be added by creating a command and registering it in the controller.
+
+`KeyboardController.RegisterCommand(key, command)` registers a command from `Game1`, like the course's keyboard controller example. The command runs once each time the key is pressed. The block, item, and enemy cycle keys are registered this way in `Game1.RegisterCycleCommands`.
+
+### Cycling blocks, items, and enemies
+
+`Core/GameObjectCycler.cs` holds a list of game objects and shows one at a time. `Game1` has one cycler for blocks, one for items, and one for enemies. They are empty until those classes are written. Add objects to them in `Game1.LoadContent` with `blockCycler.Add(...)`, `itemCycler.Add(...)`, and `enemyCycler.Add(...)`.
 
 ### Sprite system
 
@@ -80,6 +88,9 @@ The sprite and animation teammate can later replace these placeholders with spri
 - Arrow keys or WASD: move and face a direction
 - Space: transform between robot and vehicle forms
 - E: show the damaged state briefly
+- T / Y: previous / next block
+- U / I: previous / next item
+- O / P: previous / next enemy
 - R: reset to the start state
 - Q or Escape: quit
 

@@ -30,6 +30,10 @@ public sealed class KeyboardController : IController
             [Keys.Q] = new QuitCommand(game), [Keys.Escape] = new QuitCommand(game)
         };
     }
+    public void RegisterCommand(Keys key, ICommand command)
+    {
+        pressedCommands.Add(key, command);
+    }
     public void Update()
     {
         KeyboardState currentState = Keyboard.GetState();
