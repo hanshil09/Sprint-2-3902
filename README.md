@@ -15,26 +15,26 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 - **Enter** starts from the menu.
 - **A/D** or **Left/Right** move horizontally. **W**, **Up**, or **J** jumps. **S** or **Down** changes the player's facing direction downward; it does not move the player down.
 - **Space** changes between standing and morph ball forms, where morph ball is smaller and moves faster.
-- **Z/N** fire a shot in standing form. **1** fires an orb in robot form, and **2** drops a bomb in either form. The number pad's **1/2** keys also work.
+- **Z/N** fire a shot in standing form. **1** fires an orb in standing form, and **2** drops a bomb in either form. The number pad's **1/2** keys also work.
 - **E** briefly shows the damaged effect.
-- **T/Y** cycle through four block previews. **O/P** cycle between two color variants of the same enemy behavior. **U/I** are mapped, but there are currently no items in their display list.
+- **T/Y** cycle through four block previews. **O/P** cycle through five animated enemy previews. **U/I** are mapped, but there are currently no items in their display list.
 - **R** resets the game to the menu. **Q** or **Escape** quits.
 
 ## Implemented behavior
 
 - The player can move, jump on platforms, face horizontal directions and down, switch forms, and animate. Damaged and temporary shooting states alter the player's sprite and available actions.
-- Robot shots and orbs travel horizontally and expire after a time limit. Bombs show a timed explosion and then expire.
+- Shots and orbs travel horizontally in the direction the player is facing and expire after a time limit. Bombs show a timed explosion and then expire.
 - The level draws a tiled platform layout, and the block showcase cycles through four sprite variants.
-- The active enemy walks, turns, hops on timers, and changes between walking states. An enemy destroyed state exists, but no gameplay action currently triggers it.
+- The enemy showcase cycles through five Metroid enemy sprite previews. The currently selected enemy animates and moves back and forth horizontally.
 
 ## Known gaps
 
 - U/I does not display any items. No concrete item class is implemented.
-- O/P selects two tinted instances of one enemy type; additional enemy and NPC behaviors are not implemented.
-- Enemy destruction cannot currently be triggered during play. There is no enemy projectile system or player health system.
-- **Up-facing artwork is not reachable through the current controls**, and shots travel horizontally regardless of facing direction.
+- **O/P** cycles through five enemy sprite previews, but these currently function primarily as animated enemy showcases rather than separate gameplay enemy behaviors.
+- Projectiles and bombs do not currently damage the displayed enemies. There is no player health system or enemy projectile system.
+- **Up-facing artwork is not reachable through the current controls**, because **W/Up/J** are used for jumping.
 - The start prompt appears in the window title; the menu does not draw text inside the game window.
-- The project has not been verified against the grader-approved Transformers feature list or through a full interactive playthrough.
+- The project should be tested through a complete interactive playthrough before the final Sprint 2 submission.
 
 ## Development notes
 
