@@ -41,10 +41,21 @@ namespace TransformersGame.Core
 
         public void FillEnemyCycler(GameObjectCycler cycler)
         {
-            cycler.Add(new Enemy(FirstEnemyStart, Blocks, Color.White));
-            cycler.Add(new Enemy(SecondEnemyStart, Blocks, Color.OrangeRed));
-        }
+            cycler.Add(new Enemy(FirstEnemyStart,
+                EnemySpriteFactory.Instance.CreateEnemy1Sprite(Color.White)));
 
+            cycler.Add(new Enemy(FirstEnemyStart,
+                EnemySpriteFactory.Instance.CreateEnemy2Sprite(Color.White)));
+
+            cycler.Add(new Enemy(FirstEnemyStart,
+                EnemySpriteFactory.Instance.CreateEnemy4Sprite(Color.White)));
+
+            cycler.Add(new Enemy(FirstEnemyStart,
+                EnemySpriteFactory.Instance.CreateEnemy5Sprite(Color.White)));
+
+            cycler.Add(new Enemy(FirstEnemyStart,
+                EnemySpriteFactory.Instance.CreateEnemy6Sprite(Color.White)));
+        }
         public void Update(GameTime gameTime)
         {
             foreach (IBlock block in Blocks)

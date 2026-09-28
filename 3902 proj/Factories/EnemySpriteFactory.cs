@@ -8,21 +8,40 @@ namespace TransformersGame.Factories
 {
     public class EnemySpriteFactory
     {
-        private const int EnemyWidth = 68;
-        private const int EnemyHeight = 56;
-        private const double WalkFrameTime = 250;
+        private const int EnemyWidth = 3 * 16;
+        private const int EnemyHeight = 3 * 16;
+        private const double IdleFrameTime = 250;
 
-        private static readonly Rectangle[] RightWalkFrames = new Rectangle[]
+        private static readonly Rectangle[] Enemy1Frames =
         {
-            new Rectangle(0, 768, 170, 140),
-            new Rectangle(1190, 768, 170, 140)
+            new Rectangle(0, 0, 16, 16),
+            new Rectangle(16, 0, 16, 16)
         };
-        private static readonly Rectangle[] LeftWalkFrames = new Rectangle[]
+
+        private static readonly Rectangle[] Enemy2Frames =
         {
-            new Rectangle(680, 768, 170, 140),
-            new Rectangle(850, 768, 170, 140)
+            new Rectangle(32, 0, 16, 16),
+            new Rectangle(48, 0, 16, 16)
         };
-        private static readonly Rectangle WreckFrame = new Rectangle(840, 952, 170, 154);
+
+        private static readonly Rectangle[] Enemy4Frames =
+        {
+            new Rectangle(0, 48, 16, 16),
+            new Rectangle(16, 48, 16, 16),
+            new Rectangle(32, 48, 16, 16)
+        };
+
+        private static readonly Rectangle[] Enemy5Frames =
+        {
+            new Rectangle(0, 64, 16, 16),
+            new Rectangle(16, 64, 16, 16)
+        };
+
+        private static readonly Rectangle[] Enemy6Frames =
+        {
+            new Rectangle(32, 64, 16, 16),
+            new Rectangle(48, 64, 16, 16)
+        };
 
         private static EnemySpriteFactory instance = new EnemySpriteFactory();
 
@@ -42,18 +61,42 @@ namespace TransformersGame.Factories
 
         public void LoadAllTextures(ContentManager content)
         {
-            enemySpriteSheet = content.Load<Texture2D>("Sprites/transformer-directional-combat-spritesheet");
+            enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
         }
 
-        public ISprite CreateWalkingEnemySprite(bool facingLeft, Color tint)
+        public ISprite CreateEnemy1Sprite(Color tint)
         {
-            Rectangle[] frames = facingLeft ? LeftWalkFrames : RightWalkFrames;
-            return new AnimatedSprite(enemySpriteSheet, frames, EnemyWidth, EnemyHeight, tint, WalkFrameTime);
+            return new AnimatedSprite(
+                enemySpriteSheet, Enemy1Frames,
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
         }
 
-        public ISprite CreateDestroyedEnemySprite(Color tint)
+        public ISprite CreateEnemy2Sprite(Color tint)
         {
-            return new TextureRegionSprite(enemySpriteSheet, WreckFrame, EnemyWidth, EnemyHeight, tint);
+            return new AnimatedSprite(
+                enemySpriteSheet, Enemy2Frames,
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+        }
+
+        public ISprite CreateEnemy4Sprite(Color tint)
+        {
+            return new AnimatedSprite(
+                enemySpriteSheet, Enemy4Frames,
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+        }
+
+        public ISprite CreateEnemy5Sprite(Color tint)
+        {
+            return new AnimatedSprite(
+                enemySpriteSheet, Enemy5Frames,
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+        }
+
+        public ISprite CreateEnemy6Sprite(Color tint)
+        {
+            return new AnimatedSprite(
+                enemySpriteSheet, Enemy6Frames,
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
         }
     }
 }
