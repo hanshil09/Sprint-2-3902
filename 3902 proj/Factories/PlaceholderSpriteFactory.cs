@@ -6,22 +6,26 @@ using TransformersGame.Sprites;
 namespace TransformersGame.Factories;
 public sealed class PlaceholderSpriteFactory
 {
-    private readonly Texture2D pixel;
-    public PlaceholderSpriteFactory(GraphicsDevice graphicsDevice)
+    private static readonly Rectangle RobotFrame = new(0, 160, 150, 200);
+    private static readonly Rectangle BallFrame = new(460, 390, 140, 160);
+    private readonly Texture2D rightSpriteSheet;
+    private readonly Texture2D leftSpriteSheet;
+
+    public PlaceholderSpriteFactory(Texture2D rightSpriteSheet, Texture2D leftSpriteSheet)
     {
-        pixel = new Texture2D(graphicsDevice, 1, 1);
-        pixel.SetData([Color.White]);
+        this.rightSpriteSheet = rightSpriteSheet;
+        this.leftSpriteSheet = leftSpriteSheet;
     }
-    public ISprite CreateRobotSprite(Direction facing, bool damaged = false) =>
-        new SolidColorSprite(pixel, damaged ? Color.OrangeRed : FacingColor(facing), 40, 56);
-    public ISprite CreateVehicleSprite(Direction facing, bool damaged = false) =>
-        new SolidColorSprite(pixel, damaged ? Color.Red : FacingColor(facing), 64, 32);
-    private static Color FacingColor(Direction facing) => facing switch
+
+    public ISprite CreateRobotSprite(Direction facing, bool damaged = false)
     {
-        Direction.Up => Color.CornflowerBlue,
-        Direction.Down => Color.RoyalBlue,
-        Direction.Left => Color.SteelBlue,
-        Direction.Right => Color.DodgerBlue,
-        _ => Color.Blue
-    };
+        Texture2D sheet = facing == Direction.Left ? leftSpriteSheet : rightSpriteSheet;
+        return new TextureRegionSprite(sheet, RobotFrame, 60, 80, damaged ? Color.OrangeRed : Color.White);
+    }
+
+    public ISprite CreateVehicleSprite(Direction facing, bool damaged = false)
+    {
+        Texture2D sheet = facing == Direction.Left ? leftSpriteSheet : rightSpriteSheet;
+        return new TextureRegionSprite(sheet, BallFrame, 56, 56, damaged ? Color.Red : Color.White);
+    }
 }

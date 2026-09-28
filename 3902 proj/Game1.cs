@@ -40,7 +40,9 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
-        PlaceholderSpriteFactory spriteFactory = new(GraphicsDevice);
+        Texture2D rightSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
+        Texture2D leftSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
+        PlaceholderSpriteFactory spriteFactory = new(rightSpriteSheet, leftSpriteSheet);
         player = new Player(new Vector2(440, 250), spriteFactory);
         keyboardController = new KeyboardController(this, player);
         RegisterCycleCommands();
