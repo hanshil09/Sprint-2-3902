@@ -21,8 +21,6 @@ namespace TransformersGame.Entities
 
         public Vector2 Position { get; set; }
 
-        public bool IsSolid { get; private set; }
-
         public Rectangle Bounds
         {
             get
@@ -42,3 +40,4 @@ namespace TransformersGame.Entities
         }
     }
 }
+ 

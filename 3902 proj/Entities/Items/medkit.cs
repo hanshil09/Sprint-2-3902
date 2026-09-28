@@ -13,10 +13,12 @@ namespace TransformersGame.Entities
             Position = position;
             this.sprite = sprite;
         }
+
         public void Collect(IPlayer player)
         {
             
         }
+
         public Vector2 Position { get; set; }
 
         public Rectangle Bounds
@@ -38,3 +40,4 @@ namespace TransformersGame.Entities
         }
     }
 }
+ 
