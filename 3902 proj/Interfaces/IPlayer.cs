@@ -1,16 +1,25 @@
-using Microsoft.Xna.Framework;
 using TransformersGame.Core;
-namespace TransformersGame.Interfaces;
-public interface IPlayer : IGameObject
+
+namespace TransformersGame.Interfaces
 {
-    int Width { get; }
-    int Height { get; }
-    Direction Facing { get; }
-    void Move(Direction direction);
-    void StopMoving();
-    void Shoot();
-    void Jump();
-    void Transform();
-    void TakeDamage();
-    void Reset(Vector2 position);
+    public interface IPlayer : IGameObject
+    {
+        int Width { get; }
+
+        int Height { get; }
+
+        Direction Facing { get; }
+
+        void Move(Direction direction);
+
+        void Jump();
+
+        void Shoot();
+
+        void UseItem(int itemNumber);
+
+        void Transform();
+
+        void TakeDamage();
+    }
 }

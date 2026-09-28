@@ -1,2 +1,7 @@
-namespace TransformersGame.Interfaces;
-public interface IController { void Update(); }
+namespace TransformersGame.Interfaces
+{
+    public interface IController
+    {
+        void Update();
+    }
+}

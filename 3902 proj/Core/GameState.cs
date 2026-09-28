@@ -1,2 +1,4 @@
-namespace TransformersGame.Core;
-public enum GameState { StartMenu, Gameplay }
+namespace TransformersGame.Core
+{
+    public enum GameState { StartMenu, Gameplay }
+}

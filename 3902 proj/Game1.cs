@@ -1,133 +1,152 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using TransformersGame.Commands;
 using TransformersGame.Controllers;
 using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
+using TransformersGame.Interfaces;
 
-namespace _3902_proj;
-
-public class Game1 : Game
+namespace TransformersGame
 {
-    private readonly GraphicsDeviceManager graphics;
-    private SpriteBatch spriteBatch = null!;
-    private KeyboardController keyboardController = null!;
-    private Player player = null!;
-    private ChasingEnemy chasingEnemy = null!;
-    private GameState gameState;
-    private GameObjectCycler blockCycler = new GameObjectCycler();
-    private GameObjectCycler itemCycler = new GameObjectCycler();
-    private GameObjectCycler enemyCycler = new GameObjectCycler();
-
-    public Game1()
+    public class Game1 : Game
     {
-        graphics = new GraphicsDeviceManager(this);
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
-        Window.Title = "Transformers - Press Enter to Start";
-    }
+        private const int ScreenWidth = 960;
+        private const int ScreenHeight = 540;
+        private const string MenuTitle = "Transformers - Press Enter to Start";
+        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
-    protected override void Initialize()
-    {
-        graphics.PreferredBackBufferWidth = 960;
-        graphics.PreferredBackBufferHeight = 540;
-        graphics.ApplyChanges();
-        gameState = GameState.StartMenu;
-        base.Initialize();
-    }
+        private static readonly Vector2 PlayerStartPosition = new Vector2(80, 400);
+        private static readonly Color MenuColor = new Color(18, 24, 38);
+        private static readonly Color GameplayColor = new Color(42, 55, 70);
 
-    protected override void LoadContent()
-    {
-        spriteBatch = new SpriteBatch(GraphicsDevice);
-        Texture2D rightSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
-        Texture2D leftSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
-        Texture2D directionalSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-directional-combat-spritesheet");
-        PlaceholderSpriteFactory spriteFactory = new(rightSpriteSheet, leftSpriteSheet, directionalSpriteSheet);
-        player = new Player(new Vector2(440, 250), spriteFactory);
-        chasingEnemy = new ChasingEnemy(new Vector2(80, 80), spriteFactory);
-        keyboardController = new KeyboardController(this, player);
-        RegisterCycleCommands();
-    }
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+        private GameState gameState;
+        private IController menuController;
+        private IController gameplayController;
+        private Level level;
+        private ProjectileManager projectiles;
+        private GameObjectCycler blockCycler;
+        private GameObjectCycler itemCycler;
+        private GameObjectCycler enemyCycler;
 
-    protected override void Update(GameTime gameTime)
-    {
-        keyboardController.Update();
-        if (gameState == GameState.Gameplay)
+        public Game1()
         {
+            graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+            Window.Title = MenuTitle;
+        }
+
+        public IPlayer Player { get; set; }
+
+        public void StartGame()
+        {
+            gameState = GameState.Gameplay;
+            Window.Title = GameplayTitle;
+        }
+
+        public void ResetGame()
+        {
+            InitializeGameObjects();
+            gameState = GameState.StartMenu;
+            Window.Title = MenuTitle;
+        }
+
+        public void DamagePlayer()
+        {
+            if (Player is DamagedPlayer)
+            {
+                return;
+            }
+            Player.TakeDamage();
+            Player = new DamagedPlayer(Player, this);
+        }
+
+        protected override void Initialize()
+        {
+            graphics.PreferredBackBufferWidth = ScreenWidth;
+            graphics.PreferredBackBufferHeight = ScreenHeight;
+            graphics.ApplyChanges();
+            gameState = GameState.StartMenu;
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            PlayerSpriteFactory.Instance.LoadAllTextures(Content);
+            EnemySpriteFactory.Instance.LoadAllTextures(Content);
+            ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
+            BlockSpriteFactory.Instance.LoadAllTextures(Content);
+            InitializeGameObjects();
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            if (gameState == GameState.StartMenu)
+            {
+                menuController.Update();
+            }
+            else
+            {
+                gameplayController.Update();
+                UpdateGameplay(gameTime);
+            }
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            if (gameState == GameState.StartMenu)
+            {
+                GraphicsDevice.Clear(MenuColor);
+            }
+            else
+            {
+                GraphicsDevice.Clear(GameplayColor);
+                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+                level.Draw(spriteBatch);
+                blockCycler.Draw(spriteBatch);
+                itemCycler.Draw(spriteBatch);
+                enemyCycler.Draw(spriteBatch);
+                projectiles.Draw(spriteBatch);
+                Player.Draw(spriteBatch);
+                spriteBatch.End();
+            }
+            base.Draw(gameTime);
+        }
+
+        private void InitializeGameObjects()
+        {
+            level = new Level();
+            projectiles = new ProjectileManager();
+            Player = new Player(PlayerStartPosition, level.Blocks, projectiles);
+            blockCycler = new GameObjectCycler();
+            itemCycler = new GameObjectCycler();
+            enemyCycler = new GameObjectCycler();
+            Level.FillBlockCycler(blockCycler);
+            level.FillEnemyCycler(enemyCycler);
+            menuController = ControllerFactory.CreateMenuController(this);
+            gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
+        }
+
+        private void UpdateGameplay(GameTime gameTime)
+        {
+            level.Update(gameTime);
             blockCycler.Update(gameTime);
             itemCycler.Update(gameTime);
             enemyCycler.Update(gameTime);
-            player.Update(gameTime);
-            chasingEnemy.Chase(player.Position);
-            chasingEnemy.Update(gameTime);
-            CheckProjectileHits();
+            Player.Update(gameTime);
+            projectiles.Update(gameTime);
             KeepPlayerOnScreen();
         }
-        base.Update(gameTime);
-    }
 
-    protected override void Draw(GameTime gameTime)
-    {
-        GraphicsDevice.Clear(gameState == GameState.StartMenu ? new Color(18, 24, 38) : new Color(42, 55, 70));
-        if (gameState == GameState.Gameplay)
+        private void KeepPlayerOnScreen()
         {
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            blockCycler.Draw(spriteBatch);
-            itemCycler.Draw(spriteBatch);
-            enemyCycler.Draw(spriteBatch);
-            chasingEnemy.Draw(spriteBatch);
-            player.Draw(spriteBatch);
-            spriteBatch.End();
+            Viewport viewport = GraphicsDevice.Viewport;
+            Vector2 maximum = new Vector2(viewport.Width - Player.Width, viewport.Height - Player.Height);
+            Player.Position = Vector2.Clamp(Player.Position, Vector2.Zero, maximum);
         }
-        base.Draw(gameTime);
-    }
-
-    public void StartGame()
-    {
-        gameState = GameState.Gameplay;
-        Window.Title = "Transformers - WASD/Arrows Move, Space Transform, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
-    }
-
-    public void ResetGame()
-    {
-        player.Reset(new Vector2(440, 250));
-        chasingEnemy.Reset(new Vector2(80, 80));
-        blockCycler.Reset();
-        itemCycler.Reset();
-        enemyCycler.Reset();
-        gameState = GameState.StartMenu;
-        Window.Title = "Transformers - Press Enter to Start";
-    }
-
-    private void CheckProjectileHits()
-    {
-        if (chasingEnemy.IsDefeated) return;
-        foreach (EnergyProjectile projectile in player.Projectiles)
-        {
-            if (!projectile.IsActive || !projectile.Bounds.Intersects(chasingEnemy.Bounds)) continue;
-            projectile.Deactivate();
-            chasingEnemy.TakeDamage(1);
-        }
-    }
-
-    public bool IsGameplayActive => gameState == GameState.Gameplay;
-
-    private void KeepPlayerOnScreen()
-    {
-        Viewport viewport = GraphicsDevice.Viewport;
-        player.Position = Vector2.Clamp(player.Position, Vector2.Zero,
-            new Vector2(viewport.Width - player.Width, viewport.Height - player.Height));
-    }
-
-    private void RegisterCycleCommands()
-    {
-        keyboardController.RegisterCommand(Keys.T, new PreviousObjectCommand(blockCycler));
-        keyboardController.RegisterCommand(Keys.Y, new NextObjectCommand(blockCycler));
-        keyboardController.RegisterCommand(Keys.U, new PreviousObjectCommand(itemCycler));
-        keyboardController.RegisterCommand(Keys.I, new NextObjectCommand(itemCycler));
-        keyboardController.RegisterCommand(Keys.O, new PreviousObjectCommand(enemyCycler));
-        keyboardController.RegisterCommand(Keys.P, new NextObjectCommand(enemyCycler));
     }
 }

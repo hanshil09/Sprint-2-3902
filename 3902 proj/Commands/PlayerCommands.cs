@@ -1,8 +1,84 @@
 using TransformersGame.Core;
 using TransformersGame.Interfaces;
-namespace TransformersGame.Commands;
-public sealed class MovePlayerCommand(IPlayer player, Direction direction) : ICommand { public void Execute() => player.Move(direction); }
-public sealed class ShootPlayerCommand(IPlayer player) : ICommand { public void Execute() => player.Shoot(); }
-public sealed class JumpPlayerCommand(IPlayer player) : ICommand { public void Execute() => player.Jump(); }
-public sealed class TransformPlayerCommand(IPlayer player) : ICommand { public void Execute() => player.Transform(); }
-public sealed class DamagePlayerCommand(IPlayer player) : ICommand { public void Execute() => player.TakeDamage(); }
+
+namespace TransformersGame.Commands
+{
+    public class MovePlayerCommand : ICommand
+    {
+        private IPlayer player;
+        private Direction direction;
+
+        public MovePlayerCommand(IPlayer player, Direction direction)
+        {
+            this.player = player;
+            this.direction = direction;
+        }
+
+        public void Execute()
+        {
+            player.Move(direction);
+        }
+    }
+
+    public class JumpPlayerCommand : ICommand
+    {
+        private IPlayer player;
+
+        public JumpPlayerCommand(IPlayer player)
+        {
+            this.player = player;
+        }
+
+        public void Execute()
+        {
+            player.Jump();
+        }
+    }
+
+    public class ShootPlayerCommand : ICommand
+    {
+        private IPlayer player;
+
+        public ShootPlayerCommand(IPlayer player)
+        {
+            this.player = player;
+        }
+
+        public void Execute()
+        {
+            player.Shoot();
+        }
+    }
+
+    public class UseItemCommand : ICommand
+    {
+        private IPlayer player;
+        private int itemNumber;
+
+        public UseItemCommand(IPlayer player, int itemNumber)
+        {
+            this.player = player;
+            this.itemNumber = itemNumber;
+        }
+
+        public void Execute()
+        {
+            player.UseItem(itemNumber);
+        }
+    }
+
+    public class TransformPlayerCommand : ICommand
+    {
+        private IPlayer player;
+
+        public TransformPlayerCommand(IPlayer player)
+        {
+            this.player = player;
+        }
+
+        public void Execute()
+        {
+            player.Transform();
+        }
+    }
+}

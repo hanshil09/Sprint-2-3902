@@ -1,2 +1,7 @@
-namespace TransformersGame.Interfaces;
-public interface IProjectile : IGameObject { bool IsActive { get; } }
+namespace TransformersGame.Interfaces
+{
+    public interface IProjectile : IGameObject
+    {
+        bool IsActive { get; }
+    }
+}

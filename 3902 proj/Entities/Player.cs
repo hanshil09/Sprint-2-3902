@@ -1,132 +1,191 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 using TransformersGame.Core;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
-namespace TransformersGame.Entities;
-public sealed class Player : IPlayer
-{
-    private const float RobotSpeed = 180f;
-    private const float VehicleSpeed = 280f;
-    private readonly PlaceholderSpriteFactory spriteFactory;
-    private ISprite sprite;
-    private Vector2 movement;
-    private bool isVehicle;
-    private double damageTimeRemaining;
-    private double shootingTimeRemaining;
-    private double jumpTimeRemaining;
-    private readonly List<EnergyProjectile> projectiles = new();
-    public Player(Vector2 position, PlaceholderSpriteFactory spriteFactory)
-    {
-        Position = position;
-        this.spriteFactory = spriteFactory;
-        Facing = Direction.Down;
-        sprite = spriteFactory.CreateRobotSprite(Facing);
-    }
-    public Vector2 Position { get; set; }
-    public Direction Facing { get; private set; }
-    public int Width => sprite.Width;
-    public int Height => sprite.Height;
-    public IReadOnlyList<EnergyProjectile> Projectiles => projectiles;
-    public void Move(Direction direction)
-    {
-        bool needsNewSprite = movement == Vector2.Zero || Facing != direction;
-        Facing = direction;
-        movement = direction switch
-        {
-            Direction.Up => -Vector2.UnitY,
-            Direction.Down => Vector2.UnitY,
-            Direction.Left => -Vector2.UnitX,
-            Direction.Right => Vector2.UnitX,
-            _ => Vector2.Zero
-        };
-        if (needsNewSprite) RefreshSprite();
-    }
-    public void StopMoving()
-    {
-        if (movement == Vector2.Zero) return;
-        movement = Vector2.Zero;
-        RefreshSprite();
-    }
-    public void Shoot()
-    {
-        if (isVehicle || shootingTimeRemaining > 0) return;
+using TransformersGame.States;
 
-        Vector2 direction = Facing switch
-        {
-            Direction.Up => -Vector2.UnitY,
-            Direction.Down => Vector2.UnitY,
-            Direction.Left => -Vector2.UnitX,
-            _ => Vector2.UnitX
-        };
-        Vector2 origin = Position + new Vector2(Width / 2f - 12f, Height / 2f - 12f) + direction * 34f;
-        projectiles.Add(new EnergyProjectile(origin, direction, spriteFactory.CreateProjectileSprite()));
-        shootingTimeRemaining = 0.28;
-        RefreshSprite();
-    }
-    public void Jump()
+namespace TransformersGame.Entities
+{
+    public class Player : IPlayer
     {
-        if (jumpTimeRemaining <= 0) jumpTimeRemaining = 0.55;
-    }
-    public void Transform() { isVehicle = !isVehicle; RefreshSprite(); }
-    public void TakeDamage() { damageTimeRemaining = 0.5; RefreshSprite(); }
-    public void Reset(Vector2 position)
-    {
-        Position = position;
-        Facing = Direction.Down;
-        movement = Vector2.Zero;
-        isVehicle = false;
-        damageTimeRemaining = 0;
-        shootingTimeRemaining = 0;
-        jumpTimeRemaining = 0;
-        projectiles.Clear();
-        RefreshSprite();
-    }
-    public void Update(GameTime gameTime)
-    {
-        Position += movement * (isVehicle ? VehicleSpeed : RobotSpeed) * (float)gameTime.ElapsedGameTime.TotalSeconds;
-        if (damageTimeRemaining > 0)
+        private const float JumpSpeed = 650f;
+        private const float KnockbackSpeed = 300f;
+        private const float ShotSpeed = 520f;
+        private const float OrbSpeed = 300f;
+        private const float MuzzleHeight = 0.3f;
+
+        private Physics physics;
+        private ProjectileManager projectiles;
+        private IPlayerState state;
+        private ISprite sprite;
+        private bool movedThisFrame;
+        private bool wasOnGround;
+
+        public Player(Vector2 position, List<IBlock> blocks, ProjectileManager projectiles)
         {
-            damageTimeRemaining -= gameTime.ElapsedGameTime.TotalSeconds;
-            if (damageTimeRemaining <= 0) RefreshSprite();
+            Position = position;
+            physics = new Physics(blocks);
+            this.projectiles = projectiles;
+            Facing = Direction.Right;
+            FacingLeft = false;
+            IsMoving = false;
+            state = new RobotState(this);
+            sprite = state.CreateSprite();
         }
-        if (shootingTimeRemaining > 0)
+
+        public Vector2 Position { get; set; }
+
+        public Direction Facing { get; private set; }
+
+        public bool FacingLeft { get; private set; }
+
+        public bool IsMoving { get; private set; }
+
+        public bool IsOnGround
         {
-            shootingTimeRemaining -= gameTime.ElapsedGameTime.TotalSeconds;
-            if (shootingTimeRemaining <= 0) RefreshSprite();
+            get
+            {
+                return physics.IsOnGround;
+            }
         }
-        if (jumpTimeRemaining > 0)
-            jumpTimeRemaining -= gameTime.ElapsedGameTime.TotalSeconds;
-        for (int index = projectiles.Count - 1; index >= 0; index--)
+
+        public int Width
         {
-            projectiles[index].Update(gameTime);
-            if (!projectiles[index].IsActive) projectiles.RemoveAt(index);
+            get
+            {
+                return sprite.Width;
+            }
         }
-        sprite.Update(gameTime);
-    }
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        float jumpOffset = jumpTimeRemaining > 0
-            ? (float)System.Math.Sin((0.55 - jumpTimeRemaining) / 0.55 * System.Math.PI) * 28f
-            : 0f;
-        sprite.Draw(spriteBatch, Position - new Vector2(0, jumpOffset));
-        foreach (EnergyProjectile projectile in projectiles) projectile.Draw(spriteBatch);
-    }
-    private void RefreshSprite()
-    {
-        bool damaged = damageTimeRemaining > 0;
-        if (shootingTimeRemaining > 0 && !isVehicle)
+
+        public int Height
         {
-            sprite = spriteFactory.CreateShootingRobotSprite(Facing, damaged);
+            get
+            {
+                return sprite.Height;
+            }
         }
-        else if (movement != Vector2.Zero)
+
+        public void Move(Direction direction)
         {
-            sprite = isVehicle ? spriteFactory.CreateMovingVehicleSprite(Facing, damaged) : spriteFactory.CreateMovingRobotSprite(Facing, damaged);
+            bool isHorizontal = direction == Direction.Left || direction == Direction.Right;
+            bool hasChanged = Facing != direction || IsMoving != isHorizontal;
+            movedThisFrame = true;
+            Facing = direction;
+            IsMoving = isHorizontal;
+            if (isHorizontal)
+            {
+                FacingLeft = direction == Direction.Left;
+            }
+            if (hasChanged)
+            {
+                RefreshSprite();
+            }
         }
-        else
+
+        public void Jump()
         {
-            sprite = isVehicle ? spriteFactory.CreateVehicleSprite(Facing, damaged) : spriteFactory.CreateRobotSprite(Facing, damaged);
+            physics.Jump(JumpSpeed);
+        }
+
+        public void Shoot()
+        {
+            state.Shoot();
+        }
+
+        public void UseItem(int itemNumber)
+        {
+            state.UseItem(itemNumber);
+        }
+
+        public void Transform()
+        {
+            state.Transform();
+        }
+
+        public void TakeDamage()
+        {
+            physics.Jump(KnockbackSpeed);
+        }
+
+        public void SetState(IPlayerState newState)
+        {
+            int oldHeight = Height;
+            state = newState;
+            RefreshSprite();
+            Position = new Vector2(Position.X, Position.Y + oldHeight - Height);
+        }
+
+        public void FireShot()
+        {
+            ISprite shotSprite = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), shotSprite));
+        }
+
+        public void FireOrb()
+        {
+            ISprite orbSprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(FacingLeft);
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(orbSprite), ShotVelocity(OrbSpeed), orbSprite));
+        }
+
+        public void DropBomb()
+        {
+            ISprite bombSprite = ProjectileSpriteFactory.Instance.CreateBombSprite();
+            float x = Position.X + (Width - bombSprite.Width) / 2f;
+            float y = Position.Y + Height - bombSprite.Height;
+            projectiles.Add(new Bomb(new Vector2(x, y), bombSprite));
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (!movedThisFrame && IsMoving)
+            {
+                IsMoving = false;
+                RefreshSprite();
+            }
+            movedThisFrame = false;
+            MoveHorizontally(gameTime);
+            Position = physics.Apply(Position, Width, Height, gameTime);
+            if (physics.IsOnGround != wasOnGround)
+            {
+                wasOnGround = physics.IsOnGround;
+                RefreshSprite();
+            }
+            state.Update(gameTime);
+            sprite.Update(gameTime);
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            sprite.Draw(spriteBatch, Position);
+        }
+
+        private void MoveHorizontally(GameTime gameTime)
+        {
+            if (IsMoving)
+            {
+                float direction = FacingLeft ? -1 : 1;
+                float distance = direction * state.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                Position = new Vector2(Position.X + distance, Position.Y);
+            }
+        }
+
+        private Vector2 MuzzlePosition(ISprite projectileSprite)
+        {
+            float x = FacingLeft ? Position.X - projectileSprite.Width : Position.X + Width;
+            float y = Position.Y + Height * MuzzleHeight;
+            return new Vector2(x, y);
+        }
+
+        private Vector2 ShotVelocity(float speed)
+        {
+            return new Vector2(FacingLeft ? -speed : speed, 0);
+        }
+
+        private void RefreshSprite()
+        {
+            sprite = state.CreateSprite();
         }
     }
 }

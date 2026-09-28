@@ -37,11 +37,6 @@ namespace TransformersGame.Core
             }
         }
 
-        public void Reset()
-        {
-            currentIndex = 0;
-        }
-
         public void Update(GameTime gameTime)
         {
             if (gameObjects.Count > 0)

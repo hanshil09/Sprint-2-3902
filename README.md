@@ -1,21 +1,42 @@
 # Transformers Sprint 2
 
-This project is an incomplete transformer platformer prototype. The current build focuses on basic player movement and transformation.
+This MonoGame prototype demonstrates a player, two robot forms, platform movement, sprite animation, basic projectiles, block previews, and an autonomous enemy. Its input and platformer mechanics are a Transformers-themed adaptation of the course's example game. Confirm with the grader that this substitution and its controls meet the team's approved Sprint 2 requirements.
 
-## Current functionality
+## Run
 
-- Press **Enter** to start the game.
-- Use **WASD** or the **arrow keys** to move in four directions.
-- The player faces left or right based on movement and stays inside the window.
-- Press **Space** to transform between robot and ball forms. Ball form moves faster.
-- Press **E** to display the temporary damaged state.
-- Press **R** to reset and **Q** or **Escape** to quit.
+From the repository root, run:
 
-## Next steps
+```text
+dotnet run --project "3902 proj/3902 proj.csproj"
+```
 
-- Add player movement and transformation animations.
-- Implement attacks with **Z/N** and item use with the number keys.
-- Add blocks, items, enemies, and projectiles.
-- Connect **T/Y**, **U/I**, and **O/P** to the completed game objects.
-- Add enemy behavior and a working player health system.
-- Complete testing and code reviews.
+## Controls
+
+- **Enter** starts from the menu.
+- **A/D** or **Left/Right** move horizontally. **W**, **Up**, or **J** jumps. **S** or **Down** changes the player's facing direction downward; it does not move the player down.
+- **Space** changes between robot and vehicle forms. The vehicle moves faster.
+- **Z/N** fire a shot in robot form. **1** fires an orb in robot form, and **2** drops a bomb in either form. The number pad's **1/2** keys also work.
+- **E** briefly shows the damaged effect.
+- **T/Y** cycle through four block previews. **O/P** cycle between two color variants of the same enemy behavior. **U/I** are mapped, but there are currently no items in their display list.
+- **R** resets the game to the menu. **Q** or **Escape** quits.
+
+## Implemented behavior
+
+- The player can move, jump on platforms, face horizontal directions and down, switch forms, and animate. Damaged and temporary shooting states alter the player's sprite and available actions.
+- Robot shots and orbs travel horizontally and expire after a time limit. Bombs show a timed explosion and then expire.
+- The level draws a tiled platform layout, and the block showcase cycles through four sprite variants.
+- The active enemy walks, turns, hops on timers, and changes between walking states. An enemy destroyed state exists, but no gameplay action currently triggers it.
+
+## Known gaps
+
+- U/I does not display any items. No concrete item class is implemented.
+- O/P selects two tinted instances of one enemy type; additional enemy and NPC behaviors are not implemented.
+- Enemy destruction cannot currently be triggered during play. There is no enemy projectile system or player health system.
+- **Up-facing artwork is not reachable through the current controls**, and shots travel horizontally regardless of facing direction.
+- The start prompt appears in the window title; the menu does not draw text inside the game window.
+- The project has not been verified against the grader-approved Transformers feature list or through a full interactive playthrough.
+
+## Development notes
+
+- The game targets .NET 9 and uses MonoGame DesktopGL. The project file restores its NuGet dependencies, and `Content/Content.mgcb` builds the sprite sheets.
+- Keep task estimates and status current on the team's project board. Record code review feedback, code-quality measurements or analyzer results, and the sprint reflection as required by the course.

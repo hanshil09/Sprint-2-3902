@@ -1,57 +1,49 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
-using _3902_proj;
-using TransformersGame.Commands;
-using TransformersGame.Core;
 using TransformersGame.Interfaces;
-namespace TransformersGame.Controllers;
-public sealed class KeyboardController : IController
+
+namespace TransformersGame.Controllers
 {
-    private readonly Game1 game;
-    private readonly IPlayer player;
-    private readonly Dictionary<Keys, ICommand> heldCommands;
-    private readonly Dictionary<Keys, ICommand> pressedCommands;
-    private KeyboardState previousState;
-    public KeyboardController(Game1 game, IPlayer player)
+    public class KeyboardController : IController
     {
-        this.game = game;
-        this.player = player;
-        heldCommands = new Dictionary<Keys, ICommand>
+        private Dictionary<Keys, ICommand> controllerMappings;
+        private Dictionary<Keys, ICommand> singlePressMappings;
+        private KeyboardState previousState;
+
+        public KeyboardController()
         {
-            [Keys.W] = new MovePlayerCommand(player, Direction.Up), [Keys.Up] = new MovePlayerCommand(player, Direction.Up),
-            [Keys.S] = new MovePlayerCommand(player, Direction.Down), [Keys.Down] = new MovePlayerCommand(player, Direction.Down),
-            [Keys.A] = new MovePlayerCommand(player, Direction.Left), [Keys.Left] = new MovePlayerCommand(player, Direction.Left),
-            [Keys.D] = new MovePlayerCommand(player, Direction.Right), [Keys.Right] = new MovePlayerCommand(player, Direction.Right)
-        };
-        pressedCommands = new Dictionary<Keys, ICommand>
+            controllerMappings = new Dictionary<Keys, ICommand>();
+            singlePressMappings = new Dictionary<Keys, ICommand>();
+        }
+
+        public void RegisterCommand(Keys key, ICommand command)
         {
-            [Keys.Enter] = new StartGameCommand(game), [Keys.Space] = new TransformPlayerCommand(player),
-            [Keys.Z] = new ShootPlayerCommand(player), [Keys.N] = new ShootPlayerCommand(player),
-            [Keys.J] = new JumpPlayerCommand(player),
-            [Keys.E] = new DamagePlayerCommand(player), [Keys.R] = new ResetGameCommand(game),
-            [Keys.Q] = new QuitCommand(game), [Keys.Escape] = new QuitCommand(game)
-        };
-    }
-    public void RegisterCommand(Keys key, ICommand command)
-    {
-        pressedCommands.Add(key, command);
-    }
-    public void Update()
-    {
-        KeyboardState currentState = Keyboard.GetState();
-        bool moved = false;
-        if (game.IsGameplayActive)
+            controllerMappings.Add(key, command);
+        }
+
+        public void RegisterSinglePressCommand(Keys key, ICommand command)
         {
-            foreach ((Keys key, ICommand command) in heldCommands)
+            singlePressMappings.Add(key, command);
+        }
+
+        public void Update()
+        {
+            KeyboardState currentState = Keyboard.GetState();
+            Keys[] pressedKeys = currentState.GetPressedKeys();
+
+            foreach (Keys key in pressedKeys)
             {
-                if (currentState.IsKeyDown(key)) { command.Execute(); moved = true; }
+                if (controllerMappings.TryGetValue(key, out ICommand command))
+                {
+                    command.Execute();
+                }
+                else if (previousState.IsKeyUp(key) && singlePressMappings.TryGetValue(key, out command))
+                {
+                    command.Execute();
+                }
             }
+
+            previousState = currentState;
         }
-        if (!moved) player.StopMoving();
-        foreach ((Keys key, ICommand command) in pressedCommands)
-        {
-            if (currentState.IsKeyDown(key) && previousState.IsKeyUp(key)) command.Execute();
-        }
-        previousState = currentState;
     }
 }

@@ -1,2 +1,7 @@
-namespace TransformersGame.Interfaces;
-public interface ICommand { void Execute(); }
+namespace TransformersGame.Interfaces
+{
+    public interface ICommand
+    {
+        void Execute();
+    }
+}

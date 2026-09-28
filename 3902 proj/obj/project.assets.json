@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
     "net9.0": {
       "MonoGame.Content.Builder.Task/3.8.5.1": {
@@ -310,19 +310,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\hansh\\.nuget\\packages\\": {}
+    "C:\\Users\\arnav\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
+      "projectUniqueName": "C:\\Users\\arnav\\OneDrive - The Ohio State University\\Documents\\GitHub\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
       "projectName": "3902 proj",
-      "projectPath": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
-      "packagesPath": "C:\\Users\\hansh\\.nuget\\packages\\",
-      "outputPath": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\obj\\",
+      "projectPath": "C:\\Users\\arnav\\OneDrive - The Ohio State University\\Documents\\GitHub\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
+      "packagesPath": "C:\\Users\\arnav\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\arnav\\OneDrive - The Ohio State University\\Documents\\GitHub\\Sprint-2-3902\\3902 proj\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\hansh\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\arnav\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -332,7 +332,6 @@
       },
       "frameworks": {
         "net9.0": {
-          "framework": "net9.0",
           "targetAlias": "net9.0",
           "projectReferences": {}
         }
@@ -347,11 +346,10 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.400"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
-        "framework": "net9.0",
         "targetAlias": "net9.0",
         "dependencies": {
           "MonoGame.Content.Builder.Task": {
@@ -374,30 +372,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[9.0.19, 9.0.19]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[9.0.19, 9.0.19]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[9.0.19, 9.0.19]"
-          },
-          {
-            "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[9.0.19, 9.0.19]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

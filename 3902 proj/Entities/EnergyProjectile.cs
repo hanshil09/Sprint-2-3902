@@ -2,40 +2,43 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Interfaces;
 
-namespace TransformersGame.Entities;
-
-public sealed class EnergyProjectile : IProjectile
+namespace TransformersGame.Entities
 {
-    private const float Speed = 420f;
-    private const float MaximumLifetime = 1.5f;
-    private readonly ISprite sprite;
-    private readonly Vector2 velocity;
-    private float lifetime;
-
-    public EnergyProjectile(Vector2 position, Vector2 direction, ISprite sprite)
+    public class EnergyProjectile : IProjectile
     {
-        Position = position;
-        velocity = direction * Speed;
-        this.sprite = sprite;
-        IsActive = true;
-    }
+        private const double MaximumLifetime = 1500;
 
-    public Vector2 Position { get; set; }
-    public bool IsActive { get; private set; }
-    public Rectangle Bounds => new((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
-    public void Deactivate() => IsActive = false;
+        private ISprite sprite;
+        private Vector2 velocity;
+        private double lifetime;
 
-    public void Update(GameTime gameTime)
-    {
-        float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        Position += velocity * elapsed;
-        lifetime += elapsed;
-        if (lifetime >= MaximumLifetime) IsActive = false;
-        sprite.Update(gameTime);
-    }
+        public EnergyProjectile(Vector2 position, Vector2 velocity, ISprite sprite)
+        {
+            Position = position;
+            this.velocity = velocity;
+            this.sprite = sprite;
+            lifetime = 0;
+            IsActive = true;
+        }
 
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        if (IsActive) sprite.Draw(spriteBatch, Position);
+        public Vector2 Position { get; set; }
+
+        public bool IsActive { get; private set; }
+
+        public void Update(GameTime gameTime)
+        {
+            Position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            lifetime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (lifetime >= MaximumLifetime)
+            {
+                IsActive = false;
+            }
+            sprite.Update(gameTime);
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            sprite.Draw(spriteBatch, Position);
+        }
     }
 }
