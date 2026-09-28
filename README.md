@@ -1,6 +1,6 @@
-# Transformers Sprint 2
+# Metroid Sprint 2
 
-This MonoGame prototype demonstrates a player, two robot forms, platform movement, sprite animation, basic projectiles, block previews, and an autonomous enemy. Its input and platformer mechanics are a Transformers-themed adaptation of the course's example game. Confirm with the grader that this substitution and its controls meet the team's approved Sprint 2 requirements.
+This MonoGame prototype demonstrates a player with two different forms, platform movement, sprite animation, basic projectiles, block previews, and the ability to cycle through idle animated enemies. Its input and platformer mechanics are themed after the classic NES Metroid.
 
 ## Run
 
@@ -14,8 +14,8 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 - **Enter** starts from the menu.
 - **A/D** or **Left/Right** move horizontally. **W**, **Up**, or **J** jumps. **S** or **Down** changes the player's facing direction downward; it does not move the player down.
-- **Space** changes between robot and vehicle forms. The vehicle moves faster.
-- **Z/N** fire a shot in robot form. **1** fires an orb in robot form, and **2** drops a bomb in either form. The number pad's **1/2** keys also work.
+- **Space** changes between standing and morph ball forms, where morph ball is smaller and moves faster.
+- **Z/N** fire a shot in standing form. **1** fires an orb in robot form, and **2** drops a bomb in either form. The number pad's **1/2** keys also work.
 - **E** briefly shows the damaged effect.
 - **T/Y** cycle through four block previews. **O/P** cycle between two color variants of the same enemy behavior. **U/I** are mapped, but there are currently no items in their display list.
 - **R** resets the game to the menu. **Q** or **Escape** quits.
@@ -40,3 +40,10 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 - The game targets .NET 9 and uses MonoGame DesktopGL. The project file restores its NuGet dependencies, and `Content/Content.mgcb` builds the sprite sheets.
 - Keep task estimates and status current on the team's project board. Record code review feedback, code-quality measurements or analyzer results, and the sprint reflection as required by the course.
+
+## Credits
+Metroid SNES Enemy Sprites by ronny14
+https://www.spriters-resource.com/custom_edited/metroidcustoms/asset/55700/
+
+Samus Aran Metroid Sprites by Mister Mike
+https://www.spriters-resource.com/nes/metroid/asset/1774/
