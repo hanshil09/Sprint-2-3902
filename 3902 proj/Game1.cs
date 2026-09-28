@@ -15,6 +15,7 @@ public class Game1 : Game
     private SpriteBatch spriteBatch = null!;
     private KeyboardController keyboardController = null!;
     private Player player = null!;
+    private ChasingEnemy chasingEnemy = null!;
     private GameState gameState;
     private GameObjectCycler blockCycler = new GameObjectCycler();
     private GameObjectCycler itemCycler = new GameObjectCycler();
@@ -42,8 +43,10 @@ public class Game1 : Game
         spriteBatch = new SpriteBatch(GraphicsDevice);
         Texture2D rightSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
         Texture2D leftSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
-        PlaceholderSpriteFactory spriteFactory = new(rightSpriteSheet, leftSpriteSheet);
+        Texture2D directionalSpriteSheet = Content.Load<Texture2D>("Sprites/transformer-directional-combat-spritesheet");
+        PlaceholderSpriteFactory spriteFactory = new(rightSpriteSheet, leftSpriteSheet, directionalSpriteSheet);
         player = new Player(new Vector2(440, 250), spriteFactory);
+        chasingEnemy = new ChasingEnemy(new Vector2(80, 80), spriteFactory);
         keyboardController = new KeyboardController(this, player);
         RegisterCycleCommands();
     }
@@ -57,6 +60,9 @@ public class Game1 : Game
             itemCycler.Update(gameTime);
             enemyCycler.Update(gameTime);
             player.Update(gameTime);
+            chasingEnemy.Chase(player.Position);
+            chasingEnemy.Update(gameTime);
+            CheckProjectileHits();
             KeepPlayerOnScreen();
         }
         base.Update(gameTime);
@@ -71,6 +77,7 @@ public class Game1 : Game
             blockCycler.Draw(spriteBatch);
             itemCycler.Draw(spriteBatch);
             enemyCycler.Draw(spriteBatch);
+            chasingEnemy.Draw(spriteBatch);
             player.Draw(spriteBatch);
             spriteBatch.End();
         }
@@ -86,11 +93,23 @@ public class Game1 : Game
     public void ResetGame()
     {
         player.Reset(new Vector2(440, 250));
+        chasingEnemy.Reset(new Vector2(80, 80));
         blockCycler.Reset();
         itemCycler.Reset();
         enemyCycler.Reset();
         gameState = GameState.StartMenu;
         Window.Title = "Transformers - Press Enter to Start";
+    }
+
+    private void CheckProjectileHits()
+    {
+        if (chasingEnemy.IsDefeated) return;
+        foreach (EnergyProjectile projectile in player.Projectiles)
+        {
+            if (!projectile.IsActive || !projectile.Bounds.Intersects(chasingEnemy.Bounds)) continue;
+            projectile.Deactivate();
+            chasingEnemy.TakeDamage(1);
+        }
     }
 
     public bool IsGameplayActive => gameState == GameState.Gameplay;

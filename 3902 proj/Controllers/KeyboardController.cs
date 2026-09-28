@@ -26,6 +26,8 @@ public sealed class KeyboardController : IController
         pressedCommands = new Dictionary<Keys, ICommand>
         {
             [Keys.Enter] = new StartGameCommand(game), [Keys.Space] = new TransformPlayerCommand(player),
+            [Keys.Z] = new ShootPlayerCommand(player), [Keys.N] = new ShootPlayerCommand(player),
+            [Keys.J] = new JumpPlayerCommand(player),
             [Keys.E] = new DamagePlayerCommand(player), [Keys.R] = new ResetGameCommand(game),
             [Keys.Q] = new QuitCommand(game), [Keys.Escape] = new QuitCommand(game)
         };

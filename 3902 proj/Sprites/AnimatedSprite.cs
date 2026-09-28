@@ -6,20 +6,20 @@ namespace TransformersGame.Sprites
 {
     public class AnimatedSprite : ISprite
     {
-        private const double MillisecondsPerFrame = 100;
-
-        private Texture2D texture;
-        private Rectangle[] frames;
-        private Color tint;
+        private readonly Texture2D texture;
+        private readonly Rectangle[] frames;
+        private readonly Color tint;
+        private readonly double millisecondsPerFrame;
         private int currentFrame;
         private int totalFrames;
         private double timeSinceLastFrame;
 
-        public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint)
+        public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint, double millisecondsPerFrame = 90)
         {
             this.texture = texture;
             this.frames = frames;
             this.tint = tint;
+            this.millisecondsPerFrame = millisecondsPerFrame;
             Width = width;
             Height = height;
             currentFrame = 0;
@@ -34,9 +34,9 @@ namespace TransformersGame.Sprites
         public void Update(GameTime gameTime)
         {
             timeSinceLastFrame += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (timeSinceLastFrame >= MillisecondsPerFrame)
+            while (timeSinceLastFrame >= millisecondsPerFrame)
             {
-                timeSinceLastFrame -= MillisecondsPerFrame;
+                timeSinceLastFrame -= millisecondsPerFrame;
                 currentFrame = (currentFrame + 1) % totalFrames;
             }
         }

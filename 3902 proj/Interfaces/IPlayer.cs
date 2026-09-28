@@ -8,6 +8,8 @@ public interface IPlayer : IGameObject
     Direction Facing { get; }
     void Move(Direction direction);
     void StopMoving();
+    void Shoot();
+    void Jump();
     void Transform();
     void TakeDamage();
     void Reset(Vector2 position);
