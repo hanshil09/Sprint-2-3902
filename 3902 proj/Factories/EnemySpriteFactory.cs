@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Core;
 using TransformersGame.Interfaces;
 using TransformersGame.Sprites;
 
@@ -64,38 +65,20 @@ namespace TransformersGame.Factories
             enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
         }
 
-        public ISprite CreateEnemy1Sprite(Color tint)
+        public ISprite CreateEnemySprite(EnemyKind kind, Color tint)
         {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy1Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
+            Rectangle[] frames = kind switch
+            {
+                EnemyKind.Flyer => Enemy1Frames,
+                EnemyKind.Crawler => Enemy2Frames,
+                EnemyKind.Hopper => Enemy4Frames,
+                EnemyKind.Beetle => Enemy5Frames,
+                EnemyKind.Waver => Enemy6Frames,
+                _ => Enemy1Frames
+            };
 
-        public ISprite CreateEnemy2Sprite(Color tint)
-        {
             return new AnimatedSprite(
-                enemySpriteSheet, Enemy2Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
-
-        public ISprite CreateEnemy4Sprite(Color tint)
-        {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy4Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
-
-        public ISprite CreateEnemy5Sprite(Color tint)
-        {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy5Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
-
-        public ISprite CreateEnemy6Sprite(Color tint)
-        {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy6Frames,
+                enemySpriteSheet, frames,
                 EnemyWidth, EnemyHeight, tint, IdleFrameTime);
         }
     }

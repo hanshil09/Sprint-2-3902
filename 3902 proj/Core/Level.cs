@@ -17,8 +17,6 @@ namespace TransformersGame.Core
 
         private static readonly Vector2 ShowcasePosition = new Vector2(912, 16);
         private static readonly Vector2 FirstEnemyStart = new Vector2(420, 200);
-        private static readonly Vector2 SecondEnemyStart = new Vector2(620, 400);
-
         public Level()
         {
             Blocks = new List<IBlock>();
@@ -41,20 +39,11 @@ namespace TransformersGame.Core
 
         public void FillEnemyCycler(GameObjectCycler cycler)
         {
-            cycler.Add(new Enemy(FirstEnemyStart,
-                EnemySpriteFactory.Instance.CreateEnemy1Sprite(Color.White)));
-
-            cycler.Add(new Enemy(FirstEnemyStart,
-                EnemySpriteFactory.Instance.CreateEnemy2Sprite(Color.White)));
-
-            cycler.Add(new Enemy(FirstEnemyStart,
-                EnemySpriteFactory.Instance.CreateEnemy4Sprite(Color.White)));
-
-            cycler.Add(new Enemy(FirstEnemyStart,
-                EnemySpriteFactory.Instance.CreateEnemy5Sprite(Color.White)));
-
-            cycler.Add(new Enemy(FirstEnemyStart,
-                EnemySpriteFactory.Instance.CreateEnemy6Sprite(Color.White)));
+            cycler.Add(new Enemy(FirstEnemyStart, EnemyKind.Flyer, 36f, 55f, 2.6, 1.8));
+            cycler.Add(new Enemy(FirstEnemyStart, EnemyKind.Crawler, 54f, 85f, 3.2, 2.4));
+            cycler.Add(new Enemy(FirstEnemyStart, EnemyKind.Hopper, 42f, 65f, 2.2, 0.9));
+            cycler.Add(new Enemy(FirstEnemyStart, EnemyKind.Beetle, 28f, 45f, 3.6, 2.8));
+            cycler.Add(new Enemy(FirstEnemyStart, EnemyKind.Waver, 68f, 95f, 2.8, 1.3));
         }
         public void Update(GameTime gameTime)
         {

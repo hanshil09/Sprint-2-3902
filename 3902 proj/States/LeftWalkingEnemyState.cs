@@ -12,7 +12,7 @@ namespace TransformersGame.States
         public LeftWalkingEnemyState(Enemy enemy)
         {
             this.enemy = enemy;
-            enemy.Sprite = EnemySpriteFactory.Instance.CreateWalkingEnemySprite(true, enemy.Tint);
+            enemy.Sprite = EnemySpriteFactory.Instance.CreateEnemySprite(enemy.Kind, enemy.Tint);
         }
 
         public void ChangeDirection()

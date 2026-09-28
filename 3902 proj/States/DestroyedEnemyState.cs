@@ -12,7 +12,7 @@ namespace TransformersGame.States
         public DestroyedEnemyState(Enemy enemy)
         {
             this.enemy = enemy;
-            enemy.Sprite = EnemySpriteFactory.Instance.CreateDestroyedEnemySprite(enemy.Tint);
+            enemy.Sprite = EnemySpriteFactory.Instance.CreateEnemySprite(enemy.Kind, Color.Gray);
         }
 
         public void ChangeDirection()

@@ -5,6 +5,7 @@ using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
+using TransformersGame.UI;
 
 namespace TransformersGame
 {
@@ -29,6 +30,7 @@ namespace TransformersGame
         private GameObjectCycler blockCycler;
         private GameObjectCycler itemCycler;
         private GameObjectCycler enemyCycler;
+        private ControlsOverlay controlsOverlay;
 
         public Game1()
         {
@@ -79,6 +81,7 @@ namespace TransformersGame
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
+            controlsOverlay = new ControlsOverlay(Content.Load<SpriteFont>("Fonts/Controls"), GraphicsDevice);
             InitializeGameObjects();
         }
 
@@ -101,6 +104,9 @@ namespace TransformersGame
             if (gameState == GameState.StartMenu)
             {
                 GraphicsDevice.Clear(MenuColor);
+                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport);
+                spriteBatch.End();
             }
             else
             {
@@ -112,6 +118,7 @@ namespace TransformersGame
                 enemyCycler.Draw(spriteBatch);
                 projectiles.Draw(spriteBatch);
                 Player.Draw(spriteBatch);
+                controlsOverlay.DrawGameplay(spriteBatch);
                 spriteBatch.End();
             }
             base.Draw(gameTime);

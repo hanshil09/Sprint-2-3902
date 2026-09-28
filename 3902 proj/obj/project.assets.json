@@ -310,32 +310,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\shreya\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\hansh\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\shreya\\Documents\\GitHub\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
+      "projectUniqueName": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
       "projectName": "3902 proj",
-      "projectPath": "C:\\Users\\shreya\\Documents\\GitHub\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
-      "packagesPath": "C:\\Users\\shreya\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\shreya\\Documents\\GitHub\\Sprint-2-3902\\3902 proj\\obj\\",
+      "projectPath": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\3902 proj.csproj",
+      "packagesPath": "C:\\Users\\hansh\\.nuget\\packages\\",
+      "outputPath": "D:\\3902\\sprint2\\Sprint-2-3902\\3902 proj\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\shreya\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\hansh\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -385,19 +377,19 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[9.0.20, 9.0.20]"
+            "version": "[9.0.19, 9.0.19]"
           },
           {
             "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[9.0.20, 9.0.20]"
+            "version": "[9.0.19, 9.0.19]"
           },
           {
             "name": "Microsoft.NETCore.App.Ref",
-            "version": "[9.0.20, 9.0.20]"
+            "version": "[9.0.19, 9.0.19]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[9.0.20, 9.0.20]"
+            "version": "[9.0.19, 9.0.19]"
           }
         ],
         "frameworkReferences": {
@@ -405,7 +397,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
