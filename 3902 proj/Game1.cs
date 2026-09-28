@@ -81,6 +81,7 @@ namespace TransformersGame
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
+            ItemSpriteFactory.Instance.LoadAllTextures(Content);
             controlsOverlay = new ControlsOverlay(Content.Load<SpriteFont>("Fonts/Controls"), GraphicsDevice);
             InitializeGameObjects();
         }
@@ -133,6 +134,7 @@ namespace TransformersGame
             itemCycler = new GameObjectCycler();
             enemyCycler = new GameObjectCycler();
             Level.FillBlockCycler(blockCycler);
+            Level.FillItemCycler(itemCycler);
             level.FillEnemyCycler(enemyCycler);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
@@ -147,6 +149,7 @@ namespace TransformersGame
             Player.Update(gameTime);
             projectiles.Update(gameTime);
             KeepPlayerOnScreen();
+            level.CollectItems(Player);
         }
 
         private void KeepPlayerOnScreen()
@@ -157,3 +160,4 @@ namespace TransformersGame
         }
     }
 }
+ 
