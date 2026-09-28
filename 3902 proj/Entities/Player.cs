@@ -26,6 +26,7 @@ public sealed class Player : IPlayer
     public int Height => sprite.Height;
     public void Move(Direction direction)
     {
+        bool needsNewSprite = movement == Vector2.Zero || Facing != direction;
         Facing = direction;
         movement = direction switch
         {
@@ -35,9 +36,14 @@ public sealed class Player : IPlayer
             Direction.Right => Vector2.UnitX,
             _ => Vector2.Zero
         };
+        if (needsNewSprite) RefreshSprite();
+    }
+    public void StopMoving()
+    {
+        if (movement == Vector2.Zero) return;
+        movement = Vector2.Zero;
         RefreshSprite();
     }
-    public void StopMoving() => movement = Vector2.Zero;
     public void Transform() { isVehicle = !isVehicle; RefreshSprite(); }
     public void TakeDamage() { damageTimeRemaining = 0.5; RefreshSprite(); }
     public void Reset(Vector2 position)
@@ -63,6 +69,13 @@ public sealed class Player : IPlayer
     private void RefreshSprite()
     {
         bool damaged = damageTimeRemaining > 0;
-        sprite = isVehicle ? spriteFactory.CreateVehicleSprite(Facing, damaged) : spriteFactory.CreateRobotSprite(Facing, damaged);
+        if (movement != Vector2.Zero)
+        {
+            sprite = isVehicle ? spriteFactory.CreateMovingVehicleSprite(Facing, damaged) : spriteFactory.CreateMovingRobotSprite(Facing, damaged);
+        }
+        else
+        {
+            sprite = isVehicle ? spriteFactory.CreateVehicleSprite(Facing, damaged) : spriteFactory.CreateRobotSprite(Facing, damaged);
+        }
     }
 }
