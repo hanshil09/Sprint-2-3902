@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Core;
+using TransformersGame.Factories;
 using TransformersGame.Interfaces;
 using TransformersGame.States;
 
@@ -9,39 +10,44 @@ namespace TransformersGame.Entities
 {
     public class Enemy : IEnemy
     {
-        private const float HopSpeed = 300f;
         private const int StartingHealth = 1;
+        private const int ScreenWidth = 960;
+        private const int LedgeInset = 12;
 
+        private List<IBlock> blocks;
         private Physics physics;
-        private EnemyStats stats;
-        private float leftBoundary;
-        private float rightBoundary;
-        private double directionTimer;
-        private double hopTimer;
-        private double flightTimer;
-        private float flightBaseY;
         private int health;
 
-        public Enemy(Vector2 position, List<IBlock> blocks, EnemyKind kind, EnemyStats stats)
+        public Enemy(Vector2 position, List<IBlock> blocks, EnemyKind kind, EnemyStats stats, IEnemyBehavior behavior, IPlayer target)
         {
             Position = position;
+            Home = position;
             Kind = kind;
             Tint = Color.White;
-            this.stats = stats;
+            Stats = stats;
+            Behavior = behavior;
+            Target = target;
+            this.blocks = blocks;
             physics = new Physics(blocks);
-            leftBoundary = position.X - stats.PatrolDistance;
-            rightBoundary = position.X + stats.PatrolDistance;
-            directionTimer = 0;
-            hopTimer = 0;
-            flightTimer = 0;
-            flightBaseY = position.Y;
             health = StartingHealth;
+            LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(kind, Tint, true);
+            RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(kind, Tint, false);
             State = new LeftWalkingEnemyState(this);
         }
 
         public ISprite Sprite { get; set; }
 
+        public ISprite LeftSprite { get; private set; }
+
+        public ISprite RightSprite { get; private set; }
+
         public IEnemyState State { get; set; }
+
+        public IEnemyBehavior Behavior { get; private set; }
+
+        public EnemyStats Stats { get; private set; }
+
+        public IPlayer Target { get; private set; }
 
         public EnemyKind Kind { get; private set; }
 
@@ -49,11 +55,21 @@ namespace TransformersGame.Entities
 
         public Vector2 Position { get; set; }
 
-        public bool IsFlying
+        public Vector2 Home { get; private set; }
+
+        public int Facing
         {
             get
             {
-                return stats.Flies && !(State is DestroyedEnemyState);
+                return State.Facing;
+            }
+        }
+
+        public bool IsOnGround
+        {
+            get
+            {
+                return physics.IsOnGround;
             }
         }
 
@@ -73,6 +89,84 @@ namespace TransformersGame.Entities
             }
         }
 
+        public Vector2 Center
+        {
+            get
+            {
+                return new Vector2(Position.X + Width / 2f, Position.Y + Height / 2f);
+            }
+        }
+
+        public Vector2 TargetCenter
+        {
+            get
+            {
+                return new Vector2(Target.Position.X + Target.Width / 2f, Target.Position.Y + Target.Height / 2f);
+            }
+        }
+
+        public int DirectionToTarget
+        {
+            get
+            {
+                return TargetCenter.X >= Center.X ? 1 : -1;
+            }
+        }
+
+        public float HorizontalDistanceToTarget
+        {
+            get
+            {
+                return System.Math.Abs(TargetCenter.X - Center.X);
+            }
+        }
+
+        public bool CanSeeTarget(float range, float verticalTolerance)
+        {
+            Vector2 offset = TargetCenter - Center;
+            return System.Math.Abs(offset.X) <= range && System.Math.Abs(offset.Y) <= verticalTolerance;
+        }
+
+        public void Face(int direction)
+        {
+            if (direction != 0 && direction != State.Facing)
+            {
+                State.ChangeDirection();
+            }
+        }
+
+        public void MoveBy(float distance)
+        {
+            float x = MathHelper.Clamp(Position.X + distance, 0, ScreenWidth - Width);
+            Position = new Vector2(x, Position.Y);
+        }
+
+        public bool HasGroundAhead(int direction, float distance)
+        {
+            float probeX = direction > 0
+                ? Position.X + Width - LedgeInset + distance
+                : Position.X + LedgeInset - distance;
+            Rectangle probe = new Rectangle((int)probeX, (int)(Position.Y + Height) + 1, 1, 2);
+            foreach (IBlock block in blocks)
+            {
+                if (block.IsSolid && block.Bounds.Intersects(probe))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void Jump(float speed)
+        {
+            physics.Jump(speed);
+        }
+
+        public void ApplyGravity(GameTime gameTime)
+        {
+            Position = physics.Apply(Position, Width, Height, gameTime);
+        }
+
         public void TakeDamage(int amount)
         {
             health -= amount;
@@ -84,67 +178,13 @@ namespace TransformersGame.Entities
 
         public void Update(GameTime gameTime)
         {
-            UpdateTimers(gameTime);
             State.Update(gameTime);
-            if (IsFlying)
-            {
-                Fly(gameTime);
-            }
-            else
-            {
-                Position = physics.Apply(Position, Sprite.Width, Sprite.Height, gameTime);
-            }
             Sprite.Update(gameTime);
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
             Sprite.Draw(spriteBatch, Position);
-        }
-
-        public void Walk(int direction, GameTime gameTime)
-        {
-            float distance = direction * stats.MovementSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Position = new Vector2(Position.X + distance, Position.Y);
-            if (Position.X <= leftBoundary || Position.X >= rightBoundary)
-            {
-                Position = new Vector2(MathHelper.Clamp(Position.X, leftBoundary, rightBoundary), Position.Y);
-                directionTimer = 0;
-                State.ChangeDirection();
-            }
-        }
-
-        public void Hop()
-        {
-            if (!IsFlying)
-            {
-                physics.Jump(HopSpeed);
-            }
-        }
-
-        private void Fly(GameTime gameTime)
-        {
-            flightTimer += gameTime.ElapsedGameTime.TotalSeconds;
-            double angle = 2 * System.Math.PI * flightTimer / stats.FlightPeriodSeconds;
-            float offset = stats.FlightAmplitude * (float)System.Math.Sin(angle);
-            Position = new Vector2(Position.X, flightBaseY + offset);
-        }
-
-        private void UpdateTimers(GameTime gameTime)
-        {
-            double elapsed = gameTime.ElapsedGameTime.TotalSeconds;
-            directionTimer += elapsed;
-            hopTimer += elapsed;
-            if (directionTimer >= stats.DirectionChangeSeconds)
-            {
-                directionTimer = 0;
-                State.ChangeDirection();
-            }
-            if (hopTimer >= stats.HopSeconds)
-            {
-                hopTimer = 0;
-                State.Hop();
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Behaviors;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -23,7 +24,7 @@ namespace TransformersGame.Core
         private static readonly Vector2 CrawlerStart = new Vector2(110, 460);
         private static readonly Vector2 HopperStart = new Vector2(456, 268);
         private static readonly Vector2 BeetleStart = new Vector2(728, 364);
-        private static readonly Vector2 WaverStart = new Vector2(800, 460);
+        private static readonly Vector2 WaverStart = new Vector2(780, 280);
 
         public Level()
         {
@@ -56,13 +57,14 @@ namespace TransformersGame.Core
             cycler.Add(new Shield(ItemShowcasePosition, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
         }
 
-        public void FillEnemyCycler(GameObjectCycler cycler)
+        public void FillEnemyCycler(GameObjectCycler cycler, IPlayer player)
         {
-            cycler.Add(new Enemy(FlyerStart, Blocks, EnemyKind.Flyer, new EnemyStats(60f, 110f, 3.0, 1.8, true, 40f, 2.2)));
-            cycler.Add(new Enemy(CrawlerStart, Blocks, EnemyKind.Crawler, new EnemyStats(54f, 85f, 3.2, 2.4)));
-            cycler.Add(new Enemy(HopperStart, Blocks, EnemyKind.Hopper, new EnemyStats(42f, 65f, 2.2, 0.9)));
-            cycler.Add(new Enemy(BeetleStart, Blocks, EnemyKind.Beetle, new EnemyStats(28f, 45f, 3.6, 2.8)));
-            cycler.Add(new Enemy(WaverStart, Blocks, EnemyKind.Waver, new EnemyStats(68f, 95f, 2.8, 1.3)));
+            // EnemyStats(patrolSpeed, patrolDistance, sightRange, actionSpeed, cooldownSeconds)
+            cycler.Add(new Enemy(FlyerStart, Blocks, EnemyKind.Flyer, new EnemyStats(60f, 110f, 280f, 330f, 2.5), new SwoopBehavior(), player));
+            cycler.Add(new Enemy(CrawlerStart, Blocks, EnemyKind.Crawler, new EnemyStats(50f, 100f, 240f, 120f, 1.0), new StalkBehavior(), player));
+            cycler.Add(new Enemy(HopperStart, Blocks, EnemyKind.Hopper, new EnemyStats(60f, 80f, 320f, 170f, 0.9), new LeapBehavior(), player));
+            cycler.Add(new Enemy(BeetleStart, Blocks, EnemyKind.Beetle, new EnemyStats(30f, 60f, 360f, 330f, 1.4), new ChargeBehavior(), player));
+            cycler.Add(new Enemy(WaverStart, Blocks, EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior(), player));
         }
 
         public void CollectItems(IPlayer player)

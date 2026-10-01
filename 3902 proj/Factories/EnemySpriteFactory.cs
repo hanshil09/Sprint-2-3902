@@ -65,7 +65,7 @@ namespace TransformersGame.Factories
             enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
         }
 
-        public ISprite CreateEnemySprite(EnemyKind kind, Color tint)
+        public ISprite CreateEnemySprite(EnemyKind kind, Color tint, bool facingLeft)
         {
             Rectangle[] frames = kind switch
             {
@@ -77,9 +77,18 @@ namespace TransformersGame.Factories
                 _ => Enemy1Frames
             };
 
+            SpriteEffects effects = facingLeft == ArtFacesLeft(kind)
+                ? SpriteEffects.None
+                : SpriteEffects.FlipHorizontally;
+
             return new AnimatedSprite(
                 enemySpriteSheet, frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime, effects);
+        }
+
+        private static bool ArtFacesLeft(EnemyKind kind)
+        {
+            return kind != EnemyKind.Hopper;
         }
     }
 }
