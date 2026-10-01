@@ -12,6 +12,7 @@ namespace TransformersGame.Entities
     {
         private const int StartingHealth = 1;
         private const int ScreenWidth = 960;
+        private const int ScreenHeight = 540;
         private const int LedgeInset = 12;
 
         private List<IBlock> blocks;
@@ -139,6 +140,59 @@ namespace TransformersGame.Entities
         {
             float x = MathHelper.Clamp(Position.X + distance, 0, ScreenWidth - Width);
             Position = new Vector2(x, Position.Y);
+        }
+
+        public bool FlyHorizontally(float distance)
+        {
+            if (distance == 0)
+            {
+                return false;
+            }
+            float desired = Position.X + distance;
+            float x = MathHelper.Clamp(desired, 0, ScreenWidth - Width);
+            bool blocked = x != desired;
+            Rectangle box = new Rectangle((int)x, (int)Position.Y, Width, Height);
+            foreach (IBlock block in blocks)
+            {
+                if (block.IsSolid && box.Intersects(block.Bounds))
+                {
+                    x = distance > 0 ? block.Bounds.Left - Width : block.Bounds.Right;
+                    box.X = (int)x;
+                    blocked = true;
+                }
+            }
+            Position = new Vector2(x, Position.Y);
+            return blocked;
+        }
+
+        public bool FlyVertically(float distance)
+        {
+            if (distance == 0)
+            {
+                return false;
+            }
+            float desired = Position.Y + distance;
+            float y = MathHelper.Clamp(desired, 0, ScreenHeight - Height);
+            bool blocked = y != desired;
+            Rectangle box = new Rectangle((int)Position.X, (int)y, Width, Height);
+            foreach (IBlock block in blocks)
+            {
+                if (block.IsSolid && box.Intersects(block.Bounds))
+                {
+                    y = distance > 0 ? block.Bounds.Top - Height : block.Bounds.Bottom;
+                    box.Y = (int)y;
+                    blocked = true;
+                }
+            }
+            Position = new Vector2(Position.X, y);
+            return blocked;
+        }
+
+        public bool Fly(Vector2 movement)
+        {
+            bool blockedHorizontally = FlyHorizontally(movement.X);
+            bool blockedVertically = FlyVertically(movement.Y);
+            return blockedHorizontally || blockedVertically;
         }
 
         public bool HasGroundAhead(int direction, float distance)

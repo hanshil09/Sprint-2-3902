@@ -71,9 +71,10 @@ namespace TransformersGame.Factories
             {
                 EnemyKind.Flyer => Enemy1Frames,
                 EnemyKind.Crawler => Enemy2Frames,
-                EnemyKind.Hopper => Enemy4Frames,
-                EnemyKind.Beetle => Enemy5Frames,
-                EnemyKind.Waver => Enemy6Frames,
+                //hard to impliment right now so didnt yet, would be better wehen we come up with level design
+                EnemyKind.Flyer2 => Enemy4Frames,
+                EnemyKind.Waver => Enemy5Frames,
+                EnemyKind.Hopper => Enemy6Frames,
                 _ => Enemy1Frames
             };
 

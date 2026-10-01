@@ -8,8 +8,10 @@ namespace TransformersGame.Behaviors
     {
         private const float BobAmplitude = 14f;
         private const double BobPeriodSeconds = 1.6;
+        private const float HoverVerticalSpeed = 120f;
         private const double WindupSeconds = 0.45;
         private const double InitialCooldownSeconds = 1.5;
+        private const double StuckSeconds = 0.4;
         private const float VerticalReach = 320f;
         private const float RetreatSpeedFactor = 2.5f;
 
@@ -18,6 +20,7 @@ namespace TransformersGame.Behaviors
         private Phase phase = Phase.Hover;
         private double timer;
         private double cooldown = InitialCooldownSeconds;
+        private double stuckTimer;
         private int patrolDirection = -1;
         private Vector2 diveTarget;
         private Vector2 retreatTarget;
@@ -57,9 +60,16 @@ namespace TransformersGame.Behaviors
                 patrolDirection = -1;
             }
             enemy.Face(patrolDirection);
-            enemy.MoveBy(patrolDirection * enemy.Stats.MovementSpeed * elapsed);
+            if (enemy.FlyHorizontally(patrolDirection * enemy.Stats.MovementSpeed * elapsed))
+            {
+                patrolDirection = -patrolDirection;
+            }
+
             double angle = 2 * System.Math.PI * timer / BobPeriodSeconds;
-            enemy.Position = new Vector2(enemy.Position.X, enemy.Home.Y + BobAmplitude * (float)System.Math.Sin(angle));
+            float desiredY = enemy.Home.Y + BobAmplitude * (float)System.Math.Sin(angle);
+            float maximumStep = HoverVerticalSpeed * elapsed;
+            enemy.FlyVertically(MathHelper.Clamp(desiredY - enemy.Position.Y, -maximumStep, maximumStep));
+
             if (cooldown <= 0 && enemy.CanSeeTarget(enemy.Stats.SightRange, VerticalReach))
             {
                 timer = 0;
@@ -85,13 +95,14 @@ namespace TransformersGame.Behaviors
             float step = enemy.Stats.ActionSpeed * elapsed;
             if (distance <= step)
             {
-                enemy.Position = diveTarget;
+                enemy.Fly(toTarget);
                 BeginRetreat(enemy);
+                return;
             }
-            else
+            enemy.Face(toTarget.X >= 0 ? 1 : -1);
+            if (enemy.Fly(toTarget / distance * step))
             {
-                enemy.Face(toTarget.X >= 0 ? 1 : -1);
-                enemy.Position += toTarget / distance * step;
+                BeginRetreat(enemy);
             }
         }
 
@@ -100,6 +111,7 @@ namespace TransformersGame.Behaviors
             float left = enemy.Home.X - enemy.Stats.PatrolDistance;
             float right = enemy.Home.X + enemy.Stats.PatrolDistance;
             retreatTarget = new Vector2(MathHelper.Clamp(enemy.Position.X, left, right), enemy.Home.Y);
+            stuckTimer = 0;
             phase = Phase.Retreat;
         }
 
@@ -110,15 +122,33 @@ namespace TransformersGame.Behaviors
             float step = enemy.Stats.MovementSpeed * RetreatSpeedFactor * elapsed;
             if (distance <= step)
             {
-                enemy.Position = retreatTarget;
-                timer = 0;
-                cooldown = enemy.Stats.CooldownSeconds;
-                phase = Phase.Hover;
+                enemy.Fly(toTarget);
+                EndRetreat(enemy);
+                return;
+            }
+
+            Vector2 before = enemy.Position;
+            enemy.Fly(toTarget / distance * step);
+            float moved = (enemy.Position - before).Length();
+            if (moved < step * 0.25f)
+            {
+                stuckTimer += elapsed;
+                if (stuckTimer >= StuckSeconds)
+                {
+                    EndRetreat(enemy);
+                }
             }
             else
             {
-                enemy.Position += toTarget / distance * step;
+                stuckTimer = 0;
             }
+        }
+
+        private void EndRetreat(Enemy enemy)
+        {
+            timer = 0;
+            cooldown = enemy.Stats.CooldownSeconds;
+            phase = Phase.Hover;
         }
     }
 }

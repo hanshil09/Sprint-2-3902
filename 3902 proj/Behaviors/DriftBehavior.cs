@@ -13,6 +13,7 @@ namespace TransformersGame.Behaviors
         private const float MinimumAltitude = 24f;
         private const float MaximumAltitude = 380f;
         private const float AltitudeEasing = 2.5f;
+        private const float VerticalSpeed = 220f;
         private const float SightHeight = 1000f;
 
         private double time;
@@ -55,8 +56,11 @@ namespace TransformersGame.Behaviors
             {
                 enemy.Face(System.Math.Sign(driftX));
             }
-            enemy.MoveBy(driftX + sway);
-            enemy.Position = new Vector2(enemy.Position.X, altitude + WaveAmplitude * (float)System.Math.Sin(angle));
+            enemy.FlyHorizontally(driftX + sway);
+
+            float desiredY = altitude + WaveAmplitude * (float)System.Math.Sin(angle);
+            float maximumVerticalStep = VerticalSpeed * elapsed;
+            enemy.FlyVertically(MathHelper.Clamp(desiredY - enemy.Position.Y, -maximumVerticalStep, maximumVerticalStep));
         }
     }
 }
