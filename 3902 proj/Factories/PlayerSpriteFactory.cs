@@ -25,8 +25,7 @@ namespace TransformersGame.Factories
         private const int UpRowTop = 309;
         private const int DownRowTop = 452;
 
-        private static readonly Rectangle RightJumpFrame = new Rectangle(355, 592, 170, 140);
-        private static readonly Rectangle LeftJumpFrame = new Rectangle(843, 603, 170, 140);
+        private static readonly Rectangle JumpFrame = new Rectangle(361, 592, 170, 140);
         private static readonly Rectangle[] RightShootFrames = new Rectangle[]
         {
             new Rectangle(30, 606, 160, 140),
@@ -97,8 +96,8 @@ namespace TransformersGame.Factories
 
         public ISprite CreateJumpingRobotSprite(bool facingLeft)
         {
-            Rectangle frame = facingLeft ? LeftJumpFrame : RightJumpFrame;
-            return new TextureRegionSprite(robotSpriteSheet, frame, RobotWidth, RobotHeight, Color.White);
+            SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            return new TextureRegionSprite(robotSpriteSheet, JumpFrame, RobotWidth, RobotHeight, Color.White, effects);
         }
 
         public ISprite CreateShootingRobotSprite(bool facingLeft)

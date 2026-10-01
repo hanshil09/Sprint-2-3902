@@ -19,7 +19,7 @@ namespace TransformersGame.Core
         private static readonly Vector2 ItemShowcasePosition = new Vector2(864, 16);
         private static readonly Vector2 MedkitStart = new Vector2(192, 380);
         private static readonly Vector2 ShieldStart = new Vector2(448, 284);
-        private static readonly Vector2 FlyerStart = new Vector2(216, 364);
+        private static readonly Vector2 FlyerStart = new Vector2(260, 280);
         private static readonly Vector2 CrawlerStart = new Vector2(110, 460);
         private static readonly Vector2 HopperStart = new Vector2(456, 268);
         private static readonly Vector2 BeetleStart = new Vector2(728, 364);
@@ -58,7 +58,7 @@ namespace TransformersGame.Core
 
         public void FillEnemyCycler(GameObjectCycler cycler)
         {
-            cycler.Add(new Enemy(FlyerStart, Blocks, EnemyKind.Flyer, new EnemyStats(36f, 55f, 2.6, 1.8)));
+            cycler.Add(new Enemy(FlyerStart, Blocks, EnemyKind.Flyer, new EnemyStats(60f, 110f, 3.0, 1.8, true, 40f, 2.2)));
             cycler.Add(new Enemy(CrawlerStart, Blocks, EnemyKind.Crawler, new EnemyStats(54f, 85f, 3.2, 2.4)));
             cycler.Add(new Enemy(HopperStart, Blocks, EnemyKind.Hopper, new EnemyStats(42f, 65f, 2.2, 0.9)));
             cycler.Add(new Enemy(BeetleStart, Blocks, EnemyKind.Beetle, new EnemyStats(28f, 45f, 3.6, 2.8)));

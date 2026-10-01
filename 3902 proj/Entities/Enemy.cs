@@ -18,6 +18,8 @@ namespace TransformersGame.Entities
         private float rightBoundary;
         private double directionTimer;
         private double hopTimer;
+        private double flightTimer;
+        private float flightBaseY;
         private int health;
 
         public Enemy(Vector2 position, List<IBlock> blocks, EnemyKind kind, EnemyStats stats)
@@ -31,6 +33,8 @@ namespace TransformersGame.Entities
             rightBoundary = position.X + stats.PatrolDistance;
             directionTimer = 0;
             hopTimer = 0;
+            flightTimer = 0;
+            flightBaseY = position.Y;
             health = StartingHealth;
             State = new LeftWalkingEnemyState(this);
         }
@@ -44,6 +48,14 @@ namespace TransformersGame.Entities
         public Color Tint { get; private set; }
 
         public Vector2 Position { get; set; }
+
+        public bool IsFlying
+        {
+            get
+            {
+                return stats.Flies && !(State is DestroyedEnemyState);
+            }
+        }
 
         public int Width
         {
@@ -74,7 +86,14 @@ namespace TransformersGame.Entities
         {
             UpdateTimers(gameTime);
             State.Update(gameTime);
-            Position = physics.Apply(Position, Sprite.Width, Sprite.Height, gameTime);
+            if (IsFlying)
+            {
+                Fly(gameTime);
+            }
+            else
+            {
+                Position = physics.Apply(Position, Sprite.Width, Sprite.Height, gameTime);
+            }
             Sprite.Update(gameTime);
         }
 
@@ -97,7 +116,18 @@ namespace TransformersGame.Entities
 
         public void Hop()
         {
-            physics.Jump(HopSpeed);
+            if (!IsFlying)
+            {
+                physics.Jump(HopSpeed);
+            }
+        }
+
+        private void Fly(GameTime gameTime)
+        {
+            flightTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            double angle = 2 * System.Math.PI * flightTimer / stats.FlightPeriodSeconds;
+            float offset = stats.FlightAmplitude * (float)System.Math.Sin(angle);
+            Position = new Vector2(Position.X, flightBaseY + offset);
         }
 
         private void UpdateTimers(GameTime gameTime)
