@@ -59,12 +59,23 @@ namespace TransformersGame.Core
 
         public void FillEnemyCycler(GameObjectCycler cycler, IPlayer player)
         {
-            // EnemyStats(patrolSpeed, patrolDistance, sightRange, actionSpeed, cooldownSeconds)
-            cycler.Add(new Enemy(FlyerStart, Blocks, EnemyKind.Flyer, new EnemyStats(60f, 110f, 280f, 330f, 2.5), new SwoopBehavior(), player));
-            cycler.Add(new Enemy(CrawlerStart, Blocks, EnemyKind.Crawler, new EnemyStats(50f, 100f, 240f, 120f, 1.0), new StalkBehavior(), player));
-            cycler.Add(new Enemy(HopperStart, Blocks, EnemyKind.Hopper, new EnemyStats(60f, 80f, 320f, 170f, 0.9), new LeapBehavior(), player));
-            cycler.Add(new Enemy(BeetleStart, Blocks, EnemyKind.Flyer2, new EnemyStats(30f, 60f, 360f, 330f, 1.4), new SwoopBehavior(), player));
-            cycler.Add(new Enemy(WaverStart, Blocks, EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior(), player));
+            // Each preview demonstrates a distinct timer-driven behavior required for Sprint 2.
+            EnemyConfiguration flyer = new EnemyConfiguration(
+                EnemyKind.Flyer, new EnemyStats(60f, 110f, 280f, 330f, 2.5), new SwoopBehavior());
+            EnemyConfiguration crawler = new EnemyConfiguration(
+                EnemyKind.Crawler, new EnemyStats(50f, 100f, 240f, 120f, 1.0), new StalkBehavior());
+            EnemyConfiguration hopper = new EnemyConfiguration(
+                EnemyKind.Hopper, new EnemyStats(60f, 80f, 320f, 170f, 0.9), new LeapBehavior());
+            EnemyConfiguration beetle = new EnemyConfiguration(
+                EnemyKind.Beetle, new EnemyStats(90f, 60f, 360f, 260f, 1.4), new ChargeBehavior());
+            EnemyConfiguration waver = new EnemyConfiguration(
+                EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
+
+            cycler.Add(new Enemy(FlyerStart, Blocks, flyer, player));
+            cycler.Add(new Enemy(CrawlerStart, Blocks, crawler, player));
+            cycler.Add(new Enemy(HopperStart, Blocks, hopper, player));
+            cycler.Add(new Enemy(BeetleStart, Blocks, beetle, player));
+            cycler.Add(new Enemy(WaverStart, Blocks, waver, player));
         }
 
         public void CollectItems(IPlayer player)

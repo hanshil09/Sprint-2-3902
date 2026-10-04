@@ -24,6 +24,7 @@ namespace TransformersGame.Behaviors
             }
             if (!WalkSafely(enemy, patrolDirection, enemy.Stats.MovementSpeed, gameTime))
             {
+                // Reverse at a ledge instead of allowing the preview enemy to leave its platform.
                 patrolDirection = -patrolDirection;
             }
         }

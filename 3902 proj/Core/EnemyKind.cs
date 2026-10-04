@@ -5,7 +5,7 @@ namespace TransformersGame.Core
         Flyer,
         Crawler,
         Hopper,
-        Flyer2,
+        Beetle,
         Waver
     }
 }

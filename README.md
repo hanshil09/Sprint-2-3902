@@ -1,6 +1,6 @@
 # Metroid Sprint 2
 
-This MonoGame prototype demonstrates a player with two different forms, platform movement, sprite animation, basic projectiles, block previews, and the ability to cycle through idle animated enemies. Its input and platformer mechanics are themed after the classic NES Metroid.
+This MonoGame prototype demonstrates a player with two forms, platform movement, animated projectiles, block and item previews, and five enemies with distinct movement behaviors. Its input and platformer mechanics are themed after the classic NES Metroid.
 
 ## Run
 
@@ -17,7 +17,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 - **Space** changes between standing and morph ball forms, where morph ball is smaller and moves faster.
 - **Z/N** fire a shot in standing form. **1** fires an orb in robot form, and **2** drops a bomb in either form. The number pad's **1/2** keys also work.
 - **E** briefly shows the damaged effect.
-- **T/Y** cycle through four block previews. **O/P** cycle through five animated enemy types. **U/I** are mapped, but there are currently no items in their display list.
+- **T/Y** cycle through four block previews. **U/I** cycle through collectible item previews. **O/P** cycle through five animated enemy types.
 - **R** resets the game to the menu. **Q** or **Escape** quits.
 
 ## Implemented behavior
@@ -25,15 +25,13 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 - The player can move, jump on platforms, face horizontal directions and down, switch forms, and animate. Damaged and temporary shooting states alter the player's sprite and available actions.
 - Robot shots and orbs travel horizontally and expire after a time limit. Bombs show a timed explosion and then expire.
 - The level draws a tiled platform layout, and the block showcase cycles through four sprite variants.
-- The five enemy previews use different sprite animations, patrol speeds, patrol ranges, turn timers, and hop timers. Each active enemy changes between left-walking and right-walking states, and an enemy destroyed state is ready for later combat integration.
+- The flyer patrols and swoops, the crawler stalks the player, the hopper leaps, the beetle charges, and the waver follows a drifting flight path.
+- Ground enemies use gravity and avoid platform edges. Flying enemies collide with solid blocks and remain inside the game window.
 
 ## Known gaps
 
-- U/I does not display any items. No concrete item class is implemented.
-- The enemy destroyed state cannot currently be triggered through gameplay because Sprint 2 does not yet connect enemies to combat or collision handling.
-- Enemy destruction cannot currently be triggered during play. There is no enemy projectile system or player health system.
-- **Up-facing artwork is not reachable through the current controls**, and shots travel horizontally regardless of facing direction.
-- The start prompt appears in the window title; the menu does not draw text inside the game window.
+- Enemy destruction cannot currently be triggered during play because Sprint 2 does not yet connect player projectiles to enemy damage.
+- Shots travel horizontally regardless of the player's vertical facing direction.
 - The project has not been verified against the grader-approved Transformers feature list or through a full interactive playthrough.
 
 ## Development notes

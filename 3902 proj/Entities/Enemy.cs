@@ -19,20 +19,20 @@ namespace TransformersGame.Entities
         private Physics physics;
         private int health;
 
-        public Enemy(Vector2 position, List<IBlock> blocks, EnemyKind kind, EnemyStats stats, IEnemyBehavior behavior, IPlayer target)
+        public Enemy(Vector2 position, List<IBlock> blocks, EnemyConfiguration configuration, IPlayer target)
         {
             Position = position;
             Home = position;
-            Kind = kind;
+            Kind = configuration.Kind;
             Tint = Color.White;
-            Stats = stats;
-            Behavior = behavior;
+            Stats = configuration.Stats;
+            Behavior = configuration.Behavior;
             Target = target;
             this.blocks = blocks;
             physics = new Physics(blocks);
             health = StartingHealth;
-            LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(kind, Tint, true);
-            RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(kind, Tint, false);
+            LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true);
+            RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, false);
             State = new LeftWalkingEnemyState(this);
         }
 
@@ -144,6 +144,7 @@ namespace TransformersGame.Entities
 
         public bool FlyHorizontally(float distance)
         {
+            // Flying enemies do not use gravity, so their movement checks solid blocks directly.
             if (distance == 0)
             {
                 return false;
@@ -197,6 +198,7 @@ namespace TransformersGame.Entities
 
         public bool HasGroundAhead(int direction, float distance)
         {
+            // The small probe below the leading foot keeps ground enemies on their platform.
             float probeX = direction > 0
                 ? Position.X + Width - LedgeInset + distance
                 : Position.X + LedgeInset - distance;
