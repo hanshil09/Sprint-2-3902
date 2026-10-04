@@ -4,9 +4,9 @@ namespace TransformersGame.Interfaces
 {
     public interface IEnemyState
     {
-        void ChangeDirection();
+        int Facing { get; }
 
-        void Hop();
+        void ChangeDirection();
 
         void BeDestroyed();
 

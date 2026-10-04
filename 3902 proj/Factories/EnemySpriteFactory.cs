@@ -65,21 +65,30 @@ namespace TransformersGame.Factories
             enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
         }
 
-        public ISprite CreateEnemySprite(EnemyKind kind, Color tint)
+        public ISprite CreateEnemySprite(EnemyKind kind, Color tint, bool facingLeft)
         {
             Rectangle[] frames = kind switch
             {
                 EnemyKind.Flyer => Enemy1Frames,
                 EnemyKind.Crawler => Enemy2Frames,
-                EnemyKind.Hopper => Enemy4Frames,
-                EnemyKind.Beetle => Enemy5Frames,
-                EnemyKind.Waver => Enemy6Frames,
+                EnemyKind.Beetle => Enemy4Frames,
+                EnemyKind.Waver => Enemy5Frames,
+                EnemyKind.Hopper => Enemy6Frames,
                 _ => Enemy1Frames
             };
 
+            SpriteEffects effects = facingLeft == ArtFacesLeft(kind)
+                ? SpriteEffects.None
+                : SpriteEffects.FlipHorizontally;
+
             return new AnimatedSprite(
                 enemySpriteSheet, frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime, effects);
+        }
+
+        private static bool ArtFacesLeft(EnemyKind kind)
+        {
+            return kind != EnemyKind.Hopper;
         }
     }
 }

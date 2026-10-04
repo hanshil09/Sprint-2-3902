@@ -12,14 +12,18 @@ namespace TransformersGame.States
         public DestroyedEnemyState(Enemy enemy)
         {
             this.enemy = enemy;
-            enemy.Sprite = EnemySpriteFactory.Instance.CreateEnemySprite(enemy.Kind, Color.Gray);
+            enemy.Sprite = EnemySpriteFactory.Instance.CreateEnemySprite(enemy.Kind, Color.Gray, enemy.Facing < 0);
+        }
+
+        public int Facing
+        {
+            get
+            {
+                return 0;
+            }
         }
 
         public void ChangeDirection()
-        {
-        }
-
-        public void Hop()
         {
         }
 
@@ -29,6 +33,7 @@ namespace TransformersGame.States
 
         public void Update(GameTime gameTime)
         {
+            enemy.ApplyGravity(gameTime);
         }
     }
 }

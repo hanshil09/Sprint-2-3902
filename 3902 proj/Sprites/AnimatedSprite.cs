@@ -10,16 +10,18 @@ namespace TransformersGame.Sprites
         private readonly Rectangle[] frames;
         private readonly Color tint;
         private readonly double millisecondsPerFrame;
+        private readonly SpriteEffects effects;
         private int currentFrame;
         private int totalFrames;
         private double timeSinceLastFrame;
 
-        public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint, double millisecondsPerFrame = 90)
+        public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint, double millisecondsPerFrame = 90, SpriteEffects effects = SpriteEffects.None)
         {
             this.texture = texture;
             this.frames = frames;
             this.tint = tint;
             this.millisecondsPerFrame = millisecondsPerFrame;
+            this.effects = effects;
             Width = width;
             Height = height;
             currentFrame = 0;
@@ -45,7 +47,7 @@ namespace TransformersGame.Sprites
         {
             Rectangle sourceRectangle = frames[currentFrame];
             Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, Width, Height);
-            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, tint);
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, tint, 0f, Vector2.Zero, effects, 0f);
         }
     }
 }
