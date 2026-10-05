@@ -1,0 +1,25 @@
+READABILITY REVIEW
+Reviewer: Sami Mannan
+October 5th, 2026
+Sprint: Sprint2
+File Being Reviewed: Enemy.cs
+Author: Aarav, Arnav, Hanshil
+Time Elapsed: 12 Minutes
+
+Overall readibility is good, methods and variables have descriptive and mostly unique names. 
+No long lines of barely legible text. Sparse comments to provide clarity for some implementations 
+(FlyHorizontally method).
+
+Recommended change: make sure formatting is consistent (whitespace between variables and methods), 
+Comments to explain the grouping, as well as method headers, especially for the various flying 
+related methods.
+
+CODE QUALITY REVIEW
+File Being Reveiwed: Enemy.cs
+Author: Aarav, Arnav, Hanshil
+Time Elapsed: 10 Minutes
+
+No methods seem to be unnecessarily deep in terms of logic (deepest is 2 in the FlyVertically
+and FlyHorizontally, if I'm remembering right and loops count). No magic numbers, everything clearly
+defined beforehand. Would be best to remove the ? notation and replace with if-else for clarity's sake.
+
