@@ -1,9 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.UI
 {
-    public sealed class ControlsOverlay
+    public sealed class ControlsOverlay : IDisposable
     {
         private static readonly Color PanelColor = new Color(8, 13, 24, 225);
         private static readonly Color AccentColor = new Color(42, 210, 194);
@@ -36,17 +37,22 @@ namespace TransformersGame.UI
 
         public void DrawGameplay(SpriteBatch spriteBatch)
         {
-            Rectangle panel = new Rectangle(16, 16, 435, 178);
+            Rectangle panel = new Rectangle(16, 16, 560, 178);
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "CONTROLS", 34, 30, HeadingColor, 0.9f);
             DrawText(spriteBatch, "MOVE", 34, 63, AccentColor, 0.65f);
             DrawText(spriteBatch, "A / D or arrows     W / UP / J jump     S / DOWN face", 105, 63, TextColor, 0.58f);
             DrawText(spriteBatch, "ACTION", 34, 91, AccentColor, 0.65f);
-            DrawText(spriteBatch, "SPACE transform     Z / N shoot     1 / 2 items     E damage", 105, 91, TextColor, 0.58f);
+            DrawText(spriteBatch, "SPACE transform   Z / N shoot   K angled shot   1 orb   2 bomb   E damage", 105, 91, TextColor, 0.52f);
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
             DrawText(spriteBatch, "T / Y blocks     U / I items     O / P enemies", 105, 119, TextColor, 0.58f);
             DrawText(spriteBatch, "SYSTEM", 34, 147, AccentColor, 0.65f);
             DrawText(spriteBatch, "R reset     Q / ESC quit", 105, 147, TextColor, 0.58f);
+        }
+
+        public void Dispose()
+        {
+            pixel.Dispose();
         }
 
         private void DrawPanel(SpriteBatch spriteBatch, Rectangle bounds)
