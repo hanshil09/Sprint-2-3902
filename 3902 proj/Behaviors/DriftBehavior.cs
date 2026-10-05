@@ -15,8 +15,10 @@ namespace TransformersGame.Behaviors
         private const float AltitudeEasing = 2.5f;
         private const float VerticalSpeed = 220f;
         private const float SightHeight = 1000f;
+        private const double FireCooldownSeconds = 1.5;
 
         private double time;
+        private double fireCooldown;
         private float altitude;
         private bool isInitialized;
 
@@ -35,6 +37,12 @@ namespace TransformersGame.Behaviors
             float speed;
             if (enemy.CanSeeTarget(enemy.Stats.SightRange, SightHeight))
             {
+                fireCooldown -= elapsed;
+                if (fireCooldown <= 0)
+                {
+                    enemy.FireProjectile();
+                    fireCooldown = FireCooldownSeconds;
+                }
                 goalX = enemy.TargetCenter.X - enemy.Width / 2f;
                 goalAltitude = MathHelper.Clamp(enemy.TargetCenter.Y - HoverAbovePlayer - enemy.Height / 2f, MinimumAltitude, MaximumAltitude);
                 speed = enemy.Stats.ActionSpeed;

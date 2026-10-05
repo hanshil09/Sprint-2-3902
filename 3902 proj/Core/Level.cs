@@ -59,7 +59,7 @@ namespace TransformersGame.Core
             cycler.Add(new Shield(ItemShowcasePosition, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
         }
 
-        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player)
+        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
         {
             // Each preview demonstrates a distinct timer-driven behavior required for Sprint 2.
             EnemyConfiguration flyer = new EnemyConfiguration(
@@ -73,11 +73,11 @@ namespace TransformersGame.Core
             EnemyConfiguration waver = new EnemyConfiguration(
                 EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
 
-            cycler.Add(new Enemy(FlyerStart, blocks, flyer, player));
-            cycler.Add(new Enemy(CrawlerStart, blocks, crawler, player));
-            cycler.Add(new Enemy(HopperStart, blocks, hopper, player));
-            cycler.Add(new Enemy(BeetleStart, blocks, beetle, player));
-            cycler.Add(new Enemy(WaverStart, blocks, waver, player));
+            cycler.Add(new Enemy(FlyerStart, blocks, flyer, player, projectiles));
+            cycler.Add(new Enemy(CrawlerStart, blocks, crawler, player, projectiles));
+            cycler.Add(new Enemy(HopperStart, blocks, hopper, player, projectiles));
+            cycler.Add(new Enemy(BeetleStart, blocks, beetle, player, projectiles));
+            cycler.Add(new Enemy(WaverStart, blocks, waver, player, projectiles));
         }
 
         public void CollectItems(IPlayer player)

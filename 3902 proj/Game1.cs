@@ -135,7 +135,7 @@ namespace TransformersGame
             enemyCycler = new GameObjectCycler();
             level.FillBlockCycler(blockCycler);
             level.FillItemCycler(itemCycler);
-            level.FillEnemyCycler(enemyCycler, Player);
+            level.FillEnemyCycler(enemyCycler, Player, projectiles);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
         }

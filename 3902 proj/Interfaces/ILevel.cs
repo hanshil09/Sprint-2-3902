@@ -12,7 +12,7 @@ namespace TransformersGame.Interfaces
 
         void FillItemCycler(IGameObjectCycler cycler);
 
-        void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player);
+        void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles);
 
         void CollectItems(IPlayer player);
 

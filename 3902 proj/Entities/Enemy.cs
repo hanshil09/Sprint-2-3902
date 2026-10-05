@@ -17,9 +17,10 @@ namespace TransformersGame.Entities
 
         private readonly IReadOnlyList<IBlock> blocks;
         private readonly Physics physics;
+        private readonly IProjectileManager projectiles;
         private int health;
 
-        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target)
+        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target, IProjectileManager projectiles)
         {
             Position = position;
             Home = position;
@@ -29,6 +30,7 @@ namespace TransformersGame.Entities
             Behavior = configuration.Behavior;
             Target = target;
             this.blocks = blocks;
+            this.projectiles = projectiles;
             physics = new Physics(blocks);
             health = StartingHealth;
             LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true);
@@ -230,6 +232,13 @@ namespace TransformersGame.Entities
             {
                 State.BeDestroyed();
             }
+        }
+
+        public void FireProjectile()
+        {
+            Vector2 center = Center;
+            ISprite sprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(TargetCenter.X < center.X);
+            projectiles.Add(new EnemyProjectile(center, TargetCenter, sprite));
         }
 
         public void Update(GameTime gameTime)

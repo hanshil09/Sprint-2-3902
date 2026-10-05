@@ -7,9 +7,11 @@ namespace TransformersGame.Behaviors
     {
         private const float SameLevelTolerance = 60f;
         private const float StopDistance = 24f;
+        private const double FireCooldownSeconds = 2.0;
 
         private bool isChasing;
         private double lostSightTimer;
+        private double fireCooldown;
 
         public override void Update(Enemy enemy, GameTime gameTime)
         {
@@ -18,6 +20,12 @@ namespace TransformersGame.Behaviors
             {
                 isChasing = true;
                 lostSightTimer = 0;
+                fireCooldown -= elapsed;
+                if (fireCooldown <= 0)
+                {
+                    enemy.FireProjectile();
+                    fireCooldown = FireCooldownSeconds;
+                }
             }
             else if (isChasing)
             {
