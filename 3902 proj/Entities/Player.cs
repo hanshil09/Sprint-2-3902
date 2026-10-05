@@ -42,7 +42,7 @@ namespace TransformersGame.Entities
         public bool FacingLeft { get; private set; }
 
         public bool IsMoving { get; private set; }
-        public bool angledShot { get; set; }
+        public bool angledShot { get; private set; }
 
         public bool IsOnGround
         {
@@ -90,8 +90,9 @@ namespace TransformersGame.Entities
             physics.Jump(JumpSpeed);
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
+            angledShot = angled;
             state.Shoot(angledShot);
         }
 
