@@ -5,9 +5,9 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public class GameObjectCycler
+    public class GameObjectCycler : IGameObjectCycler
     {
-        private List<IGameObject> gameObjects;
+        private readonly List<IGameObject> gameObjects;
         private int currentIndex;
 
         public GameObjectCycler()

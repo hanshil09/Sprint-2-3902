@@ -13,17 +13,18 @@ namespace TransformersGame.Entities
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
         private const float ShotSpeed = 520f;
+        private const float ShotRecoilDistance = 10f;
         private const float OrbSpeed = 300f;
         private const float MuzzleHeight = 0.3f;
 
-        private Physics physics;
-        private ProjectileManager projectiles;
+        private readonly Physics physics;
+        private readonly IProjectileManager projectiles;
         private IPlayerState state;
         private ISprite sprite;
         private bool movedThisFrame;
         private bool wasOnGround;
 
-        public Player(Vector2 position, List<IBlock> blocks, ProjectileManager projectiles)
+        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles)
         {
             Position = position;
             physics = new Physics(blocks);
@@ -42,6 +43,7 @@ namespace TransformersGame.Entities
         public bool FacingLeft { get; private set; }
 
         public bool IsMoving { get; private set; }
+        public bool angledShot { get; private set; }
 
         public bool IsOnGround
         {
@@ -89,9 +91,10 @@ namespace TransformersGame.Entities
             physics.Jump(JumpSpeed);
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
-            state.Shoot();
+            angledShot = angled;
+            state.Shoot(angledShot);
         }
 
         public void UseItem(int itemNumber)
@@ -120,13 +123,18 @@ namespace TransformersGame.Entities
         public void FireShot()
         {
             ISprite shotSprite = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), shotSprite));
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), angledShot, FacingLeft, shotSprite));
+
+            // Recoil always pushes the player in the direction opposite of the shot.
+            float recoil = FacingLeft ? ShotRecoilDistance : -ShotRecoilDistance;
+            Position = new Vector2(Position.X + recoil, Position.Y);
         }
 
         public void FireOrb()
         {
             ISprite orbSprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(orbSprite), ShotVelocity(OrbSpeed), orbSprite));
+            bool angled = false;
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(orbSprite), ShotVelocity(OrbSpeed), angled, FacingLeft, orbSprite));
         }
 
         public void DropBomb()

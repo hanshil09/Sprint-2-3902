@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using TransformersGame.Entities;
-using TransformersGame.Factories;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
@@ -12,17 +11,20 @@ namespace TransformersGame.States
         public RightWalkingEnemyState(Enemy enemy)
         {
             this.enemy = enemy;
-            enemy.Sprite = EnemySpriteFactory.Instance.CreateWalkingEnemySprite(false, enemy.Tint);
+            enemy.Sprite = enemy.RightSprite;
+        }
+
+        public int Facing
+        {
+            get
+            {
+                return 1;
+            }
         }
 
         public void ChangeDirection()
         {
             enemy.State = new LeftWalkingEnemyState(enemy);
-        }
-
-        public void Hop()
-        {
-            enemy.Hop();
         }
 
         public void BeDestroyed()
@@ -32,7 +34,7 @@ namespace TransformersGame.States
 
         public void Update(GameTime gameTime)
         {
-            enemy.Walk(1, gameTime);
+            enemy.Behavior.Update(enemy, gameTime);
         }
     }
 }

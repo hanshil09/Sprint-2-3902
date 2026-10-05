@@ -67,9 +67,9 @@ namespace TransformersGame.Entities
             decoratedPlayer.Jump();
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
-            decoratedPlayer.Shoot();
+            decoratedPlayer.Shoot(angled);
         }
 
         public void UseItem(int itemNumber)

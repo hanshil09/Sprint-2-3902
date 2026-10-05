@@ -16,7 +16,7 @@ namespace TransformersGame.Controllers
             return keyboardController;
         }
 
-        public static IController CreateGameplayController(Game1 game, IPlayer player, GameObjectCycler blocks, GameObjectCycler items, GameObjectCycler enemies)
+        public static IController CreateGameplayController(Game1 game, IPlayer player, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
             KeyboardController keyboardController = new KeyboardController();
             RegisterMovementCommands(keyboardController, player);
@@ -47,13 +47,14 @@ namespace TransformersGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.Space, new TransformPlayerCommand(player));
             keyboardController.RegisterSinglePressCommand(Keys.Z, new ShootPlayerCommand(player));
             keyboardController.RegisterSinglePressCommand(Keys.N, new ShootPlayerCommand(player));
+            keyboardController.RegisterSinglePressCommand(Keys.K, new AngledShootPlayerCommand(player));
             keyboardController.RegisterSinglePressCommand(Keys.D1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.NumPad1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.D2, new UseItemCommand(player, 2));
             keyboardController.RegisterSinglePressCommand(Keys.NumPad2, new UseItemCommand(player, 2));
         }
 
-        private static void RegisterCycleCommands(KeyboardController keyboardController, GameObjectCycler blocks, GameObjectCycler items, GameObjectCycler enemies)
+        private static void RegisterCycleCommands(KeyboardController keyboardController, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
             keyboardController.RegisterSinglePressCommand(Keys.T, new PreviousObjectCommand(blocks));
             keyboardController.RegisterSinglePressCommand(Keys.Y, new NextObjectCommand(blocks));

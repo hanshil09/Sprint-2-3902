@@ -4,61 +4,61 @@ namespace TransformersGame.Commands
 {
     public class StartGameCommand : ICommand
     {
-        private Game1 myGame;
+        private readonly Game1 game;
 
         public StartGameCommand(Game1 game)
         {
-            myGame = game;
+            this.game = game;
         }
 
         public void Execute()
         {
-            myGame.StartGame();
+            game.StartGame();
         }
     }
 
     public class ResetGameCommand : ICommand
     {
-        private Game1 myGame;
+        private readonly Game1 game;
 
         public ResetGameCommand(Game1 game)
         {
-            myGame = game;
+            this.game = game;
         }
 
         public void Execute()
         {
-            myGame.ResetGame();
+            game.ResetGame();
         }
     }
 
     public class QuitCommand : ICommand
     {
-        private Game1 myGame;
+        private readonly Game1 game;
 
         public QuitCommand(Game1 game)
         {
-            myGame = game;
+            this.game = game;
         }
 
         public void Execute()
         {
-            myGame.Exit();
+            game.Exit();
         }
     }
 
     public class DamagePlayerCommand : ICommand
     {
-        private Game1 myGame;
+        private readonly Game1 game;
 
         public DamagePlayerCommand(Game1 game)
         {
-            myGame = game;
+            this.game = game;
         }
 
         public void Execute()
         {
-            myGame.DamagePlayer();
+            game.DamagePlayer();
         }
     }
 }

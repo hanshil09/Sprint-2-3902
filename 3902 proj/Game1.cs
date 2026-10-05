@@ -5,6 +5,7 @@ using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
+using TransformersGame.UI;
 
 namespace TransformersGame
 {
@@ -13,7 +14,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
         private static readonly Vector2 PlayerStartPosition = new Vector2(80, 400);
         private static readonly Color MenuColor = new Color(18, 24, 38);
@@ -24,11 +25,12 @@ namespace TransformersGame
         private GameState gameState;
         private IController menuController;
         private IController gameplayController;
-        private Level level;
-        private ProjectileManager projectiles;
-        private GameObjectCycler blockCycler;
-        private GameObjectCycler itemCycler;
-        private GameObjectCycler enemyCycler;
+        private ILevel level;
+        private IProjectileManager projectiles;
+        private IGameObjectCycler blockCycler;
+        private IGameObjectCycler itemCycler;
+        private IGameObjectCycler enemyCycler;
+        private ControlsOverlay controlsOverlay;
 
         public Game1()
         {
@@ -79,6 +81,8 @@ namespace TransformersGame
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
+            ItemSpriteFactory.Instance.LoadAllTextures(Content);
+            controlsOverlay = new ControlsOverlay(Content.Load<SpriteFont>("Fonts/Controls"), GraphicsDevice);
             InitializeGameObjects();
         }
 
@@ -101,6 +105,9 @@ namespace TransformersGame
             if (gameState == GameState.StartMenu)
             {
                 GraphicsDevice.Clear(MenuColor);
+                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport);
+                spriteBatch.End();
             }
             else
             {
@@ -112,6 +119,7 @@ namespace TransformersGame
                 enemyCycler.Draw(spriteBatch);
                 projectiles.Draw(spriteBatch);
                 Player.Draw(spriteBatch);
+                controlsOverlay.DrawGameplay(spriteBatch);
                 spriteBatch.End();
             }
             base.Draw(gameTime);
@@ -125,8 +133,9 @@ namespace TransformersGame
             blockCycler = new GameObjectCycler();
             itemCycler = new GameObjectCycler();
             enemyCycler = new GameObjectCycler();
-            Level.FillBlockCycler(blockCycler);
-            level.FillEnemyCycler(enemyCycler);
+            level.FillBlockCycler(blockCycler);
+            level.FillItemCycler(itemCycler);
+            level.FillEnemyCycler(enemyCycler, Player);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
         }
@@ -140,6 +149,7 @@ namespace TransformersGame
             Player.Update(gameTime);
             projectiles.Update(gameTime);
             KeepPlayerOnScreen();
+            level.CollectItems(Player);
         }
 
         private void KeepPlayerOnScreen()

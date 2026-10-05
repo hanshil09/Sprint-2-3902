@@ -21,11 +21,6 @@ namespace TransformersGame.Factories
             new Rectangle(800, 640, 90, 64),
             new Rectangle(906, 640, 90, 64)
         };
-        private static readonly Rectangle[] LeftShotFrames = new Rectangle[]
-        {
-            new Rectangle(786, 637, 90, 64),
-            new Rectangle(910, 637, 90, 64)
-        };
         private static readonly Rectangle RightOrbFrame = new Rectangle(704, 638, 70, 70);
         private static readonly Rectangle LeftOrbFrame = new Rectangle(686, 631, 70, 70);
         private static readonly Rectangle BombFrame = new Rectangle(1016, 1014, 50, 50);
@@ -64,9 +59,10 @@ namespace TransformersGame.Factories
 
         public ISprite CreateShotSprite(bool facingLeft)
         {
-            Texture2D sheet = facingLeft ? leftSpriteSheet : rightSpriteSheet;
-            Rectangle[] frames = facingLeft ? LeftShotFrames : RightShotFrames;
-            return new AnimatedSprite(sheet, frames, ShotWidth, ShotHeight, Color.White, ShotFrameTime);
+            SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            return new AnimatedSprite(
+                rightSpriteSheet, RightShotFrames,
+                ShotWidth, ShotHeight, Color.White, ShotFrameTime, effects);
         }
 
         public ISprite CreateOrbSprite(bool facingLeft)

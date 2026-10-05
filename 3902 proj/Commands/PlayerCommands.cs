@@ -38,15 +38,34 @@ namespace TransformersGame.Commands
     public class ShootPlayerCommand : ICommand
     {
         private IPlayer player;
+        private bool angled;
 
         public ShootPlayerCommand(IPlayer player)
         {
             this.player = player;
+            angled = false;
         }
 
         public void Execute()
         {
-            player.Shoot();
+            player.Shoot(angled);
+        }
+    }
+
+    public class AngledShootPlayerCommand : ICommand
+    {
+        private IPlayer player;
+        private bool angled;
+
+        public AngledShootPlayerCommand(IPlayer player)
+        {
+            this.player = player;
+            angled = true;
+        }
+
+        public void Execute()
+        {
+            player.Shoot(angled);
         }
     }
 

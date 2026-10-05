@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Core;
 using TransformersGame.Interfaces;
 using TransformersGame.Sprites;
 
@@ -64,39 +65,30 @@ namespace TransformersGame.Factories
             enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
         }
 
-        public ISprite CreateEnemy1Sprite(Color tint)
+        public ISprite CreateEnemySprite(EnemyKind kind, Color tint, bool facingLeft)
         {
+            Rectangle[] frames = kind switch
+            {
+                EnemyKind.Flyer => Enemy1Frames,
+                EnemyKind.Crawler => Enemy2Frames,
+                EnemyKind.Beetle => Enemy4Frames,
+                EnemyKind.Waver => Enemy5Frames,
+                EnemyKind.Hopper => Enemy6Frames,
+                _ => Enemy1Frames
+            };
+
+            SpriteEffects effects = facingLeft == ArtFacesLeft(kind)
+                ? SpriteEffects.None
+                : SpriteEffects.FlipHorizontally;
+
             return new AnimatedSprite(
-                enemySpriteSheet, Enemy1Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+                enemySpriteSheet, frames,
+                EnemyWidth, EnemyHeight, tint, IdleFrameTime, effects);
         }
 
-        public ISprite CreateEnemy2Sprite(Color tint)
+        private static bool ArtFacesLeft(EnemyKind kind)
         {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy2Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
-
-        public ISprite CreateEnemy4Sprite(Color tint)
-        {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy4Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
-
-        public ISprite CreateEnemy5Sprite(Color tint)
-        {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy5Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
-        }
-
-        public ISprite CreateEnemy6Sprite(Color tint)
-        {
-            return new AnimatedSprite(
-                enemySpriteSheet, Enemy6Frames,
-                EnemyWidth, EnemyHeight, tint, IdleFrameTime);
+            return kind != EnemyKind.Hopper;
         }
     }
 }
