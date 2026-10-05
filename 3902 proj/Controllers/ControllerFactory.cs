@@ -47,7 +47,7 @@ namespace TransformersGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.Space, new TransformPlayerCommand(player));
             keyboardController.RegisterSinglePressCommand(Keys.Z, new ShootPlayerCommand(player));
             keyboardController.RegisterSinglePressCommand(Keys.N, new ShootPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.K, new AngledShootPlayerCommand(player));
+            keyboardController.RegisterCommand(Keys.K, new AngledShootPlayerCommand(player));
             keyboardController.RegisterSinglePressCommand(Keys.D1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.NumPad1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.D2, new UseItemCommand(player, 2));
