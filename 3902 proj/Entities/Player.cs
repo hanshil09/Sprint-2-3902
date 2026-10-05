@@ -123,7 +123,7 @@ namespace TransformersGame.Entities
         public void FireShot()
         {
             ISprite shotSprite = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), angledShot, shotSprite));
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), angledShot, FacingLeft, shotSprite));
 
             // Recoil always pushes the player in the direction opposite of the shot.
             float recoil = FacingLeft ? ShotRecoilDistance : -ShotRecoilDistance;
