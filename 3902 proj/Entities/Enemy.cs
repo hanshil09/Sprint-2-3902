@@ -146,7 +146,7 @@ namespace TransformersGame.Entities
 
         public bool FlyHorizontally(float distance)
         {
-            // Flying enemies do not use gravity, so their movement checks solid blocks directly.
+            // flying enemies do not use gravity so their movement checks solid blocks directly
             if (distance == 0)
             {
                 return false;
@@ -200,7 +200,7 @@ namespace TransformersGame.Entities
 
         public bool HasGroundAhead(int direction, float distance)
         {
-            // The small probe below the leading foot keeps ground enemies on their platform.
+            // the small probe below the leading foot keeps ground enemies on their platform
             float probeX = direction > 0
                 ? Position.X + Width - LedgeInset + distance
                 : Position.X + LedgeInset - distance;
