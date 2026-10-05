@@ -1,0 +1,46 @@
+READABILITY REVIEW
+
+Author of the code review: Ashwinameera Selvakumar
+Date of the code review: October 5, 2026
+Sprint number: 2
+Name of the .cs file being reviewed: Physics.cs
+Author of the .cs file being reviewed: Arnav Kumar
+Number of minutes taken to complete the review: 15 minutes
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+The Physics class is organized in a way that is easy to follow. 
+The variable and method names, such as Gravity, verticalVelocity, IsOnGround, Jump, and LandOnBlocks, make it clear what each part of the code is responsible for. 
+The Apply method follows a logical order by calculating elapsed time, applying gravity, updating the vertical position, and then checking whether the object should land on a block.
+I also liked that the collision check is separated into the IsLandingOn method instead of putting all of the logic directly inside Apply.
+
+What I noticed could be improved:
+The Apply method has several calculations close together, so a few short comments could help explain what previousBottom is used for and why landing is only checked when verticalVelocity is greater than or equal to zero.
+The name Apply is also a little general. A name such as ApplyVerticalPhysics could make it more obvious that this method is mainly handling gravity, jumping, and vertical movement.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Ashwinameera Selvakumar
+Date of the code review: October 5, 2026
+Sprint number: 2
+Name of the .cs file being reviewed: Physics.cs
+Author of the .cs file being reviewed: Arnav Kumar
+
+Specific comments on code quality:
+
+What I noticed:
+Physics.cs does a good job of keeping gravity and jumping logic separate from the Player and Enemy classes.
+This makes the code more reusable because different game objects can use the same physics logic instead of each object having its own version. 
+The class also uses IReadOnlyList<IBlock>, which is a good choice because Physics only needs to check the blocks and does not need to change the list.
+The methods are also separated by responsibility, with Jump handling jumping, LandOnBlocks handling landing, and IsLandingOn checking the collision condition.
+
+One possible improvement is that the Physics class currently focuses mostly on vertical movement and landing.
+ If more types of collisions are added later, the Apply method could become more complicated. 
+ Keeping separate methods for each type of collision would help prevent the class from becoming difficult to maintain.
+
+Hypothetical change:
+Suppose the game later needs the player or enemies to collide with the sides of walls and with ceilings.
+The current IsLandingOn method only checks whether an object crosses the top of a block while falling, so new collision checks would need to be added for horizontal movement and upward movement.
+The current Physics class gives the project a good place to add these features, but methods such as ResolveHorizontalCollision and ResolveCeilingCollision could be added to keep the code organized and maintainable.
