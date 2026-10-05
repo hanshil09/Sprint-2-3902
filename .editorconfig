@@ -1,0 +1,5 @@
+[*.cs]
+
+# Interfaces are intentionally retained at the Game1 integration boundary so
+# implementations can be replaced without changing the game loop.
+dotnet_diagnostic.CA1859.severity = none

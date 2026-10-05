@@ -21,7 +21,7 @@ namespace TransformersGame.Core
             gameObjects.Add(gameObject);
         }
 
-        public void Next()
+        public void NextObject()
         {
             if (gameObjects.Count > 0)
             {

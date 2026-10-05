@@ -7,7 +7,7 @@ namespace TransformersGame.Interfaces
     {
         void Add(IGameObject gameObject);
 
-        void Next();
+        void NextObject();
 
         void Previous();
 

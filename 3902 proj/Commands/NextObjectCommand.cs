@@ -14,7 +14,7 @@ namespace TransformersGame.Commands
 
         public void Execute()
         {
-            cycler.Next();
+            cycler.NextObject();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace TransformersGame.Behaviors
             }
         }
 
-        protected bool WalkSafely(Enemy enemy, int direction, float speed, GameTime gameTime)
+        protected static bool WalkSafely(Enemy enemy, int direction, float speed, GameTime gameTime)
         {
             if (!enemy.IsOnGround)
             {

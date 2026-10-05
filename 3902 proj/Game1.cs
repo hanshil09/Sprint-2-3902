@@ -100,6 +100,12 @@ namespace TransformersGame
             base.Update(gameTime);
         }
 
+        protected override void UnloadContent()
+        {
+            controlsOverlay?.Dispose();
+            base.UnloadContent();
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             if (gameState == GameState.StartMenu)
