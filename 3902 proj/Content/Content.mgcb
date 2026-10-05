@@ -13,7 +13,7 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin ../../../../../../Downloads/transformer-platformer-spritesheet-left.png
+#begin Sprites/transformer-platformer-spritesheet-left.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -24,20 +24,7 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:../../../../../../Downloads/transformer-platformer-spritesheet-left.png;Sprites/transformer-platformer-spritesheet-left.png
-
-#begin ../../../../../../Downloads/transformer-platformer-spritesheet-left.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/processorParam:Version=3.8.5.1
-/build:../../../../../../Downloads/transformer-platformer-spritesheet-left.png;Sprites/transformer-platformer-spritesheet-left.png
+/build:Sprites/transformer-platformer-spritesheet-left.png
 
 #begin Fonts/Controls.spritefont
 /importer:FontDescriptionImporter
@@ -111,4 +98,3 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Sprites/transformer-platformer-spritesheet.png
-
