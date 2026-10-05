@@ -42,6 +42,7 @@ namespace TransformersGame.Entities
         public bool FacingLeft { get; private set; }
 
         public bool IsMoving { get; private set; }
+        public bool angledShot { get; private set; }
 
         public bool IsOnGround
         {
@@ -89,9 +90,10 @@ namespace TransformersGame.Entities
             physics.Jump(JumpSpeed);
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
-            state.Shoot();
+            angledShot = angled;
+            state.Shoot(angledShot);
         }
 
         public void UseItem(int itemNumber)
@@ -120,13 +122,14 @@ namespace TransformersGame.Entities
         public void FireShot()
         {
             ISprite shotSprite = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), shotSprite));
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), angledShot, FacingLeft, shotSprite));
         }
 
         public void FireOrb()
         {
             ISprite orbSprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(orbSprite), ShotVelocity(OrbSpeed), orbSprite));
+            bool angled = false;
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(orbSprite), ShotVelocity(OrbSpeed), angled, FacingLeft, orbSprite));
         }
 
         public void DropBomb()
