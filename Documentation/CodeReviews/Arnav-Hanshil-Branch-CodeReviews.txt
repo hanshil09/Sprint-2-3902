@@ -1,0 +1,55 @@
+
+READABILITY REVIEW
+
+Author of the code review: Arnav Kumar
+Date of the code review: October 5, 2026
+Sprint number: 2
+Name of the .cs file being reviewed: ControlsOverlay.cs (3902 proj/UI)
+Author of the .cs file being reviewed: Hanshil Solanki
+Number of minutes taken to complete the review: 20 mins
+
+Specific comments on what is readable and what is not:
+
+What is readable:
+DrawPanel, DrawKeyLine, and DrawText keep repeated drawing operations in small methods.
+Names such as PanelColor, HeadingColor, and TextColor explain how each color
+is used. Methods and properties follow PascalCase, while fields and parameters
+use camelCase. The readonly font and pixel fields make their references stable.
+
+What could be improved:
+DrawGameplay contains many numeric positions and text scales without names.
+Named constants for row spacing and text positions would make layout changes
+easier to understand. The name pixel could be clearer as panelTexture because
+it is a one-pixel texture used to draw the panel.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Arnav Kumar
+Date of the code review: October 5, 2026
+Sprint number: 2
+Name of the .cs file being reviewed: EnemyConfiguration.cs (3902 proj/Core)
+Author of the .cs file being reviewed: Hanshil Solanki
+
+Specific comments on code quality:
+
+Code quality comments:
+EnemyConfiguration has one clear responsibility: grouping an enemy's kind,
+statistics, and behavior. This reduces the number of separate parameters passed
+to Enemy. Its get-only properties prevent callers from replacing those values
+after construction.
+
+One maintainability concern is that Behavior refers to an object with mutable
+state. Get-only properties do not make the referenced behavior immutable.
+Level currently creates a separate behavior instance for each enemy, which
+avoids sharing that state. This ownership expectation should be documented
+if configurations might later be reused.
+
+Hypothetical change:
+Suppose a level needs several crawler enemies with identical statistics but
+independent movement and attack timing. Passing one EnemyConfiguration to every
+Enemy would give them the same Behavior object because Enemy directly assigns
+configuration.Behavior. The current implementation can support the change by creating a 
+new configuration with a fresh behavior instance for each enemy while reusing the same
+statistics. This is a small change to level setup and does not require changing 
+EnemyConfiguration's interface.
