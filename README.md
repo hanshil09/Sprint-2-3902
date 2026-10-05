@@ -56,7 +56,7 @@ The first recorded analyzer pass found eight warnings. The team fixed four warni
 
 Our completed review is saved in [Hanshil-Arnav-CodeReviews.txt](Documentation/CodeReviews/Hanshil-Arnav-CodeReviews.txt).
 
-One completed review is saved in [Arnav-Hanshil-Branch-CodeReviews.txt]
+One completed review is saved in [Arnav-Hanshil-Branch-CodeReviews.txt](Documentation/CodeReviews/Arnav-Hanshil-Branch-CodeReviews.txt).
 
 ## Sprint reflection
 
