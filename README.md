@@ -1,4 +1,4 @@
-# Metroid Sprint 2
+# Sprint 2
 
 This MonoGame prototype demonstrates a player with two forms, platform movement, animated projectiles, block and item previews, and five enemies with distinct movement behaviors. Its input and platformer mechanics are themed after the classic NES Metroid.
 
@@ -41,7 +41,6 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 ## Development notes
 
 - The game targets .NET 9 and uses MonoGame DesktopGL. The project file restores its NuGet dependencies, and `Content/Content.mgcb` builds the sprite sheets.
-- Keep task estimates and status current on the team's project board. Record code review feedback, code-quality measurements or analyzer results, and the sprint reflection as required by the course.
 
 ## Code quality process
 
@@ -55,14 +54,12 @@ The first recorded analyzer pass found eight warnings. The team fixed four warni
 
 ## Code review process
 
-Every team member must review at least one class for readability and one class for maintainability. Every member must also have their own code reviewed. Our completed review is saved in [Hanshil-Enemies-Branch-CodeReviews.txt](Documentation/CodeReviews/Hanshil-Enemies-Branch-CodeReviews.txt).
-
-Reviewers should identify specific code, explain the impact, and suggest a concrete improvement. Authors should record what they changed or why the team chose not to make a change.
+Our completed review is saved in [Hanshil-Arnav-CodeReviews.txt](Documentation/CodeReviews/Hanshil-Arnav-CodeReviews.txt).
 
 ## Sprint reflection
 
 The completed [Sprint 2 reflection](Documentation/SprintReflection.md) discusses the team's results, development process, burndown trend, and plans for the next sprint. 
-![Sprint 2 burndown chart](Documentation/burndown_chart.png)
+
 
 ## Credits
 Metroid SNES Enemy Sprites by ronny14

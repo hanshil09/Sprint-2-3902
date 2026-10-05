@@ -1,0 +1,49 @@
+READABILITY REVIEW
+
+Author of the code review: Hanshil Solanki
+Date of the code review: October 5, 2026
+Sprint number: 2
+Name of the .cs file being reviewed: Bomb.cs
+Author of the .cs file being reviewed: Arnav Kumar
+Number of minutes taken to complete the review: 15 minutes
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+The class is short and easy to follow. Names such as FuseTime, ExplosionTime, hasExploded, 
+and Explode clearly describe what the code does. The Update method first counts down the bomb fuse, 
+changes to the explosion sprite, and then makes the bomb inactive after the explosion timer ends. 
+The Explode method is separate from Update, so the sprite and position changes do not make Update too long.
+
+What I noticed could be improved:
+The timer uses milliseconds, but the constant names do not show the unit. 
+Names such as FuseTimeMilliseconds and ExplosionTimeMilliseconds would make this clearer. 
+The two timer checks in Update are also similar. A small bomb-state enum such as Fuse, Exploding, and 
+Finished could make the order of the states more obvious if more bomb behavior is added later.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Hanshil Solanki
+Date of the code review: October 5, 2026
+Sprint number: 2
+Name of the .cs file being reviewed: Physics.cs
+Author of the .cs file being reviewed: Arnav Kumar
+
+Specific comments on code quality:
+
+What I noticed:
+Physics.cs keeps gravity and jumping outside the Player and Enemy classes, which allows both types of objects to reuse the same code. 
+It uses IReadOnlyList<IBlock>, so the Physics class can check blocks without changing the list. Apply handles vertical movement, 
+LandOnBlocks handles landing, and IsLandingOn contains the collision condition. This separation keeps each method focused.
+
+One improvement is that Physics currently handles only gravity, jumping, and landing on top of blocks. 
+The name Physics sounds more general than the current responsibility. The class could either be renamed 
+VerticalPhysics or expanded carefully when more collision types are needed.
+
+Hypothetical change:
+Suppose the game needs side and ceiling collision so the player cannot move through walls or jump through a ceiling.
+The current code would need new horizontal and upward collision checks because IsLandingOn only checks whether 
+an object crosses the top of a block while falling. The current structure gives us a good place to add this behavior, 
+but Apply may become too large. Separate methods such as ResolveHorizontalCollision, ResolveCeilingCollision, and LandOnBlocks 
+would keep the class maintainable.
