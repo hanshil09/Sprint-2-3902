@@ -2,6 +2,10 @@
 
 This MonoGame prototype demonstrates a player with two forms, platform movement, animated projectiles, block and item previews, and five enemies with distinct movement behaviors. Its input and platformer mechanics are themed after the classic NES Metroid.
 
+## Repository
+
+https://github.com/hanshil09/Sprint-2-3902
+
 ## Run
 
 From the repository root, run:

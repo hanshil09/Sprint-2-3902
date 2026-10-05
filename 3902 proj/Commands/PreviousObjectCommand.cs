@@ -5,9 +5,9 @@ namespace TransformersGame.Commands
 {
     public class PreviousObjectCommand : ICommand
     {
-        private GameObjectCycler cycler;
+        private readonly IGameObjectCycler cycler;
 
-        public PreviousObjectCommand(GameObjectCycler cycler)
+        public PreviousObjectCommand(IGameObjectCycler cycler)
         {
             this.cycler = cycler;
         }

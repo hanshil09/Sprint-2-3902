@@ -5,9 +5,9 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public class ProjectileManager
+    public class ProjectileManager : IProjectileManager
     {
-        private List<IProjectile> projectiles;
+        private readonly List<IProjectile> projectiles;
 
         public ProjectileManager()
         {

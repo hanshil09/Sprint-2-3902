@@ -15,11 +15,11 @@ namespace TransformersGame.Entities
         private const int ScreenHeight = 540;
         private const int LedgeInset = 12;
 
-        private List<IBlock> blocks;
-        private Physics physics;
+        private readonly IReadOnlyList<IBlock> blocks;
+        private readonly Physics physics;
         private int health;
 
-        public Enemy(Vector2 position, List<IBlock> blocks, EnemyConfiguration configuration, IPlayer target)
+        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target)
         {
             Position = position;
             Home = position;

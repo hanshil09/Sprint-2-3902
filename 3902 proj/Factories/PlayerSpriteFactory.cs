@@ -14,7 +14,7 @@ namespace TransformersGame.Factories
         private const int FramesPerRow = 8;
         private const int RobotWidth = 68;
         private const int RobotHeight = 56;
-        private const int ShootingWidth = 64;
+        private const int ShootingWidth = RobotWidth;
         private const int BallWidth = 56;
         private const int BallHeight = 40;
         private const double RunFrameTime = 85;
@@ -30,11 +30,6 @@ namespace TransformersGame.Factories
         {
             new Rectangle(30, 606, 160, 140),
             new Rectangle(200, 606, 160, 140)
-        };
-        private static readonly Rectangle[] LeftShootFrames = new Rectangle[]
-        {
-            new Rectangle(1005, 606, 160, 140),
-            new Rectangle(1176, 606, 160, 140)
         };
         private static readonly Rectangle RightBallFrame = new Rectangle(460, 426, 140, 100);
         private static readonly Rectangle LeftBallFrame = new Rectangle(465, 427, 140, 100);
@@ -102,8 +97,10 @@ namespace TransformersGame.Factories
 
         public ISprite CreateShootingRobotSprite(bool facingLeft)
         {
-            Rectangle[] frames = facingLeft ? LeftShootFrames : RightShootFrames;
-            return new AnimatedSprite(robotSpriteSheet, frames, ShootingWidth, RobotHeight, Color.White, ShootFrameTime);
+            SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            return new AnimatedSprite(
+                robotSpriteSheet, RightShootFrames,
+                ShootingWidth, RobotHeight, Color.White, ShootFrameTime, effects);
         }
 
         public ISprite CreateBallSprite(bool facingLeft)

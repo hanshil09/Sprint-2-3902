@@ -25,11 +25,11 @@ namespace TransformersGame
         private GameState gameState;
         private IController menuController;
         private IController gameplayController;
-        private Level level;
-        private ProjectileManager projectiles;
-        private GameObjectCycler blockCycler;
-        private GameObjectCycler itemCycler;
-        private GameObjectCycler enemyCycler;
+        private ILevel level;
+        private IProjectileManager projectiles;
+        private IGameObjectCycler blockCycler;
+        private IGameObjectCycler itemCycler;
+        private IGameObjectCycler enemyCycler;
         private ControlsOverlay controlsOverlay;
 
         public Game1()
@@ -133,8 +133,8 @@ namespace TransformersGame
             blockCycler = new GameObjectCycler();
             itemCycler = new GameObjectCycler();
             enemyCycler = new GameObjectCycler();
-            Level.FillBlockCycler(blockCycler);
-            Level.FillItemCycler(itemCycler);
+            level.FillBlockCycler(blockCycler);
+            level.FillItemCycler(itemCycler);
             level.FillEnemyCycler(enemyCycler, Player);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);

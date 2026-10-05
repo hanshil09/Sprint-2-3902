@@ -8,10 +8,10 @@ namespace TransformersGame.Core
     {
         private const float Gravity = 1500f;
 
-        private List<IBlock> blocks;
+        private readonly IReadOnlyList<IBlock> blocks;
         private float verticalVelocity;
 
-        public Physics(List<IBlock> blocks)
+        public Physics(IReadOnlyList<IBlock> blocks)
         {
             this.blocks = blocks;
             verticalVelocity = 0;

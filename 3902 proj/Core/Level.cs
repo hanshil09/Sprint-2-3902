@@ -8,7 +8,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public class Level
+    public class Level : ILevel
     {
         private const int FloorTop = 508;
         private const int FloorLength = 30;
@@ -25,25 +25,27 @@ namespace TransformersGame.Core
         private static readonly Vector2 HopperStart = new Vector2(456, 268);
         private static readonly Vector2 BeetleStart = new Vector2(728, 364);
         private static readonly Vector2 WaverStart = new Vector2(780, 280);
+        private readonly List<IBlock> blocks;
+        private readonly List<IItem> items;
 
         public Level()
         {
-            Blocks = new List<IBlock>();
+            blocks = new List<IBlock>();
             AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
             AddRow(BlockKind.Brick, 5, LowPlatformTop, 5);
             AddRow(BlockKind.Stone, 12, MiddlePlatformTop, 6);
             AddRow(BlockKind.Metal, 19, HighPlatformTop, 2);
             AddRow(BlockKind.Metal, 21, LowPlatformTop, 5);
-            Items = new List<IItem>();
-            Items.Add(new Medkit(MedkitStart, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
-            Items.Add(new Shield(ShieldStart, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
+            items = new List<IItem>();
+            items.Add(new Medkit(MedkitStart, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
+            items.Add(new Shield(ShieldStart, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
         }
 
-        public List<IBlock> Blocks { get; private set; }
+        public IReadOnlyList<IBlock> Blocks => blocks;
 
-        public List<IItem> Items { get; private set; }
+        public IReadOnlyList<IItem> Items => items;
 
-        public static void FillBlockCycler(GameObjectCycler cycler)
+        public void FillBlockCycler(IGameObjectCycler cycler)
         {
             cycler.Add(CreateShowcaseBlock(BlockKind.Ground));
             cycler.Add(CreateShowcaseBlock(BlockKind.Brick));
@@ -51,13 +53,13 @@ namespace TransformersGame.Core
             cycler.Add(CreateShowcaseBlock(BlockKind.Metal));
         }
 
-        public static void FillItemCycler(GameObjectCycler cycler)
+        public void FillItemCycler(IGameObjectCycler cycler)
         {
             cycler.Add(new Medkit(ItemShowcasePosition, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
             cycler.Add(new Shield(ItemShowcasePosition, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
         }
 
-        public void FillEnemyCycler(GameObjectCycler cycler, IPlayer player)
+        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player)
         {
             // Each preview demonstrates a distinct timer-driven behavior required for Sprint 2.
             EnemyConfiguration flyer = new EnemyConfiguration(
@@ -71,33 +73,33 @@ namespace TransformersGame.Core
             EnemyConfiguration waver = new EnemyConfiguration(
                 EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
 
-            cycler.Add(new Enemy(FlyerStart, Blocks, flyer, player));
-            cycler.Add(new Enemy(CrawlerStart, Blocks, crawler, player));
-            cycler.Add(new Enemy(HopperStart, Blocks, hopper, player));
-            cycler.Add(new Enemy(BeetleStart, Blocks, beetle, player));
-            cycler.Add(new Enemy(WaverStart, Blocks, waver, player));
+            cycler.Add(new Enemy(FlyerStart, blocks, flyer, player));
+            cycler.Add(new Enemy(CrawlerStart, blocks, crawler, player));
+            cycler.Add(new Enemy(HopperStart, blocks, hopper, player));
+            cycler.Add(new Enemy(BeetleStart, blocks, beetle, player));
+            cycler.Add(new Enemy(WaverStart, blocks, waver, player));
         }
 
         public void CollectItems(IPlayer player)
         {
             Rectangle playerBounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
-            foreach (IItem item in Items.ToArray())
+            foreach (IItem item in items.ToArray())
             {
                 if (playerBounds.Intersects(item.Bounds))
                 {
                     item.Collect(player);
-                    Items.Remove(item);
+                    items.Remove(item);
                 }
             }
         }
 
         public void Update(GameTime gameTime)
         {
-            foreach (IBlock block in Blocks)
+            foreach (IBlock block in blocks)
             {
                 block.Update(gameTime);
             }
-            foreach (IItem item in Items)
+            foreach (IItem item in items)
             {
                 item.Update(gameTime);
             }
@@ -105,11 +107,11 @@ namespace TransformersGame.Core
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (IBlock block in Blocks)
+            foreach (IBlock block in blocks)
             {
                 block.Draw(spriteBatch);
             }
-            foreach (IItem item in Items)
+            foreach (IItem item in items)
             {
                 item.Draw(spriteBatch);
             }
@@ -125,7 +127,7 @@ namespace TransformersGame.Core
             for (int column = firstColumn; column < firstColumn + length; column++)
             {
                 Vector2 position = new Vector2(column * BlockSpriteFactory.BlockSize, top);
-                Blocks.Add(new Block(position, BlockSpriteFactory.Instance.CreateBlockSprite(kind), true));
+                blocks.Add(new Block(position, BlockSpriteFactory.Instance.CreateBlockSprite(kind), true));
             }
         }
     }
