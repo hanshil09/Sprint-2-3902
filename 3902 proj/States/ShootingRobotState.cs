@@ -10,11 +10,13 @@ namespace TransformersGame.States
         private const double ShootDuration = 280;
 
         private Player player;
+        private bool isAngled;
         private double timeRemaining;
 
-        public ShootingRobotState(Player player)
+        public ShootingRobotState(Player player, bool angled)
         {
             this.player = player;
+            isAngled = angled;
             timeRemaining = ShootDuration;
         }
 
@@ -31,7 +33,7 @@ namespace TransformersGame.States
             player.SetState(new VehicleState(player));
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
         }
 
@@ -50,6 +52,7 @@ namespace TransformersGame.States
 
         public ISprite CreateSprite()
         {
+            //TODO: player sprites for angled shots
             return PlayerSpriteFactory.Instance.CreateShootingRobotSprite(player.FacingLeft);
         }
     }

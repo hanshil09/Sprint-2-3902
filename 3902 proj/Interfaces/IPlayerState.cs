@@ -8,7 +8,7 @@ namespace TransformersGame.Interfaces
 
         void Transform();
 
-        void Shoot();
+        void Shoot(bool angled);
 
         void UseItem(int itemNumber);
 

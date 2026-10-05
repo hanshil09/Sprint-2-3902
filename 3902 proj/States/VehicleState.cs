@@ -29,7 +29,7 @@ namespace TransformersGame.States
             player.SetState(new RobotState(player));
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
         }
 

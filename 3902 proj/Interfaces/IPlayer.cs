@@ -14,7 +14,7 @@ namespace TransformersGame.Interfaces
 
         void Jump();
 
-        void Shoot();
+        void Shoot(bool angled);
 
         void UseItem(int itemNumber);
 

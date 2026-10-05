@@ -29,10 +29,10 @@ namespace TransformersGame.States
             player.SetState(new VehicleState(player));
         }
 
-        public void Shoot()
+        public void Shoot(bool angled)
         {
             player.FireShot();
-            player.SetState(new ShootingRobotState(player));
+            player.SetState(new ShootingRobotState(player, angled));
         }
 
         public void UseItem(int itemNumber)
@@ -40,7 +40,8 @@ namespace TransformersGame.States
             if (itemNumber == 1)
             {
                 player.FireOrb();
-                player.SetState(new ShootingRobotState(player));
+                bool angled = false;
+                player.SetState(new ShootingRobotState(player, angled));
             }
             else if (itemNumber == 2)
             {
