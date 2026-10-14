@@ -15,6 +15,7 @@ namespace TransformersGame.Core
         private const int LowPlatformTop = 412;
         private const int MiddlePlatformTop = 316;
         private const int HighPlatformTop = 220;
+        private List<IGameObject> objs;
 
         private static readonly Vector2 BlockShowcasePosition = new Vector2(912, 16);
         private static readonly Vector2 ItemShowcasePosition = new Vector2(864, 16);
@@ -98,10 +99,12 @@ namespace TransformersGame.Core
             foreach (IBlock block in blocks)
             {
                 block.Update(gameTime);
+                objs.Add(block);
             }
             foreach (IItem item in items)
             {
                 item.Update(gameTime);
+                objs.Add(item);
             }
         }
 
@@ -128,7 +131,13 @@ namespace TransformersGame.Core
             {
                 Vector2 position = new Vector2(column * BlockSpriteFactory.BlockSize, top);
                 blocks.Add(new Block(position, BlockSpriteFactory.Instance.CreateBlockSprite(kind), true));
+                
             }
+        }
+
+        public List<IGameObject> GetOnScreenObjects()
+        {
+            return objs;
         }
     }
 }

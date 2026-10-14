@@ -19,5 +19,6 @@ namespace TransformersGame.Interfaces
         void Update(GameTime gameTime);
 
         void Draw(SpriteBatch spriteBatch);
+        List<IGameObject> GetOnScreenObjects();
     }
 }

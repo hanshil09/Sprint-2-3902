@@ -7,6 +7,7 @@ using TransformersGame.Factories;
 using TransformersGame.Interfaces;
 using TransformersGame.Collisions;
 using TransformersGame.UI;
+using System.Collections.Generic;
 
 namespace TransformersGame
 {
@@ -27,7 +28,8 @@ namespace TransformersGame
         private IController menuController;
         private IController gameplayController;
         private ILevel level;
-        private CollisionDetection collisionDetection;
+        private List<IGameObject> gameObjects;
+        private CollisionManager collisionManager;
         private IProjectileManager projectiles;
         private IGameObjectCycler blockCycler;
         private IGameObjectCycler itemCycler;
@@ -144,6 +146,7 @@ namespace TransformersGame
             level.FillBlockCycler(blockCycler);
             level.FillItemCycler(itemCycler);
             level.FillEnemyCycler(enemyCycler, Player, projectiles);
+            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
             
@@ -158,6 +161,7 @@ namespace TransformersGame
             Player.Update(gameTime);
             projectiles.Update(gameTime);
             KeepPlayerOnScreen();
+            gameObjects = level.GetOnScreenObjects();
             level.CollectItems(Player);
         }
 

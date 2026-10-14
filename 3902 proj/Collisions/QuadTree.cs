@@ -1,12 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Controllers;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Factories;
 using TransformersGame.Interfaces;
-using TransformersGame.UI;
 
 namespace TransformersGame.Collisions
 {
@@ -14,23 +8,24 @@ namespace TransformersGame.Collisions
     // The main quadtree class
     public class QuadTree
     {
-        public struct Node
+        
+        struct Node
         {
             public Point pos;
-            public int data;
+            public IGameObject data;
 
-            public Node(Point pos, int data)
+            public Node(IGameObject _data)
             {
-                this.pos = pos;
-                this.data = data;
+                pos = new Point((int)_data.Position.X, (int)_data.Position.Y);
+                data = _data;
             }
         }
         
         private Point topLeft;
         private Point botRight;
 
-        // Contains details of node
         private Node n;
+
 
         // Children of this tree
         private QuadTree topLeftTree;
@@ -42,29 +37,28 @@ namespace TransformersGame.Collisions
         {
             topLeft = new Point(0, 0);
             botRight = new Point(0, 0);
-            n = new Node(); // Initialize to default Node
             topLeftTree = null;
             topRightTree = null;
             botLeftTree = null;
             botRightTree = null;
+            n = new Node();
         }
 
         public QuadTree(Point topL, Point botR)
         {
-            n = new Node(); // Initialize to default Node
             topLeftTree = null;
             topRightTree = null;
             botLeftTree = null;
             botRightTree = null;
             topLeft = topL;
             botRight = botR;
+            n = new Node();
         }
 
-        public void Insert(Node node)
+        public void Insert(IGameObject obj)
         {
-            if (node.Equals(default(Node)))
-                return;
-
+            Node node = new Node(obj);
+            
             // Current quad cannot contain it
             if (!InBoundary(node.pos))
                 return;
@@ -89,7 +83,7 @@ namespace TransformersGame.Collisions
                             new Point(topLeft.X, topLeft.Y),
                             new Point((topLeft.X + botRight.X) / 2,
                                     (topLeft.Y + botRight.Y) / 2));
-                    topLeftTree.Insert(node);
+                    topLeftTree.Insert(node.data);
                 }
 
                 // Indicates botLeftTree
@@ -101,7 +95,7 @@ namespace TransformersGame.Collisions
                                     (topLeft.Y + botRight.Y) / 2),
                             new Point((topLeft.X + botRight.X) / 2,
                                     botRight.Y));
-                    botLeftTree.Insert(node);
+                    botLeftTree.Insert(node.data);
                 }
             }
             else
@@ -115,7 +109,7 @@ namespace TransformersGame.Collisions
                                     topLeft.Y),
                             new Point(botRight.X,
                                     (topLeft.Y + botRight.Y) / 2));
-                    topRightTree.Insert(node);
+                    topRightTree.Insert(node.data);
                 }
 
                 // Indicates botRightTree
@@ -126,21 +120,21 @@ namespace TransformersGame.Collisions
                             new Point((topLeft.X + botRight.X) / 2,
                                     (topLeft.Y + botRight.Y) / 2),
                             new Point(botRight.X, botRight.Y));
-                    botRightTree.Insert(node);
+                    botRightTree.Insert(node.data);
                 }
             }
         }
 
-        public Node Search(Point p)
+        public IGameObject Search(Point p)
         {
             // Current quad cannot contain it
             if (!InBoundary(p))
-                return default(Node);
+                return default;
 
             // We are at a quad of unit length
             // We cannot subdivide this quad further
             if (!n.Equals(default(Node)))
-                return n;
+                return n.data;
 
             if ((topLeft.X + botRight.X) / 2 >= p.X)
             {
@@ -148,7 +142,7 @@ namespace TransformersGame.Collisions
                 if ((topLeft.Y + botRight.Y) / 2 >= p.Y)
                 {
                     if (topLeftTree == null)
-                        return default(Node);
+                        return default;
                     return topLeftTree.Search(p);
                 }
 
@@ -156,7 +150,7 @@ namespace TransformersGame.Collisions
                 else
                 {
                     if (botLeftTree == null)
-                        return default(Node);
+                        return default;
                     return botLeftTree.Search(p);
                 }
             }
@@ -166,7 +160,7 @@ namespace TransformersGame.Collisions
                 if ((topLeft.Y + botRight.Y) / 2 >= p.Y)
                 {
                     if (topRightTree == null)
-                        return default(Node);
+                        return default;
                     return topRightTree.Search(p);
                 }
 
@@ -174,7 +168,7 @@ namespace TransformersGame.Collisions
                 else
                 {
                     if (botRightTree == null)
-                        return default(Node);
+                        return default;
                     return botRightTree.Search(p);
                 }
             }
