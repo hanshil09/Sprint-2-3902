@@ -5,6 +5,7 @@ using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
+using TransformersGame.Collisions;
 using TransformersGame.UI;
 
 namespace TransformersGame
@@ -26,6 +27,7 @@ namespace TransformersGame
         private IController menuController;
         private IController gameplayController;
         private ILevel level;
+        private CollisionDetection collisionDetection;
         private IProjectileManager projectiles;
         private IGameObjectCycler blockCycler;
         private IGameObjectCycler itemCycler;
@@ -144,6 +146,7 @@ namespace TransformersGame
             level.FillEnemyCycler(enemyCycler, Player, projectiles);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
+            
         }
 
         private void UpdateGameplay(GameTime gameTime)
