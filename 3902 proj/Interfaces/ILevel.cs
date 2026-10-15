@@ -8,6 +8,8 @@ namespace TransformersGame.Interfaces
     {
         IReadOnlyList<IBlock> Blocks { get; }
 
+        Vector2 PlayerStart { get; }
+
         void FillBlockCycler(IGameObjectCycler cycler);
 
         void FillItemCycler(IGameObjectCycler cycler);

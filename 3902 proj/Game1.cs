@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Controllers;
@@ -15,10 +16,10 @@ namespace TransformersGame
     {
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
+        private const string LevelPath = "Content/Levels/desert-01.room";
         private const string MenuTitle = "Transformers - Press Enter to Start";
         private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
-        private static readonly Vector2 PlayerStartPosition = new Vector2(80, 400);
         private static readonly Color MenuColor = new Color(18, 24, 38);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
 
@@ -137,9 +138,14 @@ namespace TransformersGame
 
         private void InitializeGameObjects()
         {
-            level = new Level();
+            LevelLoadResult loaded = LevelLoader.Load(LevelPath);
+            foreach (string message in loaded.Messages)
+            {
+                Console.WriteLine(message);
+            }
+            level = new Level(loaded.Data);
             projectiles = new ProjectileManager();
-            Player = new Player(PlayerStartPosition, level.Blocks, projectiles);
+            Player = new Player(level.PlayerStart, level.Blocks, projectiles);
             blockCycler = new GameObjectCycler();
             itemCycler = new GameObjectCycler();
             enemyCycler = new GameObjectCycler();
