@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Core;
@@ -84,6 +85,11 @@ namespace TransformersGame.Entities
 
         public void TakeDamage()
         {
+        }
+
+        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position)
+        {
+            decoratedPlayer.EnterRoom(blocks, projectiles, position);
         }
 
         public void Update(GameTime gameTime)

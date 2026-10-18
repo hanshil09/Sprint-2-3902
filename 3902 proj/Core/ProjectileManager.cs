@@ -14,9 +14,16 @@ namespace TransformersGame.Core
             projectiles = new List<IProjectile>();
         }
 
+        public IReadOnlyList<IProjectile> Projectiles => projectiles;
+
         public void Add(IProjectile projectile)
         {
             projectiles.Add(projectile);
+        }
+
+        public void Clear()
+        {
+            projectiles.Clear();
         }
 
         public void Update(GameTime gameTime)

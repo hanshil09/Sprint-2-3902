@@ -37,7 +37,7 @@ namespace TransformersGame.UI
 
         public void DrawGameplay(SpriteBatch spriteBatch)
         {
-            Rectangle panel = new Rectangle(16, 16, 560, 178);
+            Rectangle panel = new Rectangle(16, 16, 560, 206);
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "CONTROLS", 34, 30, HeadingColor, 0.9f);
             DrawText(spriteBatch, "MOVE", 34, 63, AccentColor, 0.65f);
@@ -46,8 +46,10 @@ namespace TransformersGame.UI
             DrawText(spriteBatch, "SPACE transform   Z / N shoot   K angled shot   1 orb   2 bomb   E damage", 105, 91, TextColor, 0.52f);
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
             DrawText(spriteBatch, "T / Y blocks     U / I items     O / P enemies", 105, 119, TextColor, 0.58f);
-            DrawText(spriteBatch, "SYSTEM", 34, 147, AccentColor, 0.65f);
-            DrawText(spriteBatch, "R reset     Q / ESC quit", 105, 147, TextColor, 0.58f);
+            DrawText(spriteBatch, "ROOM", 34, 147, AccentColor, 0.65f);
+            DrawText(spriteBatch, "PAGE UP / PAGE DOWN switch rooms", 105, 147, TextColor, 0.58f);
+            DrawText(spriteBatch, "SYSTEM", 34, 175, AccentColor, 0.65f);
+            DrawText(spriteBatch, "R reset     Q / ESC quit", 105, 175, TextColor, 0.58f);
         }
 
         public void Dispose()

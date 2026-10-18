@@ -22,6 +22,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 - **Z/N** fire a normal shot, while **K** fires an angled shot. **1** fires an orb in standing form, and **2** drops a bomb. The number pad's **1/2** keys also work.
 - **E** briefly shows the damaged effect.
 - **T/Y** cycle through four block previews. **U/I** cycle through collectible item previews. **O/P** cycle through five animated enemy types.
+- **Page Up/Page Down** switch between the two rooms. Room navigation wraps at both ends.
 - **R** resets the game to the menu. **Q** or **Escape** quits.
 
 ## Implemented behavior
@@ -31,6 +32,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 - The level draws a tiled platform layout, and the block showcase cycles through four sprite variants.
 - The flyer patrols and swoops, the crawler stalks the player, the hopper leaps, the beetle charges, and the waver follows a drifting flight path.
 - Ground enemies use gravity and avoid platform edges. Flying enemies collide with solid blocks and remain inside the game window.
+- Only the active room updates and draws. Switching rooms unloads the prior room's projectiles and room-owned objects; the player persists and is repositioned at the selected room's start.
 
 ## Known gaps
 

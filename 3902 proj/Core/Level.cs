@@ -15,12 +15,11 @@ namespace TransformersGame.Core
         private const int LowPlatformTop = 412;
         private const int MiddlePlatformTop = 316;
         private const int HighPlatformTop = 220;
-        private List<IGameObject> objs;
+        private readonly List<IGameObject> objs;
+        private readonly int roomIndex;
 
         private static readonly Vector2 BlockShowcasePosition = new Vector2(912, 16);
         private static readonly Vector2 ItemShowcasePosition = new Vector2(864, 16);
-        private static readonly Vector2 MedkitStart = new Vector2(192, 380);
-        private static readonly Vector2 ShieldStart = new Vector2(448, 284);
         private static readonly Vector2 FlyerStart = new Vector2(260, 280);
         private static readonly Vector2 CrawlerStart = new Vector2(110, 460);
         private static readonly Vector2 HopperStart = new Vector2(456, 268);
@@ -30,21 +29,51 @@ namespace TransformersGame.Core
         private readonly List<IItem> items;
 
         public Level()
+            : this(0)
         {
+        }
+
+        public Level(int roomIndex)
+        {
+            if (roomIndex < 0 || roomIndex > 1)
+            {
+                throw new System.ArgumentOutOfRangeException(nameof(roomIndex));
+            }
+            this.roomIndex = roomIndex;
             blocks = new List<IBlock>();
-            AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
-            AddRow(BlockKind.Brick, 5, LowPlatformTop, 5);
-            AddRow(BlockKind.Stone, 12, MiddlePlatformTop, 6);
-            AddRow(BlockKind.Metal, 19, HighPlatformTop, 2);
-            AddRow(BlockKind.Metal, 21, LowPlatformTop, 5);
+            objs = new List<IGameObject>();
+            if (roomIndex == 0)
+            {
+                AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
+                AddRow(BlockKind.Brick, 5, LowPlatformTop, 5);
+                AddRow(BlockKind.Stone, 12, MiddlePlatformTop, 6);
+                AddRow(BlockKind.Metal, 19, HighPlatformTop, 2);
+                AddRow(BlockKind.Metal, 21, LowPlatformTop, 5);
+            }
+            else
+            {
+                AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
+                AddRow(BlockKind.Stone, 2, LowPlatformTop, 4);
+                AddRow(BlockKind.Brick, 8, 348, 4);
+                AddRow(BlockKind.Metal, 14, 284, 4);
+                AddRow(BlockKind.Brick, 20, 348, 3);
+                AddRow(BlockKind.Stone, 25, LowPlatformTop, 4);
+                AddRow(BlockKind.Metal, 11, HighPlatformTop, 2);
+            }
             items = new List<IItem>();
-            items.Add(new Medkit(MedkitStart, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
-            items.Add(new Shield(ShieldStart, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
+            items.Add(new Medkit(
+                roomIndex == 0 ? new Vector2(192, 380) : new Vector2(608, 380),
+                ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
+            items.Add(new Shield(
+                roomIndex == 0 ? new Vector2(448, 284) : new Vector2(320, 284),
+                ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
         }
 
         public IReadOnlyList<IBlock> Blocks => blocks;
 
         public IReadOnlyList<IItem> Items => items;
+
+        public Vector2 PlayerStart => roomIndex == 0 ? new Vector2(80, 400) : new Vector2(800, 400);
 
         public void FillBlockCycler(IGameObjectCycler cycler)
         {
@@ -74,11 +103,17 @@ namespace TransformersGame.Core
             EnemyConfiguration waver = new EnemyConfiguration(
                 EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
 
-            cycler.Add(new Enemy(FlyerStart, blocks, flyer, player, projectiles));
-            cycler.Add(new Enemy(CrawlerStart, blocks, crawler, player, projectiles));
-            cycler.Add(new Enemy(HopperStart, blocks, hopper, player, projectiles));
-            cycler.Add(new Enemy(BeetleStart, blocks, beetle, player, projectiles));
-            cycler.Add(new Enemy(WaverStart, blocks, waver, player, projectiles));
+            Vector2 flyerStart = roomIndex == 0 ? FlyerStart : new Vector2(700, 100);
+            Vector2 crawlerStart = roomIndex == 0 ? CrawlerStart : new Vector2(760, 460);
+            Vector2 hopperStart = roomIndex == 0 ? HopperStart : new Vector2(400, 180);
+            Vector2 beetleStart = roomIndex == 0 ? BeetleStart : new Vector2(120, 360);
+            Vector2 waverStart = roomIndex == 0 ? WaverStart : new Vector2(500, 80);
+
+            cycler.Add(new Enemy(flyerStart, blocks, flyer, player, projectiles));
+            cycler.Add(new Enemy(crawlerStart, blocks, crawler, player, projectiles));
+            cycler.Add(new Enemy(hopperStart, blocks, hopper, player, projectiles));
+            cycler.Add(new Enemy(beetleStart, blocks, beetle, player, projectiles));
+            cycler.Add(new Enemy(waverStart, blocks, waver, player, projectiles));
         }
 
         public void CollectItems(IPlayer player)
@@ -96,6 +131,7 @@ namespace TransformersGame.Core
 
         public void Update(GameTime gameTime)
         {
+            objs.Clear();
             foreach (IBlock block in blocks)
             {
                 block.Update(gameTime);

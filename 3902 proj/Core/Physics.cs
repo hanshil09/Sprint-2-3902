@@ -8,7 +8,7 @@ namespace TransformersGame.Core
     {
         private const float Gravity = 1500f;
 
-        private readonly IReadOnlyList<IBlock> blocks;
+        private IReadOnlyList<IBlock> blocks;
         private float verticalVelocity;
 
         public Physics(IReadOnlyList<IBlock> blocks)
@@ -19,6 +19,13 @@ namespace TransformersGame.Core
         }
 
         public bool IsOnGround { get; private set; }
+
+        public void SetBlocks(IReadOnlyList<IBlock> roomBlocks)
+        {
+            blocks = roomBlocks;
+            verticalVelocity = 0;
+            IsOnGround = false;
+        }
 
         public void Jump(float speed)
         {

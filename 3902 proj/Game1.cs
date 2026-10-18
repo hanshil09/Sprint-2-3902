@@ -7,7 +7,6 @@ using TransformersGame.Factories;
 using TransformersGame.Interfaces;
 using TransformersGame.Collisions;
 using TransformersGame.UI;
-using System.Collections.Generic;
 
 namespace TransformersGame
 {
@@ -16,9 +15,8 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, PgUp/PgDn Room, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
-        private static readonly Vector2 PlayerStartPosition = new Vector2(80, 400);
         private static readonly Color MenuColor = new Color(18, 24, 38);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
 
@@ -27,13 +25,8 @@ namespace TransformersGame
         private GameState gameState;
         private IController menuController;
         private IController gameplayController;
-        private ILevel level;
-        private List<IGameObject> gameObjects;
         private CollisionManager collisionManager;
-        private IProjectileManager projectiles;
-        private IGameObjectCycler blockCycler;
-        private IGameObjectCycler itemCycler;
-        private IGameObjectCycler enemyCycler;
+        private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
 
         public Game1()
@@ -57,6 +50,20 @@ namespace TransformersGame
             InitializeGameObjects();
             gameState = GameState.StartMenu;
             Window.Title = MenuTitle;
+        }
+
+        public void NextRoom()
+        {
+            roomManager.SwitchNext();
+            collisionManager.BuildTree(roomManager.ActiveRoom.GetCollisionObjects(Player));
+            RefreshGameplayController();
+        }
+
+        public void PreviousRoom()
+        {
+            roomManager.SwitchPrevious();
+            collisionManager.BuildTree(roomManager.ActiveRoom.GetCollisionObjects(Player));
+            RefreshGameplayController();
         }
 
         public void DamagePlayer()
@@ -123,11 +130,7 @@ namespace TransformersGame
             {
                 GraphicsDevice.Clear(GameplayColor);
                 spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-                level.Draw(spriteBatch);
-                blockCycler.Draw(spriteBatch);
-                itemCycler.Draw(spriteBatch);
-                enemyCycler.Draw(spriteBatch);
-                projectiles.Draw(spriteBatch);
+                roomManager.ActiveRoom.Draw(spriteBatch);
                 Player.Draw(spriteBatch);
                 controlsOverlay.DrawGameplay(spriteBatch);
                 spriteBatch.End();
@@ -137,32 +140,48 @@ namespace TransformersGame
 
         private void InitializeGameObjects()
         {
-            level = new Level();
-            projectiles = new ProjectileManager();
-            Player = new Player(PlayerStartPosition, level.Blocks, projectiles);
-            blockCycler = new GameObjectCycler();
-            itemCycler = new GameObjectCycler();
-            enemyCycler = new GameObjectCycler();
-            level.FillBlockCycler(blockCycler);
-            level.FillItemCycler(itemCycler);
-            level.FillEnemyCycler(enemyCycler, Player, projectiles);
+            roomManager?.Unload();
+            Level initialLevel = new Level(0);
+            IProjectileManager initialProjectiles = new ProjectileManager();
+            Player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles);
+            Room initialRoom = CreateRoom(initialLevel, initialProjectiles);
+            roomManager = new RoomManager(initialRoom, 2, Player, CreateRoomForIndex);
             collisionManager = new CollisionManager(ScreenWidth, ScreenHeight);
             menuController = ControllerFactory.CreateMenuController(this);
-            gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
-            
+            RefreshGameplayController();
         }
 
         private void UpdateGameplay(GameTime gameTime)
         {
-            level.Update(gameTime);
-            blockCycler.Update(gameTime);
-            itemCycler.Update(gameTime);
-            enemyCycler.Update(gameTime);
+            Room activeRoom = roomManager.ActiveRoom;
+            activeRoom.Update(gameTime);
             Player.Update(gameTime);
-            projectiles.Update(gameTime);
             KeepPlayerOnScreen();
-            gameObjects = level.GetOnScreenObjects();
-            level.CollectItems(Player);
+            activeRoom.CollectItems(Player);
+            collisionManager.BuildTree(activeRoom.GetCollisionObjects(Player));
+        }
+
+        private Room CreateRoomForIndex(int roomIndex)
+        {
+            return CreateRoom(new Level(roomIndex), new ProjectileManager());
+        }
+
+        private Room CreateRoom(Level roomLevel, IProjectileManager roomProjectiles)
+        {
+            GameObjectCycler blocks = new GameObjectCycler();
+            GameObjectCycler items = new GameObjectCycler();
+            GameObjectCycler enemies = new GameObjectCycler();
+            roomLevel.FillBlockCycler(blocks);
+            roomLevel.FillItemCycler(items);
+            roomLevel.FillEnemyCycler(enemies, Player, roomProjectiles);
+            return new Room(roomLevel, roomProjectiles, blocks, items, enemies);
+        }
+
+        private void RefreshGameplayController()
+        {
+            Room activeRoom = roomManager.ActiveRoom;
+            gameplayController = ControllerFactory.CreateGameplayController(
+                this, Player, activeRoom.Blocks, activeRoom.Items, activeRoom.Enemies);
         }
 
         private void KeepPlayerOnScreen()

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using TransformersGame.Core;
 
 namespace TransformersGame.Interfaces
@@ -21,5 +23,7 @@ namespace TransformersGame.Interfaces
         void Transform();
 
         void TakeDamage();
+
+        void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position);
     }
 }

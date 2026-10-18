@@ -7,9 +7,9 @@ namespace TransformersGame.Collisions
 {
     public class CollisionManager
     {
+        private readonly int worldWidth;
+        private readonly int worldHeight;
         private QuadTree tree;
-        private int worldWidth;
-        private int worldHeight;
         private List<IGameObject> objects;
         public CollisionManager(int maxWidth, int maxHeight)
         {
@@ -22,7 +22,8 @@ namespace TransformersGame.Collisions
         }
         public void BuildTree(List<IGameObject> objs)
         {
-            objects = objs;
+            objects = objs ?? throw new System.ArgumentNullException(nameof(objs));
+            tree = new QuadTree(new Point(0), new Point(worldWidth, worldHeight));
             foreach(IGameObject ob in objects)
             {
                 tree.Insert(ob);
@@ -34,7 +35,7 @@ namespace TransformersGame.Collisions
         }
         public void DetectCollision()
         {
-            List<IGameObject> nearbyObjects = null;
+            List<IGameObject> nearbyObjects = new List<IGameObject>();
             foreach(IGameObject ob in objects)
             {
                 nearbyObjects.Add(PotentialCollision(ob));

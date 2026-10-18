@@ -22,6 +22,8 @@ namespace TransformersGame.Controllers
             RegisterMovementCommands(keyboardController, player);
             RegisterActionCommands(keyboardController, player);
             RegisterCycleCommands(keyboardController, blocks, items, enemies);
+            keyboardController.RegisterSinglePressCommand(Keys.PageUp, new RoomNavigationCommand(game, false));
+            keyboardController.RegisterSinglePressCommand(Keys.PageDown, new RoomNavigationCommand(game, true));
             keyboardController.RegisterSinglePressCommand(Keys.E, new DamagePlayerCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));

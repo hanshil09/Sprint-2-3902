@@ -18,7 +18,7 @@ namespace TransformersGame.Entities
         private const float MuzzleHeight = 0.3f;
 
         private readonly Physics physics;
-        private readonly IProjectileManager projectiles;
+        private IProjectileManager projectiles;
         private IPlayerState state;
         private ISprite sprite;
         private bool movedThisFrame;
@@ -110,6 +110,14 @@ namespace TransformersGame.Entities
         public void TakeDamage()
         {
             physics.Jump(KnockbackSpeed);
+        }
+
+        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position)
+        {
+            physics.SetBlocks(blocks);
+            this.projectiles = projectiles;
+            Position = position;
+            wasOnGround = false;
         }
 
         public void SetState(IPlayerState newState)
