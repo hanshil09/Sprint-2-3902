@@ -16,7 +16,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, 1 Orb, 2 Bomb, 3 Medkit, 4 Shield, R Reset, Q Quit";
 
         private static readonly Vector2 PlayerStartPosition = new Vector2(80, 400);
         private static readonly Color MenuColor = new Color(18, 24, 38);
@@ -61,11 +61,10 @@ namespace TransformersGame
 
         public void DamagePlayer()
         {
-            if (Player is DamagedPlayer)
+            if (Player is DamagedPlayer || !Player.TakeDamage())
             {
                 return;
             }
-            Player.TakeDamage();
             Player = new DamagedPlayer(Player, this);
         }
 
@@ -129,7 +128,7 @@ namespace TransformersGame
                 enemyCycler.Draw(spriteBatch);
                 projectiles.Draw(spriteBatch);
                 Player.Draw(spriteBatch);
-                controlsOverlay.DrawGameplay(spriteBatch);
+                controlsOverlay.DrawGameplay(spriteBatch, Player);
                 spriteBatch.End();
             }
             base.Draw(gameTime);
@@ -163,6 +162,22 @@ namespace TransformersGame
             KeepPlayerOnScreen();
             gameObjects = level.GetOnScreenObjects();
             level.CollectItems(Player);
+            CheckEnemyContact();
+        }
+
+        private void CheckEnemyContact()
+        {
+            if (enemyCycler is not GameObjectCycler cycler || cycler.CurrentObject is not Enemy enemy)
+            {
+                return;
+            }
+
+            Rectangle playerBounds = new Rectangle((int)Player.Position.X, (int)Player.Position.Y, Player.Width, Player.Height);
+            Rectangle enemyBounds = new Rectangle((int)enemy.Position.X, (int)enemy.Position.Y, enemy.Width, enemy.Height);
+            if (playerBounds.Intersects(enemyBounds))
+            {
+                DamagePlayer();
+            }
         }
 
         private void KeepPlayerOnScreen()

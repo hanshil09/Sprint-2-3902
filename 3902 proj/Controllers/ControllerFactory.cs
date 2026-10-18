@@ -52,6 +52,10 @@ namespace TransformersGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.NumPad1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.D2, new UseItemCommand(player, 2));
             keyboardController.RegisterSinglePressCommand(Keys.NumPad2, new UseItemCommand(player, 2));
+            keyboardController.RegisterSinglePressCommand(Keys.D3, new UseInventoryItemCommand(player, ItemKind.Medkit));
+            keyboardController.RegisterSinglePressCommand(Keys.NumPad3, new UseInventoryItemCommand(player, ItemKind.Medkit));
+            keyboardController.RegisterSinglePressCommand(Keys.D4, new UseInventoryItemCommand(player, ItemKind.Shield));
+            keyboardController.RegisterSinglePressCommand(Keys.NumPad4, new UseInventoryItemCommand(player, ItemKind.Shield));
         }
 
         private static void RegisterCycleCommands(KeyboardController keyboardController, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)

@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Interfaces;
 
 namespace TransformersGame.UI
 {
@@ -35,19 +36,25 @@ namespace TransformersGame.UI
             DrawKeyLine(spriteBatch, "Q / ESC", "Quit", left + 30, top + 140);
         }
 
-        public void DrawGameplay(SpriteBatch spriteBatch)
+        public void DrawGameplay(SpriteBatch spriteBatch, IPlayer player)
         {
-            Rectangle panel = new Rectangle(16, 16, 560, 178);
+            Rectangle panel = new Rectangle(16, 16, 560, 234);
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "CONTROLS", 34, 30, HeadingColor, 0.9f);
             DrawText(spriteBatch, "MOVE", 34, 63, AccentColor, 0.65f);
             DrawText(spriteBatch, "A / D or arrows     W / UP / J jump     S / DOWN face", 105, 63, TextColor, 0.58f);
             DrawText(spriteBatch, "ACTION", 34, 91, AccentColor, 0.65f);
-            DrawText(spriteBatch, "SPACE transform   Z / N shoot   K angled shot   1 orb   2 bomb   E damage", 105, 91, TextColor, 0.52f);
+            DrawText(spriteBatch, "SPACE transform   Z / N shoot   K angled   1 orb   2 bomb", 105, 91, TextColor, 0.52f);
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
             DrawText(spriteBatch, "T / Y blocks     U / I items     O / P enemies", 105, 119, TextColor, 0.58f);
-            DrawText(spriteBatch, "SYSTEM", 34, 147, AccentColor, 0.65f);
-            DrawText(spriteBatch, "R reset     Q / ESC quit", 105, 147, TextColor, 0.58f);
+            DrawText(spriteBatch, "ITEMS", 34, 147, AccentColor, 0.65f);
+            DrawText(spriteBatch, "3 medkit (+25 health)     4 shield (5 seconds)", 105, 147, TextColor, 0.55f);
+            DrawText(spriteBatch, "STATUS", 34, 175, AccentColor, 0.65f);
+            string shieldStatus = player.IsShieldActive ? "ACTIVE" : "inactive";
+            string inventory = $"HP {player.Health}/{player.MaxHealth}   Medkits {player.MedkitCount}   Shields {player.ShieldCount} ({shieldStatus})";
+            DrawText(spriteBatch, inventory, 105, 175, TextColor, 0.55f);
+            DrawText(spriteBatch, "SYSTEM", 34, 203, AccentColor, 0.65f);
+            DrawText(spriteBatch, "E damage     R reset     Q / ESC quit", 105, 203, TextColor, 0.58f);
         }
 
         public void Dispose()

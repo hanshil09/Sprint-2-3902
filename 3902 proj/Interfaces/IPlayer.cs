@@ -10,6 +10,16 @@ namespace TransformersGame.Interfaces
 
         Direction Facing { get; }
 
+        int Health { get; }
+
+        int MaxHealth { get; }
+
+        int MedkitCount { get; }
+
+        int ShieldCount { get; }
+
+        bool IsShieldActive { get; }
+
         void Move(Direction direction);
 
         void Jump();
@@ -20,6 +30,12 @@ namespace TransformersGame.Interfaces
 
         void Transform();
 
-        void TakeDamage();
+        bool TakeDamage();
+
+        void AddItem(ItemKind kind);
+
+        bool UseMedkit();
+
+        bool UseShield();
     }
 }

@@ -10,6 +10,10 @@ namespace TransformersGame.Entities
 {
     public class Player : IPlayer
     {
+        private const int StartingHealth = 100;
+        private const int MedkitHealing = 25;
+        private const int DamageAmount = 25;
+        private const double ShieldDuration = 5000;
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
         private const float ShotSpeed = 520f;
@@ -23,6 +27,9 @@ namespace TransformersGame.Entities
         private ISprite sprite;
         private bool movedThisFrame;
         private bool wasOnGround;
+        private int medkitCount;
+        private int shieldCount;
+        private double shieldTimeRemaining;
 
         public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles)
         {
@@ -32,6 +39,7 @@ namespace TransformersGame.Entities
             Facing = Direction.Right;
             FacingLeft = false;
             IsMoving = false;
+            Health = StartingHealth;
             state = new RobotState(this);
             sprite = state.CreateSprite();
         }
@@ -44,6 +52,16 @@ namespace TransformersGame.Entities
 
         public bool IsMoving { get; private set; }
         public bool angledShot { get; private set; }
+
+        public int Health { get; private set; }
+
+        public int MaxHealth => StartingHealth;
+
+        public int MedkitCount => medkitCount;
+
+        public int ShieldCount => shieldCount;
+
+        public bool IsShieldActive => shieldTimeRemaining > 0;
 
         public bool IsOnGround
         {
@@ -107,9 +125,52 @@ namespace TransformersGame.Entities
             state.Transform();
         }
 
-        public void TakeDamage()
+        public bool TakeDamage()
         {
+            if (IsShieldActive)
+            {
+                return false;
+            }
+            Health = System.Math.Max(0, Health - DamageAmount);
             physics.Jump(KnockbackSpeed);
+            return true;
+        }
+
+        public void AddItem(ItemKind kind)
+        {
+            switch (kind)
+            {
+                case ItemKind.Medkit:
+                    medkitCount++;
+                    break;
+                case ItemKind.Shield:
+                    shieldCount++;
+                    break;
+                default:
+                    throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "Unknown inventory item.");
+            }
+        }
+
+        public bool UseMedkit()
+        {
+            if (medkitCount == 0 || Health == MaxHealth)
+            {
+                return false;
+            }
+            medkitCount--;
+            Health = System.Math.Min(MaxHealth, Health + MedkitHealing);
+            return true;
+        }
+
+        public bool UseShield()
+        {
+            if (shieldCount == 0 || IsShieldActive)
+            {
+                return false;
+            }
+            shieldCount--;
+            shieldTimeRemaining = ShieldDuration;
+            return true;
         }
 
         public void SetState(IPlayerState newState)
@@ -147,6 +208,12 @@ namespace TransformersGame.Entities
 
         public void Update(GameTime gameTime)
         {
+            if (shieldTimeRemaining > 0)
+            {
+                shieldTimeRemaining = System.Math.Max(
+                    0,
+                    shieldTimeRemaining - gameTime.ElapsedGameTime.TotalMilliseconds);
+            }
             if (!movedThisFrame && IsMoving)
             {
                 IsMoving = false;

@@ -31,6 +31,7 @@ namespace TransformersGame.Core
 
         public Level()
         {
+            objs = new List<IGameObject>();
             blocks = new List<IBlock>();
             AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
             AddRow(BlockKind.Brick, 5, LowPlatformTop, 5);
@@ -96,6 +97,7 @@ namespace TransformersGame.Core
 
         public void Update(GameTime gameTime)
         {
+            objs.Clear();
             foreach (IBlock block in blocks)
             {
                 block.Update(gameTime);

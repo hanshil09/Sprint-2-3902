@@ -16,6 +16,8 @@ namespace TransformersGame.Core
             currentIndex = 0;
         }
 
+        public IGameObject CurrentObject => gameObjects.Count == 0 ? null : gameObjects[currentIndex];
+
         public void Add(IGameObject gameObject)
         {
             gameObjects.Add(gameObject);
