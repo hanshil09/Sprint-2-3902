@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -5,6 +6,8 @@ namespace TransformersGame.Interfaces
 {
     public interface IProjectileManager
     {
+        IReadOnlyList<IProjectile> Projectiles { get; }
+
         void Add(IProjectile projectile);
 
         void Update(GameTime gameTime);

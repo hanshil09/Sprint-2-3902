@@ -152,7 +152,7 @@ namespace TransformersGame
             level.FillBlockCycler(blockCycler);
             level.FillItemCycler(itemCycler);
             level.FillEnemyCycler(enemyCycler, Player, projectiles);
-            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight);
+            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer);
             menuController = ControllerFactory.CreateMenuController(this);
             gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
             
@@ -167,8 +167,20 @@ namespace TransformersGame
             Player.Update(gameTime);
             projectiles.Update(gameTime);
             KeepPlayerOnScreen();
-            gameObjects = level.GetOnScreenObjects();
+            gameObjects = new List<IGameObject>(level.GetOnScreenObjects());
             level.CollectItems(Player);
+
+            if (enemyCycler.CurrentObject is IEnemy)
+            {
+                gameObjects.Add(enemyCycler.CurrentObject);
+            }
+            gameObjects.Add(Player);
+            foreach (IProjectile projectile in projectiles.Projectiles)
+            {
+                gameObjects.Add(projectile);
+            }
+            collisionManager.BuildTree(gameObjects);
+            collisionManager.DetectCollision();
         }
 
         private void KeepPlayerOnScreen()

@@ -14,6 +14,8 @@ namespace TransformersGame.Core
             projectiles = new List<IProjectile>();
         }
 
+        public IReadOnlyList<IProjectile> Projectiles => projectiles;
+
         public void Add(IProjectile projectile)
         {
             projectiles.Add(projectile);
@@ -32,7 +34,10 @@ namespace TransformersGame.Core
         {
             foreach (IProjectile projectile in projectiles)
             {
-                projectile.Draw(spriteBatch);
+                if (projectile.IsActive)
+                {
+                    projectile.Draw(spriteBatch);
+                }
             }
         }
 

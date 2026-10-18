@@ -58,6 +58,10 @@ namespace TransformersGame.Entities
 
         public Vector2 Position { get; set; }
 
+        public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
+
+        public bool IsDestroyed => State is DestroyedEnemyState;
+
         public Vector2 Home { get; private set; }
 
         public int Facing
@@ -140,8 +144,7 @@ namespace TransformersGame.Entities
 
         public void MoveBy(float distance)
         {
-            float x = MathHelper.Clamp(Position.X + distance, 0, ScreenWidth - Width);
-            Position = new Vector2(x, Position.Y);
+            Position = physics.MoveHorizontally(Position, Width, Height, distance, 0, ScreenWidth - Width);
         }
 
         public bool FlyHorizontally(float distance)
@@ -152,18 +155,8 @@ namespace TransformersGame.Entities
                 return false;
             }
             float desired = Position.X + distance;
-            float x = MathHelper.Clamp(desired, 0, ScreenWidth - Width);
+            float x = physics.MoveHorizontally(Position, Width, Height, distance, 0, ScreenWidth - Width).X;
             bool blocked = x != desired;
-            Rectangle box = new Rectangle((int)x, (int)Position.Y, Width, Height);
-            foreach (IBlock block in blocks)
-            {
-                if (block.IsSolid && box.Intersects(block.Bounds))
-                {
-                    x = distance > 0 ? block.Bounds.Left - Width : block.Bounds.Right;
-                    box.X = (int)x;
-                    blocked = true;
-                }
-            }
             Position = new Vector2(x, Position.Y);
             return blocked;
         }
@@ -175,18 +168,8 @@ namespace TransformersGame.Entities
                 return false;
             }
             float desired = Position.Y + distance;
-            float y = MathHelper.Clamp(desired, 0, ScreenHeight - Height);
+            float y = physics.MoveVertically(Position, Width, Height, distance, 0, ScreenHeight - Height).Y;
             bool blocked = y != desired;
-            Rectangle box = new Rectangle((int)Position.X, (int)y, Width, Height);
-            foreach (IBlock block in blocks)
-            {
-                if (block.IsSolid && box.Intersects(block.Bounds))
-                {
-                    y = distance > 0 ? block.Bounds.Top - Height : block.Bounds.Bottom;
-                    box.Y = (int)y;
-                    blocked = true;
-                }
-            }
             Position = new Vector2(Position.X, y);
             return blocked;
         }
@@ -227,6 +210,10 @@ namespace TransformersGame.Entities
 
         public void TakeDamage(int amount)
         {
+            if (IsDestroyed || amount <= 0)
+            {
+                return;
+            }
             health -= amount;
             if (health <= 0)
             {

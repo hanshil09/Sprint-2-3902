@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using TransformersGame.Entities;
@@ -7,85 +8,191 @@ namespace TransformersGame.Collisions
 {
     public class CollisionManager
     {
-        private QuadTree tree;
-        private int worldWidth;
-        private int worldHeight;
-        private List<IGameObject> objects;
-        public CollisionManager(int maxWidth, int maxHeight)
+        private readonly Action damagePlayer;
+        private readonly Rectangle worldBounds;
+        private List<IGameObject> objects = new List<IGameObject>();
+
+        public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null)
         {
-            worldWidth = maxWidth;
-            worldHeight = maxHeight;
-            tree = new QuadTree(
-                                new Point(0),
-                                new Point(worldWidth, worldHeight)
-                                );
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxWidth);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxHeight);
+            this.damagePlayer = damagePlayer;
+            worldBounds = new Rectangle(0, 0, maxWidth, maxHeight);
         }
+
         public void BuildTree(List<IGameObject> objs)
         {
-            objects = objs;
-            foreach(IGameObject ob in objects)
-            {
-                tree.Insert(ob);
-            }
+            objects = objs ?? throw new ArgumentNullException(nameof(objs));
         }
-        private IGameObject PotentialCollision(IGameObject obj)
-        {
-            return tree.Search(new Point((int)obj.Position.X, (int)obj.Position.Y));
-        }
+
         public void DetectCollision()
         {
-            List<IGameObject> nearbyObjects = null;
-            foreach(IGameObject ob in objects)
+            for (int i = 0; i < objects.Count; i++)
             {
-                nearbyObjects.Add(PotentialCollision(ob));
-                foreach(IGameObject closeObject in nearbyObjects)
+                IGameObject objectA = objects[i];
+                if (!TryGetBounds(objectA, out Rectangle boundsA) || IsUnavailable(objectA))
                 {
-                    if(ob != closeObject && closeObject != default && CheckCollision(ob, closeObject))
+                    continue;
+                }
+
+                for (int j = i + 1; j < objects.Count; j++)
+                {
+                    IGameObject objectB = objects[j];
+                    if (ReferenceEquals(objectA, objectB)
+                        || !TryGetBounds(objectB, out Rectangle boundsB)
+                        || IsUnavailable(objectB))
                     {
-                        HandleCollision(ob, closeObject);
+                        continue;
                     }
+
+                    HandleCollision(objectA, boundsA, objectB, boundsB);
                 }
             }
 
-        }
-        static private bool CheckCollision(IGameObject objectA, IGameObject objectB)
-        {
-            bool collided = false;
-            if(objectA.Position.X > objectB.Position.X -2 && objectA.Position.X < objectB.Position.X +2)
+            foreach (IGameObject gameObject in objects)
             {
-                if(objectA.Position.Y > objectB.Position.Y -2 && objectA.Position.Y < objectB.Position.Y +2)
+                if (gameObject is IProjectile projectile && projectile.IsActive
+                    && !SweptIntersects(projectile, worldBounds))
                 {
-                    collided = true;
+                    projectile.Deactivate();
                 }
             }
-            return collided;
         }
 
-        static private void HandleCollision(IGameObject objectA, IGameObject objectB)
+        private void HandleCollision(IGameObject objectA, Rectangle boundsA, IGameObject objectB, Rectangle boundsB)
         {
-            if(objectA is Player)
+            if (objectA is IProjectile projectileA)
             {
-                if(objectB is Block)
-                {
-                    
-                }
-                if(objectB is EnemyProjectile)
-                {
-                    
-                }
-                if(objectB is Enemy)
-                {
-                    
-                }
+                HandleProjectileCollision(projectileA, boundsB, objectB);
             }
-            if(objectA is Enemy)
+            if (objectB is IProjectile projectileB)
             {
-                if(objectB is Block)
-                {
-                    
-                }
+                HandleProjectileCollision(projectileB, boundsA, objectA);
             }
-            //TODO: finish filling in all handling cases
+
+            if (objectA is IPlayer && objectB is IEnemy enemyB && !enemyB.IsDestroyed
+                && boundsA.Intersects(boundsB))
+            {
+                DamagePlayer((IPlayer)objectA);
+            }
+            else if (objectB is IPlayer && objectA is IEnemy enemyA && !enemyA.IsDestroyed
+                && boundsA.Intersects(boundsB))
+            {
+                DamagePlayer((IPlayer)objectB);
+            }
+        }
+
+        private void HandleProjectileCollision(IProjectile projectile, Rectangle targetBounds, IGameObject target)
+        {
+            if (!projectile.IsActive || !SweptIntersects(projectile, targetBounds))
+            {
+                return;
+            }
+
+            if (projectile is EnergyProjectile && target is IEnemy enemy)
+            {
+                if (!enemy.IsDestroyed)
+                {
+                    enemy.TakeDamage(1);
+                }
+                projectile.Deactivate();
+            }
+            else if (projectile is EnemyProjectile && target is IPlayer)
+            {
+                DamagePlayer((IPlayer)target);
+                projectile.Deactivate();
+            }
+            else if (projectile is not Bomb && target is IBlock block && block.IsSolid)
+            {
+                projectile.Deactivate();
+            }
+        }
+
+        private void DamagePlayer(IPlayer player)
+        {
+            if (damagePlayer != null)
+            {
+                damagePlayer();
+            }
+            else
+            {
+                player.TakeDamage();
+            }
+        }
+
+        private static bool IsUnavailable(IGameObject gameObject)
+        {
+            return gameObject is IProjectile projectile && !projectile.IsActive
+                || gameObject is IEnemy enemy && enemy.IsDestroyed;
+        }
+
+        private static bool TryGetBounds(IGameObject gameObject, out Rectangle bounds)
+        {
+            switch (gameObject)
+            {
+                case IProjectile projectile:
+                    bounds = projectile.Bounds;
+                    return true;
+                case IBlock block:
+                    bounds = block.Bounds;
+                    return block.IsSolid;
+                case IItem item:
+                    bounds = item.Bounds;
+                    return true;
+                case IPlayer player:
+                    bounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
+                    return true;
+                case IEnemy enemy:
+                    bounds = enemy.Bounds;
+                    return true;
+                default:
+                    bounds = Rectangle.Empty;
+                    return false;
+            }
+        }
+
+        private static bool SweptIntersects(IProjectile projectile, Rectangle target)
+        {
+            Rectangle current = projectile.Bounds;
+            if (current.Intersects(target))
+            {
+                return true;
+            }
+
+            float halfWidth = current.Width / 2f;
+            float halfHeight = current.Height / 2f;
+            float startX = projectile.PreviousPosition.X + halfWidth;
+            float startY = projectile.PreviousPosition.Y + halfHeight;
+            float deltaX = projectile.Position.X - projectile.PreviousPosition.X;
+            float deltaY = projectile.Position.Y - projectile.PreviousPosition.Y;
+            float minX = target.Left - halfWidth;
+            float maxX = target.Right + halfWidth;
+            float minY = target.Top - halfHeight;
+            float maxY = target.Bottom + halfHeight;
+            float enter = 0;
+            float exit = 1;
+
+            return ClipAxis(startX, deltaX, minX, maxX, ref enter, ref exit)
+                && ClipAxis(startY, deltaY, minY, maxY, ref enter, ref exit);
+        }
+
+        private static bool ClipAxis(float origin, float delta, float minimum, float maximum, ref float enter, ref float exit)
+        {
+            if (delta == 0)
+            {
+                return origin >= minimum && origin <= maximum;
+            }
+
+            float first = (minimum - origin) / delta;
+            float second = (maximum - origin) / delta;
+            if (first > second)
+            {
+                (first, second) = (second, first);
+            }
+
+            enter = Math.Max(enter, first);
+            exit = Math.Min(exit, second);
+            return enter <= exit;
         }
     }
 }

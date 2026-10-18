@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -5,6 +6,10 @@ namespace TransformersGame.Interfaces
 {
     public interface IGameObjectCycler
     {
+        IReadOnlyList<IGameObject> Objects { get; }
+
+        IGameObject CurrentObject { get; }
+
         void Add(IGameObject gameObject);
 
         void NextObject();
