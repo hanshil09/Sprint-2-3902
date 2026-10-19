@@ -54,6 +54,8 @@ Sprint 3 integration loads Desert and Laboratory from external room files and pr
 
 ## Code quality process
 
+Sprint 3 strict analysis: `dotnet build "3902 proj.sln" -c Strict -t:Rebuild`. See [Sprint 3 analyzer results](Documentation/Sprint3-AnalyzerResults.md) for the configuration fix, recorded warning count, and cleanup work.
+
 The project enables the built-in .NET Roslyn analyzers at the `latest-recommended` level. Run the following check before merging changes:
 
 ```text

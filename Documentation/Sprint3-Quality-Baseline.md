@@ -1,5 +1,7 @@
 # Sprint 3 analyzer and metrics baseline
 
+The verified final-integration analyzer run and MSB4126 solution-configuration fix are documented in [Sprint3-AnalyzerResults.md](Sprint3-AnalyzerResults.md). The measurements below are a historical baseline.
+
 Date: October 19, 2026. Reviewer/tool operator: Codex.
 
 The default build retains latest-recommended analysis. Configuration Strict enables latest-all:
