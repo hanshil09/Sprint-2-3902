@@ -18,6 +18,7 @@ namespace TransformersGame.Entities
         public EnergyProjectile(Vector2 position, Vector2 velocity, bool angled, bool isLeft, ISprite sprite)
         {
             Position = position;
+            PreviousPosition = position;
             isAngled = angled;
             this.sprite = sprite;
             lifetime = 0;
@@ -41,10 +42,15 @@ namespace TransformersGame.Entities
 
         public Vector2 Position { get; set; }
 
+        public Vector2 PreviousPosition { get; private set; }
+
+        public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
+
         public bool IsActive { get; private set; }
 
         public void Update(GameTime gameTime)
         {
+            PreviousPosition = Position;
             Position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
             lifetime += gameTime.ElapsedGameTime.TotalMilliseconds;
             if (lifetime >= MaximumLifetime)
@@ -52,6 +58,11 @@ namespace TransformersGame.Entities
                 IsActive = false;
             }
             sprite.Update(gameTime);
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
         }
 
         public void Draw(SpriteBatch spriteBatch)

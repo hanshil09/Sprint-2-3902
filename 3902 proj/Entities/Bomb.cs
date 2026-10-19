@@ -17,6 +17,7 @@ namespace TransformersGame.Entities
         public Bomb(Vector2 position, ISprite sprite)
         {
             Position = position;
+            PreviousPosition = position;
             this.sprite = sprite;
             timer = FuseTime;
             hasExploded = false;
@@ -25,10 +26,15 @@ namespace TransformersGame.Entities
 
         public Vector2 Position { get; set; }
 
+        public Vector2 PreviousPosition { get; private set; }
+
+        public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
+
         public bool IsActive { get; private set; }
 
         public void Update(GameTime gameTime)
         {
+            PreviousPosition = Position;
             timer -= gameTime.ElapsedGameTime.TotalMilliseconds;
             if (timer <= 0 && !hasExploded)
             {
@@ -44,6 +50,11 @@ namespace TransformersGame.Entities
         public void Draw(SpriteBatch spriteBatch)
         {
             sprite.Draw(spriteBatch, Position);
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
         }
 
         private void Explode()

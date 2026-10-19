@@ -16,6 +16,16 @@ namespace TransformersGame.Core
             currentIndex = 0;
         }
 
+        public IReadOnlyList<IGameObject> Objects => gameObjects;
+
+        public IGameObject CurrentObject
+        {
+            get
+            {
+                return gameObjects.Count == 0 ? null : gameObjects[currentIndex];
+            }
+        }
+
         public void Add(IGameObject gameObject)
         {
             gameObjects.Add(gameObject);
@@ -39,6 +49,13 @@ namespace TransformersGame.Core
 
         public void Update(GameTime gameTime)
         {
+            gameObjects.RemoveAll(IsDestroyedEnemy);
+            if (gameObjects.Count == 0)
+            {
+                currentIndex = 0;
+                return;
+            }
+            currentIndex %= gameObjects.Count;
             if (gameObjects.Count > 0)
             {
                 gameObjects[currentIndex].Update(gameTime);
@@ -51,6 +68,11 @@ namespace TransformersGame.Core
             {
                 gameObjects[currentIndex].Draw(spriteBatch);
             }
+        }
+
+        private static bool IsDestroyedEnemy(IGameObject gameObject)
+        {
+            return gameObject is IEnemy enemy && enemy.IsDestroyed;
         }
     }
 }
