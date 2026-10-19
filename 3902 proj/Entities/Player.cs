@@ -11,8 +11,7 @@ namespace TransformersGame.Entities
     internal class Player : IPlayer
     {
         private const int StartingHealth = 100;
-        private const int MedkitHealing = 25;
-        private const int DamageAmount = 25;
+        private const int DamageAmount = 3;
         private const double ShieldDuration = 5000;
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
@@ -181,7 +180,7 @@ namespace TransformersGame.Entities
                 return false;
             }
             medkitCount--;
-            Health = System.Math.Min(MaxHealth, Health + MedkitHealing);
+            Health = MaxHealth;
             return true;
         }
 

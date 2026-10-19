@@ -21,6 +21,8 @@ Each room contains exactly two enemies and one pickup. The shared ground floor p
 
 ## Room gravity and bombs — October 19, 2026
 
+Player damage removes 3 health per accepted hit (shields still prevent damage). Using an inventory medkit restores health to 100; it is not consumed when health is already full. Health Cell pickups remain a separate +10 item.
+
 Gravity is measured in pixels/second squared: Ground 1500, Brick 1450, Stone 1350, Metal 1200, Crate 1400, Hazard 1550. Lower values give slower falls and higher jumps. Each room applies its setting to the player, grounded enemies, and newly dropped bombs; flying enemies retain their flight behavior. Switching rooms resets player vertical velocity and applies the destination gravity.
 
 Press **2** to drop a bomb. It falls onto solid platforms or the shared base-floor blocks, rests without bouncing, and falls again if its supporting crate breaks. Non-solid hazards do not support it. The fuse remains 1.2 seconds; the explosion stays in place for 0.32 seconds and damages each enemy at most once. Old-room bombs clear on room changes.
