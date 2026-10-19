@@ -1,5 +1,6 @@
 # Room 3: two enemies; elevated forward door, ground-level return door.
 name: Stone Switchbacks
+gravity: 1350
 [tiles]
 ..............................
 ..............................

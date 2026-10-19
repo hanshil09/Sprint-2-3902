@@ -1,5 +1,6 @@
 # Room 6: two enemies; elevated forward door, ground-level return door.
 name: Hazard Crossing
+gravity: 1550
 [tiles]
 ..............................
 ..............................

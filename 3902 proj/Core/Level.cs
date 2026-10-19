@@ -70,6 +70,7 @@ namespace TransformersGame.Core
         public Vector2 PlayerStart { get; }
 
         public string Name => data.Name;
+        public float Gravity => data.Gravity;
 
         public void FillBlockCycler(IGameObjectCycler cycler)
         {
@@ -94,7 +95,7 @@ namespace TransformersGame.Core
                 Vector2 requestedStart = CellPosition(placement.Column, placement.Row);
                 ISprite enemySprite = EnemySpriteFactory.Instance.CreateEnemySprite(placement.Kind, Color.White, true);
                 Vector2 start = FindSafeSpawn(requestedStart, enemySprite.Width, enemySprite.Height, occupied);
-                Enemy enemy = new Enemy(start, blocks, CreateEnemyConfiguration(placement.Kind), player, projectiles);
+                Enemy enemy = new Enemy(start, blocks, CreateEnemyConfiguration(placement.Kind), player, projectiles, Gravity);
                 cycler.Add(enemy);
                 occupied.Add(enemy.Bounds);
             }

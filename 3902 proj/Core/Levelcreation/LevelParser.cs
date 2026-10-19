@@ -55,6 +55,7 @@ namespace TransformersGame.Core
             List<string> rows = new List<string>();
             List<int> rowLineNumbers = new List<int>();
             string name = null;
+            float gravity = Physics.DefaultGravity;
             bool sawTiles = false;
             int lineNumber = 0;
 
@@ -92,7 +93,7 @@ namespace TransformersGame.Core
                 }
                 else
                 {
-                    ParseHeaderLine(line, lineNumber, ref name, warnings);
+                    ParseHeaderLine(line, lineNumber, ref name, ref gravity, warnings, errors);
                 }
             }
 
@@ -213,11 +214,11 @@ namespace TransformersGame.Core
                 name = DefaultName;
             }
 
-            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors);
+            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors, gravity);
             return new LevelParseResult(data, errors, warnings);
         }
 
-        private static void ParseHeaderLine(string line, int lineNumber, ref string name, List<string> warnings)
+        private static void ParseHeaderLine(string line, int lineNumber, ref string name, ref float gravity, List<string> warnings, List<string> errors)
         {
             int colon = line.IndexOf(':', StringComparison.Ordinal);
             if (colon <= 0)
@@ -236,6 +237,16 @@ namespace TransformersGame.Core
                     warnings.Add($"line {lineNumber}: 'name' is set more than once; using the last one");
                 }
                 name = value;
+            }
+            else if (string.Equals(key, "gravity", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!float.TryParse(value, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out float parsed)
+                    || !float.IsFinite(parsed) || parsed < 600 || parsed > 2200)
+                {
+                    errors.Add($"line {lineNumber}: gravity must be between 600 and 2200 pixels/second squared");
+                }
+                else gravity = parsed;
             }
             else
             {

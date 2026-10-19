@@ -19,4 +19,10 @@ Each room contains exactly two enemies and one pickup. The shared ground floor p
 - Mouse clicks and Page Up/Page Down still jump between rooms for testing. Both ends wrap.
 - Revisiting a room restores its initial enemies, pickups, and crates; health and inventory persist. Projectiles from the previous room clear.
 
-Verification: 60 automated checks pass, including six geometry routes simulated with the actual physics resolver, 68 x 56 robot, movement speed 180, jump impulse 650, and 60 Hz steps. Route checks exclude enemies and do not prove combat balance or replace an interactive playthrough.
+## Room gravity and bombs — October 19, 2026
+
+Gravity is measured in pixels/second squared: Ground 1500, Brick 1450, Stone 1350, Metal 1200, Crate 1400, Hazard 1550. Lower values give slower falls and higher jumps. Each room applies its setting to the player, grounded enemies, and newly dropped bombs; flying enemies retain their flight behavior. Switching rooms resets player vertical velocity and applies the destination gravity.
+
+Press **2** to drop a bomb. It falls onto solid platforms or the shared base-floor blocks, rests without bouncing, and falls again if its supporting crate breaks. Non-solid hazards do not support it. The fuse remains 1.2 seconds; the explosion stays in place for 0.32 seconds and damages each enemy at most once. Old-room bombs clear on room changes.
+
+Verification: 91 automated checks pass, including bomb gravity, floor/platform support, destroyed supports, fuse/explosion lifecycle, invalid gravity rejection, and six geometry routes simulated with each room's actual gravity, 68 x 56 robot, movement speed 180, jump impulse 650, and 60 Hz steps. Strict build: zero warnings and errors. Route checks exclude enemies and do not prove combat balance or replace an interactive playthrough.

@@ -1,5 +1,6 @@
 # Room 4: two enemies; elevated forward door, ground-level return door.
 name: Metal Towers
+gravity: 1200
 [tiles]
 ..............................
 ..............................

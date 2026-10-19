@@ -6,23 +6,26 @@ namespace TransformersGame.Core
 {
     internal class Physics
     {
-        private const float Gravity = 1500f;
+        public const float DefaultGravity = 1500f;
 
         private IReadOnlyList<IBlock> blocks;
         private float verticalVelocity;
 
-        public Physics(IReadOnlyList<IBlock> blocks)
+        public Physics(IReadOnlyList<IBlock> blocks, float gravity = DefaultGravity)
         {
             this.blocks = blocks;
+            Gravity = gravity;
             verticalVelocity = 0;
             IsOnGround = false;
         }
 
         public bool IsOnGround { get; private set; }
+        public float Gravity { get; private set; }
 
-        public void SetBlocks(IReadOnlyList<IBlock> roomBlocks)
+        public void SetBlocks(IReadOnlyList<IBlock> roomBlocks, float gravity = DefaultGravity)
         {
             blocks = roomBlocks;
+            Gravity = gravity;
             verticalVelocity = 0;
             IsOnGround = false;
         }

@@ -29,9 +29,11 @@ namespace TransformersGame.Core
             IReadOnlyList<Placement<BlockKind>> blocks,
             IReadOnlyList<Placement<ItemKind>> items,
             IReadOnlyList<Placement<EnemyKind>> enemies,
-            IReadOnlyList<Placement<int>> doors = null)
+            IReadOnlyList<Placement<int>> doors = null,
+            float gravity = Physics.DefaultGravity)
         {
             Name = name;
+            Gravity = gravity;
             Columns = columns;
             Rows = rows;
             PlayerColumn = playerColumn;
@@ -43,6 +45,7 @@ namespace TransformersGame.Core
         }
 
         public string Name { get; }
+        public float Gravity { get; }
 
         public int Columns { get; }
 

@@ -22,6 +22,7 @@ namespace TransformersGame.Entities
         private const float MuzzleHeight = 0.3f;
 
         private readonly Physics physics;
+        private IReadOnlyList<IBlock> roomBlocks;
         private IProjectileManager projectiles;
         private IPlayerState state;
         private ISprite sprite;
@@ -31,10 +32,11 @@ namespace TransformersGame.Entities
         private int shieldCount;
         private double shieldTimeRemaining;
 
-        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles)
+        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
         {
             Position = position;
-            physics = new Physics(blocks);
+            physics = new Physics(blocks, gravity);
+            roomBlocks = blocks;
             this.projectiles = projectiles;
             Facing = Direction.Right;
             FacingLeft = false;
@@ -194,9 +196,10 @@ namespace TransformersGame.Entities
             return true;
         }
 
-        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position)
+        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)
         {
-            physics.SetBlocks(blocks);
+            physics.SetBlocks(blocks, gravity);
+            roomBlocks = blocks;
             this.projectiles = projectiles;
             Position = position;
             wasOnGround = false;
@@ -232,7 +235,7 @@ namespace TransformersGame.Entities
             ISprite bombSprite = ProjectileSpriteFactory.Instance.CreateBombSprite();
             float x = Position.X + (Width - bombSprite.Width) / 2f;
             float y = Position.Y + Height - bombSprite.Height;
-            projectiles.Add(new Bomb(new Vector2(x, y), bombSprite));
+            projectiles.Add(new Bomb(new Vector2(x, y), bombSprite, roomBlocks, physics.Gravity));
         }
 
         public void Update(GameTime gameTime)

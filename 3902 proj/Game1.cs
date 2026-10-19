@@ -162,7 +162,7 @@ namespace TransformersGame
             roomManager?.Unload();
             Level initialLevel = LoadRoomLevel(0);
             IProjectileManager initialProjectiles = new ProjectileManager();
-            Player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles);
+            Player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles, initialLevel.Gravity);
             Room initialRoom = CreateRoom(initialLevel, initialProjectiles);
             roomManager = new RoomManager(initialRoom, RoomPaths.Length, Player, CreateRoomForIndex);
             collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer,

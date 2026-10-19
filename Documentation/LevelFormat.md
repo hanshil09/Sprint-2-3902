@@ -4,6 +4,8 @@ Rooms are UTF-8 text files in `3902 proj/Content/Levels`. They are copied to the
 
 Begin with `name: Room name`, then `[tiles]` and rows of symbols. `#` starts a whole-line comment. Each tile is 32 pixels. X increases rightward, Y downward. The grid bottom aligns to screen Y=540.
 
+An optional `gravity: 1500` header before `[tiles]` sets downward acceleration in pixels/second squared. Valid finite values are 600–2200, written with an invariant decimal point. Omitted gravity defaults to 1500 for existing rooms. Invalid values reject the room with a line-number diagnostic, allowing the loader's fallback. The room setting applies to player movement, grounded enemies, and dropped bombs. Solid floor and platform blocks support them regardless of block theme.
+
 | Symbol | Object |
 |---|---|
 | . | Empty |

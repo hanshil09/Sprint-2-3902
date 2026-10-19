@@ -20,7 +20,7 @@ namespace TransformersGame.Entities
         private readonly IProjectileManager projectiles;
         private int health;
 
-        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target, IProjectileManager projectiles)
+        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
         {
             Position = position;
             Home = position;
@@ -31,7 +31,7 @@ namespace TransformersGame.Entities
             Target = target;
             this.blocks = blocks;
             this.projectiles = projectiles;
-            physics = new Physics(blocks);
+            physics = new Physics(blocks, gravity);
             health = StartingHealth;
             LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true);
             RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, false);

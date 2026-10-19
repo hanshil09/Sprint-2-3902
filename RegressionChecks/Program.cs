@@ -110,6 +110,53 @@ Check("non-solid hazard damages player", testPlayer.DamageCount == 2 && !hazard.
 var resource = new ResourcePickup(Vector2.Zero, new StubSprite(), ItemKind.HealthCell);
 resource.Collect(testPlayer); resource.Collect(testPlayer);
 Check("resource pickup is applied once", testPlayer.ItemsAdded == 1);
+Check("six distinct room gravity settings", roomData.Select(d => d.Gravity).Distinct().Count() == 6);
+Check("legacy rooms retain default gravity", LevelParser.Parse(new[] { "[tiles]", "P" }).Data.Gravity == Physics.DefaultGravity);
+foreach (string invalidGravity in new[] { "NaN", "Infinity", "-1", "0", "2201", "heavy" })
+    Check("reject invalid gravity " + invalidGravity,
+        !LevelParser.Parse(new[] { "gravity: " + invalidGravity, "[tiles]", "P" }).Success);
+var lightBomb = new Bomb(Vector2.Zero, new StubSprite(), gravity: 1200);
+var heavyBomb = new Bomb(Vector2.Zero, new StubSprite(), gravity: 1550);
+lightBomb.Update(Step(.1)); heavyBomb.Update(Step(.1));
+Check("bomb falls faster in heavier gravity", heavyBomb.Position.Y > lightBomb.Position.Y && lightBomb.Position.Y > 0);
+Check("bomb records previous position", lightBomb.PreviousPosition == Vector2.Zero);
+foreach (float gravity in roomData.Select(d => d.Gravity))
+{
+    var floor = new Block(new Vector2(100, 508), new StubSprite(), true);
+    var fallingBomb = new Bomb(new Vector2(100, 400), new StubSprite(), new[] { floor }, gravity);
+    for (int frame = 0; frame < 60; frame++) fallingBomb.Update(Step(1.0 / 60));
+    Check("bomb rests on base floor at gravity " + gravity, fallingBomb.Position.Y == 498 && fallingBomb.IsActive && !fallingBomb.IsExploding);
+    fallingBomb.Update(Step(.05));
+    Check("bomb does not jitter on floor at gravity " + gravity, fallingBomb.Position.Y == 498);
+}
+var platform = new Block(new Vector2(100, 200), new StubSprite(), true);
+var platformBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { platform });
+platformBomb.Update(Step(.5));
+Check("bomb lands on elevated platform without tunneling", platformBomb.Position.Y == 190);
+var crateSupport = new Block(new Vector2(100, 200), new StubSprite(), true, BlockKind.Crate);
+var crateBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { crateSupport });
+crateBomb.Update(Step(.5));
+Check("bomb rests on breakable crate", crateBomb.Position.Y == 190);
+crateSupport.Destroy();
+crateBomb.Update(Step(.1));
+Check("bomb falls when supporting crate is destroyed", crateBomb.Position.Y > 190);
+var hazardSupport = new Block(new Vector2(100, 200), new StubSprite(), false, BlockKind.Hazard);
+var hazardBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { hazardSupport });
+hazardBomb.Update(Step(.5));
+Check("non-solid hazard does not suspend bomb", hazardBomb.Position.Y > 210);
+var timedBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { platform }, createExplosion: () => new StubSprite());
+timedBomb.Update(Step(1.2));
+Check("bomb still explodes after original fuse", timedBomb.IsExploding && timedBomb.Position.Y == 190);
+timedBomb.Update(Step(.1));
+Check("explosion stays on supporting surface", timedBomb.Position.Y == 190 && timedBomb.IsExploding);
+var bombTarget = new StubEnemy();
+timedBomb.DamageEnemy(bombTarget); timedBomb.DamageEnemy(bombTarget);
+Check("explosion damages an enemy only once", bombTarget.Hits == 1);
+timedBomb.Update(Step(.23));
+Check("explosion expires", !timedBomb.IsActive);
+Vector2 finishedPosition = timedBomb.Position;
+timedBomb.Update(Step(1));
+Check("inactive bomb does not move", timedBomb.Position == finishedPosition);
 Console.WriteLine($"{passed} regression checks passed.");
 
 sealed class CounterCommand : ICommand { public int Count { get; private set; } public void Execute() => Count++; }
@@ -135,7 +182,7 @@ sealed class StubPlayer : IPlayer
     public void Shoot(bool angled) { }
     public void UseItem(int itemNumber) { }
     public void Transform() { }
-    public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position) => Position = position;
+    public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity) => Position = position;
     public void Update(GameTime gameTime) { }
     public void Draw(SpriteBatch spriteBatch) { }
 }

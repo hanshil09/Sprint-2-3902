@@ -1,5 +1,6 @@
 # Room 5: two enemies; elevated forward door, ground-level return door.
 name: Crate Workshop
+gravity: 1400
 [tiles]
 ..............................
 ..............................

@@ -40,6 +40,6 @@ namespace TransformersGame.Interfaces
 
         bool UseShield();
 
-        void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position);
+        void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity);
     }
 }

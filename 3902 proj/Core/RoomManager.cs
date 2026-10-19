@@ -45,7 +45,7 @@ namespace TransformersGame.Core
             ActiveRoomIndex = -1;
             previousRoom?.Unload();
 
-            player.EnterRoom(nextRoom.Level.Blocks, nextRoom.Projectiles, nextRoom.Level.PlayerStart);
+            player.EnterRoom(nextRoom.Level.Blocks, nextRoom.Projectiles, nextRoom.Level.PlayerStart, nextRoom.Level.Gravity);
             ActiveRoom = nextRoom;
             ActiveRoomIndex = roomIndex;
         }

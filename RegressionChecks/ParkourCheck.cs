@@ -22,7 +22,7 @@ internal static class ParkourCheck
         var exit = data.Doors.Single(d => d.Kind == 1);
         var exitBounds = new Rectangle(exit.Column * 32, (int)Cell(exit.Column, exit.Row).Y, 48, 64);
         Vector2 start = Cell(data.PlayerColumn, data.PlayerRow);
-        var initialPhysics = new Physics(solids);
+        var initialPhysics = new Physics(solids, data.Gravity);
         for (int frame = 0; frame < 120 && !initialPhysics.IsOnGround; frame++)
             start = initialPhysics.Apply(start, Width, Height, Step);
         var candidates = solids.Select(b => new Vector2(Math.Clamp(b.Bounds.Center.X - Width / 2, 0, 960 - Width), b.Bounds.Top - Height))
@@ -36,8 +36,8 @@ internal static class ParkourCheck
             if (Bounds(from).Intersects(exitBounds)) return true;
             foreach (Vector2 target in candidates)
             {
-                if (visited.Contains(target) || from.Y - target.Y > 140 || Math.Abs(target.X - from.X) > 260) continue;
-                if (TryMove(from, target, false, solids, hazards) || TryMove(from, target, true, solids, hazards))
+                if (visited.Contains(target) || from.Y - target.Y > 650 * 650 / (2 * data.Gravity) || Math.Abs(target.X - from.X) > 260) continue;
+                if (TryMove(from, target, false, solids, hazards, data.Gravity) || TryMove(from, target, true, solids, hazards, data.Gravity))
                 {
                     visited.Add(target);
                     queue.Enqueue(target);
@@ -47,9 +47,9 @@ internal static class ParkourCheck
         return false;
     }
 
-    private static bool TryMove(Vector2 position, Vector2 target, bool jump, IBlock[] solids, Rectangle[] hazards)
+    private static bool TryMove(Vector2 position, Vector2 target, bool jump, IBlock[] solids, Rectangle[] hazards, float gravity)
     {
-        var physics = new Physics(solids);
+        var physics = new Physics(solids, gravity);
         position = physics.Apply(position, Width, Height, Step);
         if (jump) physics.Jump(650);
         for (int frame = 0; frame < 150; frame++)

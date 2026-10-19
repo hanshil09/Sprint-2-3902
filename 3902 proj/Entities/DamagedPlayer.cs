@@ -113,9 +113,9 @@ namespace TransformersGame.Entities
             return decoratedPlayer.UseShield();
         }
 
-        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position)
+        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)
         {
-            decoratedPlayer.EnterRoom(blocks, projectiles, position);
+            decoratedPlayer.EnterRoom(blocks, projectiles, position, gravity);
         }
 
         public void Update(GameTime gameTime)
