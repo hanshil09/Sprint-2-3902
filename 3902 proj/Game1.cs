@@ -194,6 +194,7 @@ namespace TransformersGame
                 KeyboardController endController = new KeyboardController();
                 endController.RegisterSinglePressCommand(Microsoft.Xna.Framework.Input.Keys.R, new TransformersGame.Commands.ResetGameCommand(this));
                 endController.RegisterSinglePressCommand(Microsoft.Xna.Framework.Input.Keys.Q, new TransformersGame.Commands.QuitCommand(this));
+                endController.RegisterSinglePressCommand(Microsoft.Xna.Framework.Input.Keys.Escape, new TransformersGame.Commands.QuitCommand(this));
                 menuController = endController;
             }
         }

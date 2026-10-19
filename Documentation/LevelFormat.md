@@ -16,6 +16,7 @@ An optional `gravity: 1500` header before `[tiles]` sets downward acceleration i
 | t / v | Burst Sentry / vertical Sentinel |
 | ! / $ | Immediate Health Cell / Shield Battery |
 | C / X | Breakable crate / non-solid damage hazard |
+| F / H | Permanent solid crate-style / safe hazard-style floor |
 | < / > | Previous-room / next-room door trigger |
 
 Rooms should fit the 30-column, 17-row viewport. The parser warns about larger rooms because no scrolling camera exists. Short rows are padded with empty cells. Unknown tile symbols are warned about and treated as empty. Missing files or invalid spawn counts report diagnostics and use a built-in fallback room.

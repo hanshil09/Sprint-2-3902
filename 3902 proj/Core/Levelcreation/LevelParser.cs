@@ -24,7 +24,9 @@ namespace TransformersGame.Core
             ['S'] = BlockKind.Stone,
             ['M'] = BlockKind.Metal,
             ['C'] = BlockKind.Crate,
-            ['X'] = BlockKind.Hazard
+            ['X'] = BlockKind.Hazard,
+            ['F'] = BlockKind.CrateFloor,
+            ['H'] = BlockKind.HazardFloor
         };
 
         private static readonly Dictionary<char, ItemKind> ItemSymbols = new Dictionary<char, ItemKind>

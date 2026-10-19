@@ -27,16 +27,25 @@ namespace TransformersGame.UI
 
         public void DrawMenu(SpriteBatch spriteBatch, Viewport viewport, bool gameOver = false)
         {
-            const int width = 500;
-            const int height = 190;
+            const int width = 800;
+            const int height = 450;
             int left = (viewport.Width - width) / 2;
             int top = (viewport.Height - height) / 2;
 
             DrawPanel(spriteBatch, new Rectangle(left, top, width, height));
             DrawText(spriteBatch, gameOver ? "GAME OVER" : "TRANSFORMERS DEMO", left + 28, top + 24, HeadingColor, 1.25f);
-            DrawText(spriteBatch, "SPRINT 3", left + 30, top + 58, AccentColor, 0.75f);
-            DrawKeyLine(spriteBatch, gameOver ? "R" : "ENTER", gameOver ? "Reset game" : "Start game", left + 30, top + 102);
-            DrawKeyLine(spriteBatch, "Q / ESC", "Quit", left + 30, top + 140);
+            DrawText(spriteBatch, "HOW TO PLAY", left + 30, top + 60, AccentColor, 0.75f);
+            DrawText(spriteBatch, "Climb to the GOLD exit. The CYAN door returns to the previous room.", left + 30, top + 88, TextColor, 0.58f);
+            DrawKeyLine(spriteBatch, gameOver ? "R" : "ENTER", gameOver ? "Reset to start menu" : "Start game", left + 30, top + 122);
+            DrawKeyLine(spriteBatch, "A / D or arrows", "Move left / right", left + 30, top + 160);
+            DrawKeyLine(spriteBatch, "W / UP / J", "Jump between platforms", left + 30, top + 188);
+            DrawKeyLine(spriteBatch, "Z / N", "Shoot enemies and breakable crates", left + 30, top + 216);
+            DrawKeyLine(spriteBatch, "2", "Drop a bomb (falls onto solid blocks)", left + 30, top + 244);
+            DrawKeyLine(spriteBatch, "3", "Use collected medkit: restore 100 health", left + 30, top + 272);
+            DrawKeyLine(spriteBatch, "4", "Use collected shield: 5 seconds protection", left + 30, top + 300);
+            DrawKeyLine(spriteBatch, "SPACE", "Switch robot / vehicle form", left + 30, top + 328);
+            DrawKeyLine(spriteBatch, "F1", "Show all controls during play", left + 30, top + 356);
+            DrawKeyLine(spriteBatch, "Q / ESC", "Quit game", left + 30, top + 394);
         }
 
         public void DrawGameplay(SpriteBatch spriteBatch, IPlayer player, string roomName, int roomNumber, int roomCount)
@@ -55,7 +64,7 @@ namespace TransformersGame.UI
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
             DrawText(spriteBatch, "Left/Right click or Page Up/Down: test rooms", 105, 119, TextColor, 0.55f);
             DrawText(spriteBatch, "ITEMS", 34, 147, AccentColor, 0.65f);
-            DrawText(spriteBatch, "3 medkit (+25 health)     4 shield (5 seconds)", 105, 147, TextColor, 0.55f);
+            DrawText(spriteBatch, "3 medkit (restore 100)     4 shield (5 seconds)", 105, 147, TextColor, 0.55f);
             DrawText(spriteBatch, "STATUS", 34, 175, AccentColor, 0.65f);
             string shieldStatus = player.IsShieldActive ? "ACTIVE" : "inactive";
             string inventory = $"HP {player.Health}/{player.MaxHealth}   Medkits {player.MedkitCount}   Shields {player.ShieldCount} ({shieldStatus})";
@@ -81,8 +90,8 @@ namespace TransformersGame.UI
 
         private void DrawKeyLine(SpriteBatch spriteBatch, string key, string action, int x, int y)
         {
-            DrawText(spriteBatch, key, x, y, AccentColor, 0.8f);
-            DrawText(spriteBatch, action, x + 125, y, TextColor, 0.8f);
+            DrawText(spriteBatch, key, x, y, AccentColor, 0.65f);
+            DrawText(spriteBatch, action, x + 220, y, TextColor, 0.65f);
         }
 
         private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)

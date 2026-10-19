@@ -34,8 +34,11 @@ namespace TransformersGame.Factories
 
         public ISprite CreateBlockSprite(BlockKind kind)
         {
-            int index = kind == BlockKind.Crate ? 1 : kind == BlockKind.Hazard ? 3 : (int)kind;
-            Color tint = kind == BlockKind.Crate ? Color.Orange : kind == BlockKind.Hazard ? Color.Red : Color.White;
+            int index = kind == BlockKind.Crate || kind == BlockKind.CrateFloor ? 1
+                : kind == BlockKind.Hazard || kind == BlockKind.HazardFloor ? 3 : (int)kind;
+            Color tint = kind == BlockKind.Crate || kind == BlockKind.CrateFloor ? Color.Orange
+                : kind == BlockKind.Hazard ? Color.Red
+                : kind == BlockKind.HazardFloor ? Color.DarkOrange : Color.White;
             Rectangle frame = new Rectangle(index * BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }

@@ -22,6 +22,21 @@ foreach (string path in roomFiles)
     LevelParseResult result = LevelParser.Parse(File.ReadAllLines(path));
     Check("valid room " + path, result.Success);
     roomData.Add(result.Data);
+    BlockKind expectedFloor = result.Data.Name switch
+    {
+        "Ground Courtyard" => BlockKind.Ground,
+        "Brick Stairway" => BlockKind.Brick,
+        "Stone Switchbacks" => BlockKind.Stone,
+        "Metal Towers" => BlockKind.Metal,
+        "Crate Workshop" => BlockKind.CrateFloor,
+        "Hazard Crossing" => BlockKind.HazardFloor,
+        _ => throw new InvalidOperationException("Unexpected room theme")
+    };
+    var baseFloor = result.Data.Blocks.Where(b => b.Row == result.Data.Rows - 1).ToArray();
+    Check("complete themed base floor " + path, baseFloor.Length == 30 && baseFloor.All(b => b.Kind == expectedFloor));
+    var floorPhysics = new Physics(new[] { new Block(new Vector2(100, 508), new StubSprite(), true, expectedFloor) }, result.Data.Gravity);
+    Check("themed floor supports falling objects " + path,
+        floorPhysics.Apply(new Vector2(100, 400), 10, 10, Step(.5)).Y == 498 && floorPhysics.IsOnGround);
     Check("exactly two enemies " + path, result.Data.Enemies.Count == 2);
     Check("one focused pickup " + path, result.Data.Items.Count == 1);
     Check("return and forward doors " + path, result.Data.Doors.Count == 2 && result.Data.Doors.Select(d => d.Kind).Distinct().Count() == 2);
@@ -70,7 +85,7 @@ rebuilt.Update();
 Check("controller rebuild does not repeat held click", next.Count == 1);
 Check("seven enemy kinds across rooms", roomData.SelectMany(d => d.Enemies).Select(e => e.Kind).Distinct().Count() == 7);
 Check("four pickup kinds across rooms", roomData.SelectMany(d => d.Items).Select(e => e.Kind).Distinct().Count() == 4);
-Check("block variety across rooms", roomData.SelectMany(d => d.Blocks).Select(b => b.Kind).Distinct().Count() == 6);
+Check("block variety across rooms", roomData.SelectMany(d => d.Blocks).Select(b => b.Kind).Distinct().Order().SequenceEqual(Enum.GetValues<BlockKind>().Order()));
 var crate = new Block(new Vector2(100, 100), new StubSprite(), true, BlockKind.Crate);
 shot = new EnergyProjectile(new Vector2(80, 100), new Vector2(100, 0), false, false, new StubSprite());
 shot.Update(Step(.3));
@@ -144,6 +159,14 @@ var hazardSupport = new Block(new Vector2(100, 200), new StubSprite(), false, Bl
 var hazardBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { hazardSupport });
 hazardBomb.Update(Step(.5));
 Check("non-solid hazard does not suspend bomb", hazardBomb.Position.Y > 210);
+var permanentCrateFloor = new Block(Vector2.Zero, new StubSprite(), true, BlockKind.CrateFloor);
+permanentCrateFloor.Destroy();
+Check("crate-themed base cannot be destroyed", permanentCrateFloor.IsSolid && !permanentCrateFloor.IsDestroyed);
+var safeHazardFloor = new Block(new Vector2(100, 100), new StubSprite(), true, BlockKind.HazardFloor);
+var floorPlayer = new StubPlayer { Position = new Vector2(100, 100) };
+collisions.BuildTree(new List<IGameObject> { safeHazardFloor, floorPlayer });
+collisions.DetectCollision();
+Check("hazard-themed base does not cause contact damage", !safeHazardFloor.IsHazard && floorPlayer.DamageCount == 0);
 var timedBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { platform }, createExplosion: () => new StubSprite());
 timedBomb.Update(Step(1.2));
 Check("bomb still explodes after original fuse", timedBomb.IsExploding && timedBomb.Position.Y == 190);

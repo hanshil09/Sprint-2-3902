@@ -1,6 +1,8 @@
 # Six-room parkour route
 
-Each room contains exactly two enemies and one pickup. The shared ground floor provides a safe starting surface; themed blocks are separated into different rooms. The old floating object previews no longer appear in gameplay.
+Each room contains exactly two enemies and one pickup. Its full-width base floor matches its block theme: ground, brick, stone, metal, crate-style, or hazard-style. All base floors are solid and permanent. Orange crate-style flooring cannot break; dark-orange hazard-style flooring is safe, unlike the separate bright-red damage hazards. The old floating object previews no longer appear in gameplay.
+
+The start screen shows the basic play controls and the goal before Enter starts gameplay. R resets to that screen; F1 shows additional controls during play. Q or Escape quits, including from the game-over screen.
 
 | Order | Room | Main structure | Enemies |
 |---|---|---|---|
@@ -27,4 +29,4 @@ Gravity is measured in pixels/second squared: Ground 1500, Brick 1450, Stone 135
 
 Press **2** to drop a bomb. It falls onto solid platforms or the shared base-floor blocks, rests without bouncing, and falls again if its supporting crate breaks. Non-solid hazards do not support it. The fuse remains 1.2 seconds; the explosion stays in place for 0.32 seconds and damages each enemy at most once. Old-room bombs clear on room changes.
 
-Verification: 91 automated checks pass, including bomb gravity, floor/platform support, destroyed supports, fuse/explosion lifecycle, invalid gravity rejection, and six geometry routes simulated with each room's actual gravity, 68 x 56 robot, movement speed 180, jump impulse 650, and 60 Hz steps. Strict build: zero warnings and errors. Route checks exclude enemies and do not prove combat balance or replace an interactive playthrough.
+Verification: 105 automated checks pass, including themed base completeness/support/safety, bomb gravity, floor/platform support, destroyed supports, fuse/explosion lifecycle, invalid gravity rejection, and six geometry routes simulated with each room's actual gravity, 68 x 56 robot, movement speed 180, jump impulse 650, and 60 Hz steps. Strict build: zero warnings and errors. Route checks exclude enemies and do not prove combat balance or replace an interactive playthrough. Menu layout requires a visual playtest.

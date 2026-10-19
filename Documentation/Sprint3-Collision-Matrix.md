@@ -3,19 +3,20 @@
 Updated October 19, 2026 for the integrated hanshil_tasks / sprint3-room-lifecycle result.
 
 Evidence command: `dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore`.
-Recorded result: 29 automated checks passed. A test checks selected code paths; it does not prove every gameplay scenario. Automated tests use lightweight sprite/entity doubles where graphics are unnecessary.
+Recorded result: 105 automated checks passed. A test checks selected code paths; it does not prove every gameplay scenario. Automated tests use lightweight sprite/entity doubles where graphics are unnecessary.
 
 Status: **Automated PASS** means named assertions ran successfully. **Implemented / manual pending** means code exists but a complete graphical test has not been recorded. **Intentional ignore** describes a game rule, not missing coverage disguised as a pass.
 
 | Pair | Expected response | Evidence / status |
 |---|---|---|
 | Player / solid block top | Land and set grounded | Automated PASS: landing |
+| Falling objects / themed base | All six base floors support falling objects; crate-style F cannot break, hazard-style H causes no damage | Automated PASS: themed floor support, permanent crate floor, safe hazard floor; graphical playtest pending |
 | Player / solid block side | Stop at nearest edge | Automated PASS: horizontal wall crossing |
 | Player / block underside | Stop rising at ceiling | Automated PASS: upward ceiling crossing for movement primitive; graphical jump pending |
 | Player / room bounds | Clamp complete sprite within screen | Implemented in Game1; manual pending |
-| Player / enemy | Apply health damage, knockback, one-second damaged decoration; shields prevent damage | Implemented; manual timing/knockback pending |
+| Player / enemy | Remove 3 health per accepted hit, knockback, one-second damaged decoration; shields prevent damage | Implemented; manual timing/knockback pending |
 | Player / enemy projectile | Damage once and deactivate projectile | Automated PASS with player double; full shield/health interaction manual pending |
-| Player / Medkit | Add once to stored inventory; key 3 heals 25 up to maximum | Integrated; manual pending |
+| Player / Medkit | Add once to stored inventory; key 3 restores health to 100 | Integrated; manual pending |
 | Player / Shield | Add once to inventory; key 4 grants five seconds protection | Integrated; manual pending |
 | Player / Health Cell | Heal 10 immediately, capped at maximum; remove pickup | Automated PASS for single-application routing; actual health/UI manual pending |
 | Player / Shield Battery | Add five seconds protection, capped at ten seconds | Implemented; manual pending |
