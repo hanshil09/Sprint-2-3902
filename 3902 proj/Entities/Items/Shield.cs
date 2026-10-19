@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Core;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
@@ -7,6 +8,7 @@ namespace TransformersGame.Entities
     public class Shield : IItem
     {
         private ISprite sprite;
+        private bool isCollected;
 
         public Shield(Vector2 position, ISprite sprite)
         {
@@ -16,7 +18,12 @@ namespace TransformersGame.Entities
 
         public void Collect(IPlayer player)
         {
-            
+            if (isCollected)
+            {
+                return;
+            }
+            player.AddItem(ItemKind.Shield);
+            isCollected = true;
         }
 
         public Vector2 Position { get; set; }

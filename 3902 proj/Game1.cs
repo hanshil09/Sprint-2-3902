@@ -70,11 +70,10 @@ namespace TransformersGame
 
         public void DamagePlayer()
         {
-            if (Player is DamagedPlayer)
+            if (Player is DamagedPlayer || !Player.TakeDamage())
             {
                 return;
             }
-            Player.TakeDamage();
             Player = new DamagedPlayer(Player, this);
         }
 
@@ -134,7 +133,7 @@ namespace TransformersGame
                 spriteBatch.Begin(samplerState: SamplerState.PointClamp);
                 roomManager.ActiveRoom.Draw(spriteBatch);
                 Player.Draw(spriteBatch);
-                controlsOverlay.DrawGameplay(spriteBatch);
+                controlsOverlay.DrawGameplay(spriteBatch, Player);
                 spriteBatch.End();
             }
             base.Draw(gameTime);

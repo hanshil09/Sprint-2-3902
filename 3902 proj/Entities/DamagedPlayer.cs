@@ -58,6 +58,16 @@ namespace TransformersGame.Entities
             }
         }
 
+        public int Health => decoratedPlayer.Health;
+
+        public int MaxHealth => decoratedPlayer.MaxHealth;
+
+        public int MedkitCount => decoratedPlayer.MedkitCount;
+
+        public int ShieldCount => decoratedPlayer.ShieldCount;
+
+        public bool IsShieldActive => decoratedPlayer.IsShieldActive;
+
         public void Move(Direction direction)
         {
             decoratedPlayer.Move(direction);
@@ -83,8 +93,24 @@ namespace TransformersGame.Entities
             decoratedPlayer.Transform();
         }
 
-        public void TakeDamage()
+        public bool TakeDamage()
         {
+            return false;
+        }
+
+        public void AddItem(ItemKind kind)
+        {
+            decoratedPlayer.AddItem(kind);
+        }
+
+        public bool UseMedkit()
+        {
+            return decoratedPlayer.UseMedkit();
+        }
+
+        public bool UseShield()
+        {
+            return decoratedPlayer.UseShield();
         }
 
         public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position)
