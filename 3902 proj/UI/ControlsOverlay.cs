@@ -47,7 +47,7 @@ namespace TransformersGame.UI
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
             DrawText(spriteBatch, "T / Y blocks     U / I items     O / P enemies", 105, 119, TextColor, 0.58f);
             DrawText(spriteBatch, "ROOM", 34, 147, AccentColor, 0.65f);
-            DrawText(spriteBatch, "PAGE UP / PAGE DOWN switch rooms", 105, 147, TextColor, 0.58f);
+            DrawText(spriteBatch, "LEFT / RIGHT CLICK or PAGE UP / DOWN switch rooms", 105, 147, TextColor, 0.52f);
             DrawText(spriteBatch, "SYSTEM", 34, 175, AccentColor, 0.65f);
             DrawText(spriteBatch, "R reset     Q / ESC quit", 105, 175, TextColor, 0.58f);
         }

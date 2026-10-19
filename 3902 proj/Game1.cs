@@ -15,7 +15,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, PgUp/PgDn Room, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, Left/Right Click Room, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(18, 24, 38);
         private static readonly Color GameplayColor = new Color(42, 55, 70);

@@ -28,7 +28,12 @@ namespace TransformersGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
-            return keyboardController;
+
+            MouseController mouseController = new MouseController(
+                new RoomNavigationCommand(game, false),
+                new RoomNavigationCommand(game, true));
+
+            return new CompositeController(keyboardController, mouseController);
         }
 
         private static void RegisterMovementCommands(KeyboardController keyboardController, IPlayer player)

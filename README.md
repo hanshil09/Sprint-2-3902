@@ -22,7 +22,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 - **Z/N** fire a normal shot, while **K** fires an angled shot. **1** fires an orb in standing form, and **2** drops a bomb. The number pad's **1/2** keys also work.
 - **E** briefly shows the damaged effect.
 - **T/Y** cycle through four block previews. **U/I** cycle through collectible item previews. **O/P** cycle through five animated enemy types.
-- **Page Up/Page Down** switch between the two rooms. Room navigation wraps at both ends.
+- **Left/Right mouse click** switches to the previous/next room. **Page Up/Page Down** provides the same keyboard fallback. Room navigation wraps at both ends.
 - **R** resets the game to the menu. **Q** or **Escape** quits.
 
 ## Implemented behavior
@@ -53,6 +53,8 @@ dotnet build "3902 proj.sln" --no-restore
 ```
 
 The first recorded analyzer pass found eight warnings. The team fixed four warnings and documented the intentional suppression of four interface-performance suggestions. See [AnalyzerResults.md](Documentation/AnalyzerResults.md) for the rule-by-rule record.
+
+The Sprint 3 collision inventory, expected responses, current pass/fail status, and reproducible manual regression steps are recorded in [Sprint3-Collision-Matrix.md](Documentation/Sprint3-Collision-Matrix.md).
 
 ## Code review process
 
