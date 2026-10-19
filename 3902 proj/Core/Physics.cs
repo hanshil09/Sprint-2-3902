@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public class Physics
+    internal class Physics
     {
         private const float Gravity = 1500f;
 

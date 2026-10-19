@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Behaviors
 {
-    public class DriftBehavior : IEnemyBehavior
+    internal class DriftBehavior : IEnemyBehavior
     {
         private const float WaveAmplitude = 45f;
         private const double WavePeriodSeconds = 1.8;
@@ -40,7 +40,7 @@ namespace TransformersGame.Behaviors
                 fireCooldown -= elapsed;
                 if (fireCooldown <= 0)
                 {
-                    enemy.FireProjectile();
+                    enemy.LaunchProjectile();
                     fireCooldown = FireCooldownSeconds;
                 }
                 goalX = enemy.TargetCenter.X - enemy.Width / 2f;

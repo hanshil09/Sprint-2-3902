@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TransformersGame.Core
 {
-    public sealed class Placement<TKind>
+    internal sealed class Placement<TKind>
     {
         public Placement(TKind kind, int column, int row)
         {
@@ -18,7 +18,7 @@ namespace TransformersGame.Core
         public int Row { get; }
     }
 
-    public sealed class LevelData
+    internal sealed class LevelData
     {
         public LevelData(
             string name,

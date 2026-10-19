@@ -9,7 +9,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public class Level : ILevel
+    internal class Level : ILevel
     {
         private const int ScreenHeight = 540;
         private const int TileSize = BlockSpriteFactory.BlockSize;
@@ -139,13 +139,13 @@ namespace TransformersGame.Core
             foreach (Door door in doors) door.Draw(spriteBatch);
         }
 
-        public List<IGameObject> GetOnScreenObjects()
+        public IReadOnlyList<IGameObject> GetOnScreenObjects()
         {
             objs.Clear();
             objs.AddRange(blocks);
             objs.AddRange(items);
             objs.AddRange(doors);
-            return objs;
+            return objs.AsReadOnly();
         }
 
         private Vector2 CellPosition(int column, int row)

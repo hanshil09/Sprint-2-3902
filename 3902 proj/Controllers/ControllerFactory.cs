@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Controllers
 {
-    public static class ControllerFactory
+    internal static class ControllerFactory
     {
         public static IController CreateMenuController(Game1 game)
         {

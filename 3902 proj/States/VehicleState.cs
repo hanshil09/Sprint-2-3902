@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
 {
-    public class VehicleState : IPlayerState
+    internal class VehicleState : IPlayerState
     {
         private const float VehicleSpeed = 280f;
 

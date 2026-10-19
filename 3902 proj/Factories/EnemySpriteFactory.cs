@@ -7,7 +7,7 @@ using TransformersGame.Sprites;
 
 namespace TransformersGame.Factories
 {
-    public class EnemySpriteFactory
+    internal class EnemySpriteFactory
     {
         private const int EnemyWidth = 3 * 16;
         private const int EnemyHeight = 3 * 16;

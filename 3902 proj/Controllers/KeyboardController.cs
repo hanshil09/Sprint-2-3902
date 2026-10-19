@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Controllers
 {
-    public class KeyboardController : IController
+    internal class KeyboardController : IController
     {
         private Dictionary<Keys, ICommand> controllerMappings;
         private Dictionary<Keys, ICommand> singlePressMappings;

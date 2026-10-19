@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public sealed class ResourcePickup : IItem
+    internal sealed class ResourcePickup : IItem
     {
         private readonly ISprite sprite;
         private readonly ItemKind kind;

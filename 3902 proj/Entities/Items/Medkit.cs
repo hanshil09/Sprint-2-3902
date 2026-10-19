@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public class Medkit : IItem
+    internal class Medkit : IItem
     {
         private ISprite sprite;
         private bool isCollected;

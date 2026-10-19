@@ -1,6 +1,6 @@
 namespace TransformersGame.Core
 {
-    public static class DefaultLevel
+    internal static class DefaultLevel
     {
         public const string Text = """
             name: Fallback Room

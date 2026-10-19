@@ -8,7 +8,7 @@ using TransformersGame.States;
 
 namespace TransformersGame.Entities
 {
-    public class Player : IPlayer
+    internal class Player : IPlayer
     {
         private const int StartingHealth = 100;
         private const int MedkitHealing = 25;
@@ -210,7 +210,7 @@ namespace TransformersGame.Entities
             Position = new Vector2(Position.X, Position.Y + oldHeight - Height);
         }
 
-        public void FireShot()
+        public void ShootEnergy()
         {
             ISprite shotSprite = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
             projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), angledShot, FacingLeft, shotSprite));
@@ -220,7 +220,7 @@ namespace TransformersGame.Entities
             Position = new Vector2(Position.X + recoil, Position.Y);
         }
 
-        public void FireOrb()
+        public void LaunchOrb()
         {
             ISprite orbSprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(FacingLeft);
             bool angled = false;

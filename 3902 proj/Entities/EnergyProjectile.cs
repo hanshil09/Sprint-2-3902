@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public class EnergyProjectile : IProjectile
+    internal class EnergyProjectile : IProjectile
     {
         private const double MaximumLifetime = 3000;
         private const double angleValue = 0.6632;       //38 degrees, in radians

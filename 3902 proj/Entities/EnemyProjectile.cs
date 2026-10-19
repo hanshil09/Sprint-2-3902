@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public class EnemyProjectile : IProjectile
+    internal class EnemyProjectile : IProjectile
     {
         private const double MaximumLifetime = 3000;
         private const float Speed = 220f;

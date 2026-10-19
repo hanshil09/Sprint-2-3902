@@ -54,7 +54,7 @@ Sprint 3 integration loads Desert and Laboratory from external room files and pr
 
 ## Code quality process
 
-Sprint 3 strict analysis: `dotnet build "3902 proj.sln" -c Strict -t:Rebuild`. See [Sprint 3 analyzer results](Documentation/Sprint3-AnalyzerResults.md) for the configuration fix, recorded warning count, and cleanup work.
+Sprint 3 strict analysis: `dotnet build "3902 proj.sln" -c Strict -t:Rebuild`. See the [CodeAnalyzer summary](Documentation/CodeAnalyzer/Sprint3-Summary.md) for the October 14–19 history, fixes, and verified zero-warning result.
 
 The project enables the built-in .NET Roslyn analyzers at the `latest-recommended` level. Run the following check before merging changes:
 
@@ -62,7 +62,7 @@ The project enables the built-in .NET Roslyn analyzers at the `latest-recommende
 dotnet build "3902 proj.sln" --no-restore
 ```
 
-The first recorded analyzer pass found eight warnings. The team fixed four warnings and documented the intentional suppression of four interface-performance suggestions. See [AnalyzerResults.md](Documentation/AnalyzerResults.md) for the rule-by-rule record.
+The first Sprint 2 analyzer pass found eight warnings. Its historical resolutions are preserved in [Sprint 2 results](Documentation/CodeAnalyzer/Sprint2-Results.md). Current analysis documents are grouped under Documentation/CodeAnalyzer.
 
 The Sprint 3 collision inventory, expected responses, current pass/fail status, and reproducible manual regression steps are recorded in [Sprint3-Collision-Matrix.md](Documentation/Sprint3-Collision-Matrix.md).
 

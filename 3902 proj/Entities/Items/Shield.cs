@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public class Shield : IItem
+    internal class Shield : IItem
     {
         private ISprite sprite;
         private bool isCollected;

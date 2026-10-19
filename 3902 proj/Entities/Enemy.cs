@@ -8,7 +8,7 @@ using TransformersGame.States;
 
 namespace TransformersGame.Entities
 {
-    public class Enemy : IEnemy
+    internal class Enemy : IEnemy
     {
         private const int StartingHealth = 1;
         private const int ScreenWidth = 960;
@@ -221,7 +221,7 @@ namespace TransformersGame.Entities
             }
         }
 
-        public void FireProjectile()
+        public void LaunchProjectile()
         {
             Vector2 center = Center;
             ISprite sprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(TargetCenter.X < center.X);

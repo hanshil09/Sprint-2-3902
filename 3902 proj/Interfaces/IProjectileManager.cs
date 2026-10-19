@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    public interface IProjectileManager
+    internal interface IProjectileManager
     {
         IReadOnlyList<IProjectile> Projectiles { get; }
 

@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.UI
 {
-    public sealed class ControlsOverlay : IDisposable
+    internal sealed class ControlsOverlay : IDisposable
     {
         private static readonly Color PanelColor = new Color(8, 13, 24, 225);
         private static readonly Color AccentColor = new Color(42, 210, 194);

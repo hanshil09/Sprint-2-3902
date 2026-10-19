@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public sealed class PiercingProjectile : EnergyProjectile
+    internal sealed class PiercingProjectile : EnergyProjectile
     {
         private readonly HashSet<IEnemy> hitEnemies = new();
         public PiercingProjectile(Vector2 position, Vector2 velocity, ISprite sprite)

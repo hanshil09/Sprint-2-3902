@@ -7,7 +7,7 @@ using TransformersGame.Sprites;
 
 namespace TransformersGame.Factories
 {
-    public class PlayerSpriteFactory
+    internal class PlayerSpriteFactory
     {
         private const int CellWidth = 170;
         private const int CellHeight = 140;

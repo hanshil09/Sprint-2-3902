@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
 {
-    public class DestroyedEnemyState : IEnemyState
+    internal class DestroyedEnemyState : IEnemyState
     {
         private Enemy enemy;
 

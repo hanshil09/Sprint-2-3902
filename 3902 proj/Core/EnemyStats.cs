@@ -1,6 +1,6 @@
 namespace TransformersGame.Core
 {
-    public class EnemyStats
+    internal class EnemyStats
     {
         public EnemyStats(float movementSpeed, float patrolDistance, float sightRange, float actionSpeed, double cooldownSeconds)
         {

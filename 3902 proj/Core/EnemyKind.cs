@@ -1,6 +1,6 @@
 namespace TransformersGame.Core
 {
-    public enum EnemyKind
+    internal enum EnemyKind
     {
         Flyer,
         Crawler,

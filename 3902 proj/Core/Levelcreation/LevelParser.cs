@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TransformersGame.Core
 {
-    public static class LevelParser
+    internal static class LevelParser
     {
         public const int MaxColumns = 200;
         public const int MaxRows = 100;

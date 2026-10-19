@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    public interface IPlayerState
+    internal interface IPlayerState
     {
         float Speed { get; }
 

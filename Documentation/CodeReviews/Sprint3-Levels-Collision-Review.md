@@ -2,7 +2,7 @@
 
 > Follow-up integration: all team branches have since been combined on hanshil_tasks. Pickup inventory, health, shield behavior, doors, crate destruction, hazards, additional enemies/weapons, and nearest-first projectile impacts were added. Earlier findings below are historical. Current requirements and remaining work are tracked in Sprint3-Integration-Assessment.md. This is an AI-authored review, not an assertion that teammates performed it.
 
-- Reviewer: Codex (AI-assisted review requested by Hanshil)
+- Review type: automated, AI-assisted source review
 - Date: October 19, 2026
 - Sprint: 3
 - Original authors: Aarav, Levels branch; Sami, collision branch (attribution supplied by Hanshil)

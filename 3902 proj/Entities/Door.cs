@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public sealed class Door : IGameObject
+    internal sealed class Door : IGameObject
     {
         private readonly ISprite sprite;
         public Door(Vector2 position, int direction, ISprite sprite)

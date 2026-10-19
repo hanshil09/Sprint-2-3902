@@ -3,7 +3,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Commands
 {
-    public class MovePlayerCommand : ICommand
+    internal class MovePlayerCommand : ICommand
     {
         private IPlayer player;
         private Direction direction;
@@ -20,7 +20,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class JumpPlayerCommand : ICommand
+    internal class JumpPlayerCommand : ICommand
     {
         private IPlayer player;
 
@@ -35,7 +35,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class ShootPlayerCommand : ICommand
+    internal class ShootPlayerCommand : ICommand
     {
         private IPlayer player;
         private bool angled;
@@ -52,7 +52,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class AngledShootPlayerCommand : ICommand
+    internal class AngledShootPlayerCommand : ICommand
     {
         private IPlayer player;
         private bool angled;
@@ -69,7 +69,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class UseItemCommand : ICommand
+    internal class UseItemCommand : ICommand
     {
         private IPlayer player;
         private int itemNumber;
@@ -86,7 +86,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class UseInventoryItemCommand : ICommand
+    internal class UseInventoryItemCommand : ICommand
     {
         private readonly IPlayer player;
         private readonly ItemKind itemKind;
@@ -110,7 +110,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class TransformPlayerCommand : ICommand
+    internal class TransformPlayerCommand : ICommand
     {
         private IPlayer player;
 

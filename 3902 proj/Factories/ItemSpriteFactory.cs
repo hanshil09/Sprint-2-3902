@@ -7,7 +7,7 @@ using TransformersGame.Sprites;
 
 namespace TransformersGame.Factories
 {
-    public class ItemSpriteFactory
+    internal class ItemSpriteFactory
     {
         public const int ItemSize = 32;
 

@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Behaviors
 {
-    public class LeapBehavior : IEnemyBehavior
+    internal class LeapBehavior : IEnemyBehavior
     {
         private const float LeapSpeed = 560f;
         private const float IdleHopSpeed = 380f;

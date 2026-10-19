@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    public interface IProjectile : IGameObject
+    internal interface IProjectile : IGameObject
     {
         bool IsActive { get; }
 

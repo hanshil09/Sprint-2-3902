@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Behaviors
 {
-    public sealed class GuardBehavior : IEnemyBehavior
+    internal sealed class GuardBehavior : IEnemyBehavior
     {
         private readonly bool airborne;
         private double shotTimer;
@@ -30,7 +30,7 @@ namespace TransformersGame.Behaviors
             shotTimer -= elapsed;
             if (shotTimer <= 0 && enemy.CanSeeTarget(enemy.Stats.SightRange, 540))
             {
-                enemy.FireProjectile();
+                enemy.LaunchProjectile();
                 burstRemaining--;
                 shotTimer = burstRemaining > 0 ? .25 : 2.5;
                 if (burstRemaining == 0) burstRemaining = 3;

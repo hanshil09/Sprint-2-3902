@@ -3,7 +3,7 @@ using TransformersGame.Entities;
 
 namespace TransformersGame.Behaviors
 {
-    public class ChargeBehavior : GroundBehavior
+    internal class ChargeBehavior : GroundBehavior
     {
         private const double WindupSeconds = 0.6;
         private const float MaximumChargeDistance = 360f;

@@ -3,7 +3,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public sealed class RoomManager
+    internal sealed class RoomManager
     {
         private readonly Func<int, Room> roomFactory;
         private readonly IPlayer player;

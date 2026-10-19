@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public class Bomb : IProjectile
+    internal class Bomb : IProjectile
     {
         private const double FuseTime = 1200;
         private const double ExplosionTime = 320;

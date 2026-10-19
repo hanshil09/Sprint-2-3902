@@ -11,7 +11,7 @@ using TransformersGame.UI;
 
 namespace TransformersGame
 {
-    public class Game1 : Game
+    internal class Game1 : Game
     {
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
@@ -113,10 +113,19 @@ namespace TransformersGame
             base.Update(gameTime);
         }
 
-        protected override void UnloadContent()
+        protected override void Dispose(bool disposing)
         {
-            controlsOverlay?.Dispose();
-            base.UnloadContent();
+            if (disposing)
+            {
+                roomManager?.Unload();
+                controlsOverlay?.Dispose();
+                controlsOverlay = null;
+                spriteBatch?.Dispose();
+                spriteBatch = null;
+                graphics?.Dispose();
+                graphics = null;
+            }
+            base.Dispose(disposing);
         }
 
         protected override void Draw(GameTime gameTime)

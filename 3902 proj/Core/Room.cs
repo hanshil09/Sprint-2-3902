@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public sealed class Room
+    internal sealed class Room
     {
         public Room(Level level, IProjectileManager projectiles, GameObjectCycler blocks, GameObjectCycler items, GameObjectCycler enemies)
         {
@@ -61,7 +61,7 @@ namespace TransformersGame.Core
             Level.CollectItems(player);
         }
 
-        public List<IGameObject> GetCollisionObjects(IPlayer player)
+        public IReadOnlyList<IGameObject> GetCollisionObjects(IPlayer player)
         {
             List<IGameObject> objects = new List<IGameObject>(Level.GetOnScreenObjects())
             {
@@ -78,7 +78,7 @@ namespace TransformersGame.Core
                     objects.Add(projectile);
                 }
             }
-            return objects;
+            return objects.AsReadOnly();
         }
 
         public void Unload()

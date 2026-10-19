@@ -6,7 +6,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    public class DamagedPlayer : IPlayer
+    internal class DamagedPlayer : IPlayer
     {
         private const double DamageDuration = 1000;
         private const double BlinkInterval = 100;

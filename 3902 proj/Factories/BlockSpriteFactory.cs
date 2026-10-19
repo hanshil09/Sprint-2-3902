@@ -7,7 +7,7 @@ using TransformersGame.Sprites;
 
 namespace TransformersGame.Factories
 {
-    public class BlockSpriteFactory
+    internal class BlockSpriteFactory
     {
         public const int BlockSize = 32;
 

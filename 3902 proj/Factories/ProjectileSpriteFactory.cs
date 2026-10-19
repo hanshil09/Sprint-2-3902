@@ -6,7 +6,7 @@ using TransformersGame.Sprites;
 
 namespace TransformersGame.Factories
 {
-    public class ProjectileSpriteFactory
+    internal class ProjectileSpriteFactory
     {
         private const double ShotFrameTime = 60;
         private const double ExplosionFrameTime = 80;

@@ -2,7 +2,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Commands
 {
-    public class StartGameCommand : ICommand
+    internal class StartGameCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -17,7 +17,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class ResetGameCommand : ICommand
+    internal class ResetGameCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -32,7 +32,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class QuitCommand : ICommand
+    internal class QuitCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -47,7 +47,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class DamagePlayerCommand : ICommand
+    internal class DamagePlayerCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -62,7 +62,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class RoomNavigationCommand : ICommand
+    internal class RoomNavigationCommand : ICommand
     {
         private readonly Game1 game;
         private readonly bool next;

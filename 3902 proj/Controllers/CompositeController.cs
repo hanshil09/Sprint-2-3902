@@ -3,7 +3,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Controllers
 {
-    public sealed class CompositeController : IController
+    internal sealed class CompositeController : IController
     {
         private readonly IController[] controllers;
 

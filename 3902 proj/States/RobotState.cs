@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
 {
-    public class RobotState : IPlayerState
+    internal class RobotState : IPlayerState
     {
         public const float RobotSpeed = 180f;
 
@@ -31,7 +31,7 @@ namespace TransformersGame.States
 
         public void Shoot(bool angled)
         {
-            player.FireShot();
+            player.ShootEnergy();
             player.SetState(new ShootingRobotState(player, angled));
         }
 
@@ -39,7 +39,7 @@ namespace TransformersGame.States
         {
             if (itemNumber == 1)
             {
-                player.FireOrb();
+                player.LaunchOrb();
                 bool angled = false;
                 player.SetState(new ShootingRobotState(player, angled));
             }

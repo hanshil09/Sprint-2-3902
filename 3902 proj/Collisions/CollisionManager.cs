@@ -6,7 +6,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Collisions
 {
-    public class CollisionManager
+    internal class CollisionManager
     {
         private readonly Action damagePlayer;
         private readonly Action<int> enterDoor;
@@ -22,9 +22,10 @@ namespace TransformersGame.Collisions
             worldBounds = new Rectangle(0, 0, maxWidth, maxHeight);
         }
 
-        public void BuildTree(List<IGameObject> objs)
+        public void BuildTree(IReadOnlyList<IGameObject> objs)
         {
-            objects = objs ?? throw new ArgumentNullException(nameof(objs));
+            ArgumentNullException.ThrowIfNull(objs);
+            objects = new List<IGameObject>(objs);
         }
 
         public void DetectCollision()

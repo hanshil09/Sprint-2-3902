@@ -1,5 +1,7 @@
 # Sprint 2 Code Analyzer Results
 
+Historical Sprint 2 record. See Sprint3-Summary.md for the current Strict result.
+
 ## October 5 2026
 
 Command used:

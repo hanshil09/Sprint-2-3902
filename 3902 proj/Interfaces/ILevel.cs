@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    public interface ILevel
+    internal interface ILevel
     {
         IReadOnlyList<IBlock> Blocks { get; }
 
@@ -21,6 +21,6 @@ namespace TransformersGame.Interfaces
         void Update(GameTime gameTime);
 
         void Draw(SpriteBatch spriteBatch);
-        List<IGameObject> GetOnScreenObjects();
+        IReadOnlyList<IGameObject> GetOnScreenObjects();
     }
 }

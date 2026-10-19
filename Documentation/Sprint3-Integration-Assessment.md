@@ -34,7 +34,7 @@ All eight remote branches were fetched and integrated, including main, Enemies, 
 | Six teammates review and are reviewed | Still requires actual human reviews from all six. AI reviews do not substitute for those records. |
 | Reflection with each teammate's input | Still requires each member's own input. |
 | Metrics tracked over time | Retrospective source-size baseline and current snapshot can be recorded now. Weekly Visual Studio metrics/complexity history remains to be collected. |
-| Stricter analysis | Strict configuration enables latest-all; outstanding warnings are recorded in Sprint3-Quality-Baseline.md and are not hidden. |
+| Stricter analysis | Strict configuration enables latest-all; all 148 reported warnings resolved. See CodeAnalyzer/Sprint3-Summary.md for the verified rebuild and history. |
 | Complete pass/fail regression evidence | Automated coverage exists; a complete graphical playthrough and per-pair manual evidence remain pending. |
 | Carmen, CATME, grader review | Team must complete actual course submissions and review arrangements. |
 
@@ -48,4 +48,4 @@ dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore
 dotnet build "3902 proj.sln" -c Strict
 ```
 
-The normal build uses latest-recommended analyzers. The Strict configuration enables all analyzers and currently produces warnings that need triage. No visual playthrough or subjective professor-grade claim is made by this assessment.
+The normal build uses latest-recommended analyzers. The Strict configuration enables all analyzers and now rebuilds with zero warnings and errors. All 29 regression checks pass. A complete visual playthrough is still pending.

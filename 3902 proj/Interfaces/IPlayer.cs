@@ -4,7 +4,7 @@ using TransformersGame.Core;
 
 namespace TransformersGame.Interfaces
 {
-    public interface IPlayer : IGameObject
+    internal interface IPlayer : IGameObject
     {
         int Width { get; }
 

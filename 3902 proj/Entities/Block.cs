@@ -5,7 +5,7 @@ using TransformersGame.Core;
 
 namespace TransformersGame.Entities
 {
-    public class Block : IBlock
+    internal class Block : IBlock
     {
         private ISprite sprite;
 

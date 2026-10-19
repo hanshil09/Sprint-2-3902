@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Controllers
 {
-    public sealed class MouseController : IController
+    internal sealed class MouseController : IController
     {
         private readonly ICommand leftClickCommand;
         private readonly ICommand rightClickCommand;
