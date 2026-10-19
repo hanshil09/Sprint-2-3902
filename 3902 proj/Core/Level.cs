@@ -21,6 +21,7 @@ namespace TransformersGame.Core
         private readonly List<IGameObject> objs;
         private readonly List<IBlock> blocks;
         private readonly List<IItem> items;
+        private Rectangle playerSpawnBounds;
 
         public Level(LevelData data)
         {
@@ -41,7 +42,18 @@ namespace TransformersGame.Core
                 items.Add(CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
             }
 
-            PlayerStart = CellPosition(data.PlayerColumn, data.PlayerRow);
+            Vector2 requestedPlayerStart = CellPosition(data.PlayerColumn, data.PlayerRow);
+            ISprite playerSprite = PlayerSpriteFactory.Instance.CreateStandingRobotSprite(Direction.Right);
+            PlayerStart = FindSafeSpawn(
+                requestedPlayerStart,
+                playerSprite.Width,
+                playerSprite.Height,
+                SolidBlockBounds());
+            playerSpawnBounds = new Rectangle(
+                (int)PlayerStart.X,
+                (int)PlayerStart.Y,
+                playerSprite.Width,
+                playerSprite.Height);
         }
 
         public IReadOnlyList<IBlock> Blocks => blocks;
@@ -66,10 +78,16 @@ namespace TransformersGame.Core
 
         public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
         {
+            List<Rectangle> occupied = SolidBlockBounds();
+            occupied.Add(playerSpawnBounds);
             foreach (Placement<EnemyKind> placement in data.Enemies)
             {
-                Vector2 start = CellPosition(placement.Column, placement.Row);
-                cycler.Add(new Enemy(start, blocks, CreateEnemyConfiguration(placement.Kind), player, projectiles));
+                Vector2 requestedStart = CellPosition(placement.Column, placement.Row);
+                ISprite enemySprite = EnemySpriteFactory.Instance.CreateEnemySprite(placement.Kind, Color.White, true);
+                Vector2 start = FindSafeSpawn(requestedStart, enemySprite.Width, enemySprite.Height, occupied);
+                Enemy enemy = new Enemy(start, blocks, CreateEnemyConfiguration(placement.Kind), player, projectiles);
+                cycler.Add(enemy);
+                occupied.Add(enemy.Bounds);
             }
         }
 
@@ -121,6 +139,63 @@ namespace TransformersGame.Core
         private Vector2 CellPosition(int column, int row)
         {
             return new Vector2(column * TileSize, ScreenHeight - (data.Rows - row) * TileSize);
+        }
+
+        private List<Rectangle> SolidBlockBounds()
+        {
+            List<Rectangle> bounds = new List<Rectangle>();
+            foreach (IBlock block in blocks)
+            {
+                if (block.IsSolid)
+                {
+                    bounds.Add(block.Bounds);
+                }
+            }
+            return bounds;
+        }
+
+        private static Vector2 FindSafeSpawn(Vector2 requested, int width, int height, List<Rectangle> occupied)
+        {
+            const int searchStep = 16;
+            float bestDistance = float.MaxValue;
+            Vector2 bestPosition = Vector2.Zero;
+            bool found = false;
+
+            for (int y = 0; y <= ScreenHeight - height; y += searchStep)
+            {
+                for (int x = 0; x <= 960 - width; x += searchStep)
+                {
+                    Rectangle candidate = new Rectangle(x, y, width, height);
+                    bool overlaps = false;
+                    foreach (Rectangle bounds in occupied)
+                    {
+                        if (candidate.Intersects(bounds))
+                        {
+                            overlaps = true;
+                            break;
+                        }
+                    }
+                    if (overlaps)
+                    {
+                        continue;
+                    }
+
+                    Vector2 position = new Vector2(x, y);
+                    float distance = Vector2.DistanceSquared(position, requested);
+                    if (distance < bestDistance)
+                    {
+                        bestDistance = distance;
+                        bestPosition = position;
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                throw new InvalidOperationException("The level has no non-overlapping spawn position for an entity.");
+            }
+            return bestPosition;
         }
 
         private static Block CreateShowcaseBlock(BlockKind kind)

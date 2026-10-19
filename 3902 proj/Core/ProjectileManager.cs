@@ -39,7 +39,10 @@ namespace TransformersGame.Core
         {
             foreach (IProjectile projectile in projectiles)
             {
-                projectile.Draw(spriteBatch);
+                if (projectile.IsActive)
+                {
+                    projectile.Draw(spriteBatch);
+                }
             }
         }
 

@@ -39,36 +39,97 @@ namespace TransformersGame.Core
         public Vector2 Apply(Vector2 position, int width, int height, GameTime gameTime)
         {
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            float previousBottom = position.Y + height;
+            float previousY = position.Y;
             verticalVelocity += Gravity * elapsed;
-            position.Y += verticalVelocity * elapsed;
+            float desiredY = position.Y + verticalVelocity * elapsed;
             IsOnGround = false;
-            if (verticalVelocity >= 0)
+            foreach (IBlock block in blocks)
             {
-                position.Y = LandOnBlocks(position, width, height, previousBottom);
+                if (!block.IsSolid || !OverlapsHorizontally(position.X, width, block.Bounds))
+                {
+                    continue;
+                }
+
+                if (verticalVelocity >= 0
+                    && previousY + height <= block.Bounds.Top
+                    && desiredY + height >= block.Bounds.Top)
+                {
+                    desiredY = System.Math.Min(desiredY, block.Bounds.Top - height);
+                    verticalVelocity = 0;
+                    IsOnGround = true;
+                }
+                else if (verticalVelocity < 0
+                    && previousY >= block.Bounds.Bottom
+                    && desiredY <= block.Bounds.Bottom)
+                {
+                    desiredY = System.Math.Max(desiredY, block.Bounds.Bottom);
+                    verticalVelocity = 0;
+                }
             }
+            position.Y = desiredY;
             return position;
         }
 
-        private float LandOnBlocks(Vector2 position, int width, int height, float previousBottom)
+        public Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance, float minimumX, float maximumX)
         {
+            float startX = position.X;
+            float desiredX = MathHelper.Clamp(startX + distance, minimumX, maximumX);
+            float resolvedX = desiredX;
             foreach (IBlock block in blocks)
             {
-                if (block.IsSolid && IsLandingOn(block.Bounds, position, width, height, previousBottom))
+                Rectangle bounds = block.Bounds;
+                if (!block.IsSolid || !OverlapsVertically(position.Y, height, bounds))
                 {
-                    verticalVelocity = 0;
-                    IsOnGround = true;
-                    return block.Bounds.Top - height;
+                    continue;
+                }
+
+                if (distance > 0 && startX + width <= bounds.Left && desiredX + width > bounds.Left)
+                {
+                    resolvedX = System.Math.Min(resolvedX, bounds.Left - width);
+                }
+                else if (distance < 0 && startX >= bounds.Right && desiredX < bounds.Right)
+                {
+                    resolvedX = System.Math.Max(resolvedX, bounds.Right);
                 }
             }
-            return position.Y;
+            position.X = MathHelper.Clamp(resolvedX, minimumX, maximumX);
+            return position;
         }
 
-        private static bool IsLandingOn(Rectangle bounds, Vector2 position, int width, int height, float previousBottom)
+        public Vector2 MoveVertically(Vector2 position, int width, int height, float distance, float minimumY, float maximumY)
         {
-            bool overlapsHorizontally = position.X + width > bounds.Left && position.X < bounds.Right;
-            bool crossesTop = previousBottom <= bounds.Top && position.Y + height >= bounds.Top;
-            return overlapsHorizontally && crossesTop;
+            float startY = position.Y;
+            float desiredY = MathHelper.Clamp(startY + distance, minimumY, maximumY);
+            float resolvedY = desiredY;
+            foreach (IBlock block in blocks)
+            {
+                Rectangle bounds = block.Bounds;
+                if (!block.IsSolid || !OverlapsHorizontally(position.X, width, bounds))
+                {
+                    continue;
+                }
+
+                if (distance > 0 && startY + height <= bounds.Top && desiredY + height > bounds.Top)
+                {
+                    resolvedY = System.Math.Min(resolvedY, bounds.Top - height);
+                }
+                else if (distance < 0 && startY >= bounds.Bottom && desiredY < bounds.Bottom)
+                {
+                    resolvedY = System.Math.Max(resolvedY, bounds.Bottom);
+                }
+            }
+            position.Y = MathHelper.Clamp(resolvedY, minimumY, maximumY);
+            return position;
+        }
+
+        private static bool OverlapsHorizontally(float x, int width, Rectangle bounds)
+        {
+            return x + width > bounds.Left && x < bounds.Right;
+        }
+
+        private static bool OverlapsVertically(float y, int height, Rectangle bounds)
+        {
+            return y + height > bounds.Top && y < bounds.Bottom;
         }
     }
 }

@@ -183,7 +183,7 @@ namespace TransformersGame.Entities
             {
                 float direction = FacingLeft ? -1 : 1;
                 float distance = direction * state.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                Position = new Vector2(Position.X + distance, Position.Y);
+                Position = physics.MoveHorizontally(Position, Width, Height, distance, 0, 960 - Width);
             }
         }
 

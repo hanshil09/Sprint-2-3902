@@ -148,7 +148,7 @@ namespace TransformersGame
             Player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles);
             Room initialRoom = CreateRoom(initialLevel, initialProjectiles);
             roomManager = new RoomManager(initialRoom, RoomPaths.Length, Player, CreateRoomForIndex);
-            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight);
+            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer);
             menuController = ControllerFactory.CreateMenuController(this);
             RefreshGameplayController();
         }
@@ -161,6 +161,7 @@ namespace TransformersGame
             KeepPlayerOnScreen();
             activeRoom.CollectItems(Player);
             collisionManager.BuildTree(activeRoom.GetCollisionObjects(Player));
+            collisionManager.DetectCollision();
         }
 
         private Room CreateRoomForIndex(int roomIndex)
