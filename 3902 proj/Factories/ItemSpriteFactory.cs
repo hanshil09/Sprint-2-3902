@@ -34,8 +34,10 @@ namespace TransformersGame.Factories
 
         public ISprite CreateItemSprite(ItemKind kind)
         {
-            Rectangle frame = new Rectangle((int)kind * ItemSize, 0, ItemSize, ItemSize);
-            return new TextureRegionSprite(itemSpriteSheet, frame, ItemSize, ItemSize, Color.White);
+            bool immediate = kind == ItemKind.HealthCell || kind == ItemKind.ShieldBattery;
+            int frameIndex = kind == ItemKind.Medkit || kind == ItemKind.HealthCell ? 0 : 1;
+            Rectangle frame = new Rectangle(frameIndex * ItemSize, 0, ItemSize, ItemSize);
+            return new TextureRegionSprite(itemSpriteSheet, frame, ItemSize, ItemSize, immediate ? Color.Cyan : Color.White);
         }
     }
 }

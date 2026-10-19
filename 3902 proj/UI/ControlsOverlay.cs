@@ -22,7 +22,7 @@ namespace TransformersGame.UI
             pixel.SetData(new[] { Color.White });
         }
 
-        public void DrawMenu(SpriteBatch spriteBatch, Viewport viewport)
+        public void DrawMenu(SpriteBatch spriteBatch, Viewport viewport, bool gameOver = false)
         {
             const int width = 500;
             const int height = 190;
@@ -30,9 +30,9 @@ namespace TransformersGame.UI
             int top = (viewport.Height - height) / 2;
 
             DrawPanel(spriteBatch, new Rectangle(left, top, width, height));
-            DrawText(spriteBatch, "TRANSFORMERS DEMO", left + 28, top + 24, HeadingColor, 1.25f);
-            DrawText(spriteBatch, "SPRINT 2", left + 30, top + 58, AccentColor, 0.75f);
-            DrawKeyLine(spriteBatch, "ENTER", "Start game", left + 30, top + 102);
+            DrawText(spriteBatch, gameOver ? "GAME OVER" : "TRANSFORMERS DEMO", left + 28, top + 24, HeadingColor, 1.25f);
+            DrawText(spriteBatch, "SPRINT 3", left + 30, top + 58, AccentColor, 0.75f);
+            DrawKeyLine(spriteBatch, gameOver ? "R" : "ENTER", gameOver ? "Reset game" : "Start game", left + 30, top + 102);
             DrawKeyLine(spriteBatch, "Q / ESC", "Quit", left + 30, top + 140);
         }
 
@@ -44,7 +44,7 @@ namespace TransformersGame.UI
             DrawText(spriteBatch, "MOVE", 34, 63, AccentColor, 0.65f);
             DrawText(spriteBatch, "A / D or arrows     W / UP / J jump     S / DOWN face", 105, 63, TextColor, 0.58f);
             DrawText(spriteBatch, "ACTION", 34, 91, AccentColor, 0.65f);
-            DrawText(spriteBatch, "SPACE transform   Z / N shoot   K angled   1 orb   2 bomb", 105, 91, TextColor, 0.52f);
+            DrawText(spriteBatch, "Z/N shot K angle 1 orb 2 bomb 5 pierce 6 spread SPACE form", 105, 91, TextColor, 0.48f);
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
             DrawText(spriteBatch, "T / Y blocks     U / I items     O / P enemies", 105, 119, TextColor, 0.58f);
             DrawText(spriteBatch, "ITEMS", 34, 147, AccentColor, 0.65f);

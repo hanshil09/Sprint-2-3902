@@ -16,6 +16,10 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 ## Controls
 
+Sprint 3 additions: **5** fires a three-enemy piercing shot; **6** fires a three-way spread (numpad supported). Cyan Health Cells heal 10 immediately; cyan Shield Batteries grant five seconds of protection, capped at ten seconds. Orange crates break on player shots/explosions; red hazards damage on contact. Metal door markers at room edges transition to the preceding/following room. At zero health, gameplay stops; **R** resets and **Q** quits.
+
+The laboratory also includes an orange stationary burst Sentry and a cyan vertical Sentinel, bringing enemy variety to seven kinds. Existing artwork is reused with tinting for these variants. See the current [requirement assessment](Documentation/Sprint3-Integration-Assessment.md) for remaining grading and testing work.
+
 - **Enter** starts from the menu.
 - **A/D** or **Left/Right** move horizontally. **W**, **Up**, or **J** jumps. **S** or **Down** changes the player's facing direction downward; it does not move the player down.
 - **Space** changes between standing and morph ball forms, where morph ball is smaller and moves faster.

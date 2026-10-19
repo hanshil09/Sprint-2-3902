@@ -30,6 +30,7 @@ namespace TransformersGame
         private CollisionManager collisionManager;
         private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
+        private int pendingDoorDirection;
 
         public Game1()
         {
@@ -100,7 +101,7 @@ namespace TransformersGame
 
         protected override void Update(GameTime gameTime)
         {
-            if (gameState == GameState.StartMenu)
+            if (gameState != GameState.Gameplay)
             {
                 menuController.Update();
             }
@@ -120,11 +121,11 @@ namespace TransformersGame
 
         protected override void Draw(GameTime gameTime)
         {
-            if (gameState == GameState.StartMenu)
+            if (gameState != GameState.Gameplay)
             {
                 GraphicsDevice.Clear(MenuColor);
                 spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport);
+                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport, gameState == GameState.GameOver);
                 spriteBatch.End();
             }
             else
@@ -147,7 +148,9 @@ namespace TransformersGame
             Player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles);
             Room initialRoom = CreateRoom(initialLevel, initialProjectiles);
             roomManager = new RoomManager(initialRoom, RoomPaths.Length, Player, CreateRoomForIndex);
-            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer);
+            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer,
+                direction => pendingDoorDirection = direction);
+            pendingDoorDirection = 0;
             menuController = ControllerFactory.CreateMenuController(this);
             RefreshGameplayController();
         }
@@ -161,6 +164,21 @@ namespace TransformersGame
             activeRoom.CollectItems(Player);
             collisionManager.BuildTree(activeRoom.GetCollisionObjects(Player));
             collisionManager.DetectCollision();
+            if (pendingDoorDirection != 0 && Player.Health > 0)
+            {
+                int direction = pendingDoorDirection;
+                pendingDoorDirection = 0;
+                if (direction > 0) NextRoom(); else PreviousRoom();
+            }
+            if (Player.Health <= 0)
+            {
+                gameState = GameState.GameOver;
+                Window.Title = "Game Over - R to reset, Q to quit";
+                KeyboardController endController = new KeyboardController();
+                endController.RegisterSinglePressCommand(Microsoft.Xna.Framework.Input.Keys.R, new TransformersGame.Commands.ResetGameCommand(this));
+                endController.RegisterSinglePressCommand(Microsoft.Xna.Framework.Input.Keys.Q, new TransformersGame.Commands.QuitCommand(this));
+                menuController = endController;
+            }
         }
 
         private Room CreateRoomForIndex(int roomIndex)

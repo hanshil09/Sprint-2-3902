@@ -117,6 +117,21 @@ namespace TransformersGame.Entities
 
         public void UseItem(int itemNumber)
         {
+            if (itemNumber == 5)
+            {
+                ISprite shot = ProjectileSpriteFactory.Instance.CreateOrbSprite(FacingLeft);
+                projectiles.Add(new PiercingProjectile(MuzzlePosition(shot), ShotVelocity(420), shot));
+                return;
+            }
+            if (itemNumber == 6)
+            {
+                ISprite shot = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
+                foreach (float vertical in new[] { -140f, 0f, 140f })
+                {
+                    projectiles.Add(new EnergyProjectile(MuzzlePosition(shot), new Vector2(FacingLeft ? -400 : 400, vertical), false, FacingLeft, shot));
+                }
+                return;
+            }
             state.UseItem(itemNumber);
         }
 
@@ -145,6 +160,12 @@ namespace TransformersGame.Entities
                     break;
                 case ItemKind.Shield:
                     shieldCount++;
+                    break;
+                case ItemKind.HealthCell:
+                    Health = System.Math.Min(MaxHealth, Health + 10);
+                    break;
+                case ItemKind.ShieldBattery:
+                    shieldTimeRemaining = System.Math.Min(10000, shieldTimeRemaining + ShieldDuration);
                     break;
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "Unknown inventory item.");

@@ -21,6 +21,7 @@ namespace TransformersGame.Core
         private readonly List<IGameObject> objs;
         private readonly List<IBlock> blocks;
         private readonly List<IItem> items;
+        private readonly List<Door> doors = new();
         private Rectangle playerSpawnBounds;
 
         public Level(LevelData data)
@@ -34,12 +35,18 @@ namespace TransformersGame.Core
             foreach (Placement<BlockKind> placement in data.Blocks)
             {
                 ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
-                blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite, true));
+                blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite,
+                    placement.Kind != BlockKind.Hazard, placement.Kind));
             }
 
             foreach (Placement<ItemKind> placement in data.Items)
             {
                 items.Add(CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
+            }
+            foreach (Placement<int> placement in data.Doors)
+            {
+                doors.Add(new Door(CellPosition(placement.Column, placement.Row), placement.Kind,
+                    BlockSpriteFactory.Instance.CreateBlockSprite(BlockKind.Metal)));
             }
 
             Vector2 requestedPlayerStart = CellPosition(data.PlayerColumn, data.PlayerRow);
@@ -129,6 +136,7 @@ namespace TransformersGame.Core
             {
                 item.Draw(spriteBatch);
             }
+            foreach (Door door in doors) door.Draw(spriteBatch);
         }
 
         public List<IGameObject> GetOnScreenObjects()
@@ -136,6 +144,7 @@ namespace TransformersGame.Core
             objs.Clear();
             objs.AddRange(blocks);
             objs.AddRange(items);
+            objs.AddRange(doors);
             return objs;
         }
 
@@ -215,6 +224,9 @@ namespace TransformersGame.Core
                     return new Medkit(position, sprite);
                 case ItemKind.Shield:
                     return new Shield(position, sprite);
+                case ItemKind.HealthCell:
+                case ItemKind.ShieldBattery:
+                    return new ResourcePickup(position, sprite, kind);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, "No item is defined for this kind.");
             }
@@ -234,6 +246,10 @@ namespace TransformersGame.Core
                     return new EnemyConfiguration(kind, new EnemyStats(90f, 60f, 360f, 260f, 1.4), new ChargeBehavior());
                 case EnemyKind.Waver:
                     return new EnemyConfiguration(kind, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
+                case EnemyKind.Sentry:
+                    return new EnemyConfiguration(kind, new EnemyStats(0, 0, 500, 0, 2.5), new GuardBehavior(false));
+                case EnemyKind.Sentinel:
+                    return new EnemyConfiguration(kind, new EnemyStats(0, 0, 500, 0, 2.5), new GuardBehavior(true));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, "No enemy is defined for this kind.");
             }

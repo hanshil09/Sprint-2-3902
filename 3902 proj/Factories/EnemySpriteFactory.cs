@@ -67,6 +67,10 @@ namespace TransformersGame.Factories
 
         public ISprite CreateEnemySprite(EnemyKind kind, Color tint, bool facingLeft)
         {
+            if (kind == EnemyKind.Sentry || kind == EnemyKind.Sentinel)
+            {
+                tint = kind == EnemyKind.Sentry ? Color.Orange : Color.Cyan;
+            }
             Rectangle[] frames = kind switch
             {
                 EnemyKind.Flyer => Enemy1Frames,
@@ -74,6 +78,8 @@ namespace TransformersGame.Factories
                 EnemyKind.Beetle => Enemy4Frames,
                 EnemyKind.Waver => Enemy5Frames,
                 EnemyKind.Hopper => Enemy6Frames,
+                EnemyKind.Sentry => Enemy2Frames,
+                EnemyKind.Sentinel => Enemy5Frames,
                 _ => Enemy1Frames
             };
 

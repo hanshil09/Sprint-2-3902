@@ -19,8 +19,8 @@ foreach (string path in Directory.GetFiles("3902 proj/Content/Levels", "*.room")
 {
     LevelParseResult result = LevelParser.Parse(File.ReadAllLines(path));
     Check("valid room " + path, result.Success);
-    Check("all enemy types " + path, result.Data.Enemies.Select(e => e.Kind).Distinct().Count() == 5);
-    Check("both pickup types " + path, result.Data.Items.Count == 2);
+    Check("base enemy types " + path, result.Data.Enemies.Select(e => e.Kind).Distinct().Count() >= 5);
+    Check("pickup coverage " + path, result.Data.Items.Count >= 2);
 }
 Check("reject missing spawn", !LevelParser.Parse(new[] { "[tiles]", "GGG" }).Success);
 Check("reject duplicate spawn", !LevelParser.Parse(new[] { "[tiles]", "PP" }).Success);
@@ -61,9 +61,78 @@ Check("hold right triggers once", next.Count == 1);
 var rebuilt = new MouseController(previous, next, () => mouse);
 rebuilt.Update();
 Check("controller rebuild does not repeat held click", next.Count == 1);
+var lab = LevelParser.Parse(File.ReadAllLines("3902 proj/Content/Levels/laboratory-02.room")).Data;
+Check("seven enemy kinds available", lab.Enemies.Select(e => e.Kind).Distinct().Count() == 7);
+Check("four pickup kinds available", lab.Items.Select(e => e.Kind).Distinct().Count() == 4);
+Check("environment behaviors available", lab.Blocks.Any(b => b.Kind == BlockKind.Crate) && lab.Blocks.Any(b => b.Kind == BlockKind.Hazard));
+var crate = new Block(new Vector2(100, 100), new StubSprite(), true, BlockKind.Crate);
+shot = new EnergyProjectile(new Vector2(80, 100), new Vector2(100, 0), false, false, new StubSprite());
+shot.Update(Step(.3));
+collisions.BuildTree(new List<IGameObject> { crate, shot });
+collisions.DetectCollision();
+Check("crate breaks on shot impact", crate.IsDestroyed && !crate.IsSolid && !shot.IsActive);
+var piercingShot = new PiercingProjectile(new Vector2(100, 100), Vector2.Zero, new StubSprite());
+var first = new StubEnemy { Position = new Vector2(100, 100) };
+var second = new StubEnemy { Position = new Vector2(100, 100) };
+collisions.BuildTree(new List<IGameObject> { piercingShot, first, second });
+collisions.DetectCollision();
+Check("piercing shot hits multiple enemies", first.Hits == 1 && second.Hits == 1 && piercingShot.IsActive);
+collisions.DetectCollision();
+Check("piercing shot does not repeat damage", first.Hits == 1 && second.Hits == 1);
+wall = new Block(new Vector2(100, 100), new StubSprite(), true);
+enemy = new StubEnemy { Position = new Vector2(150, 100) };
+shot = new EnergyProjectile(new Vector2(0, 100), new Vector2(1000, 0), false, false, new StubSprite());
+shot.Update(Step(.2));
+collisions.BuildTree(new List<IGameObject> { shot, enemy, wall });
+collisions.DetectCollision();
+Check("nearest wall shields enemy independent of object order", !shot.IsActive && enemy.Hits == 0);
+Check("room doors parsed", lab.Doors.Count == 2);
+var testPlayer = new StubPlayer { Position = new Vector2(100, 100) };
+int doorDirection = 0;
+collisions = new CollisionManager(960, 540, null, direction => doorDirection = direction);
+collisions.BuildTree(new List<IGameObject> { testPlayer, new Door(new Vector2(100, 100), -1, new StubSprite()) });
+collisions.DetectCollision();
+Check("door overlap requests previous room", doorDirection == -1);
+var enemyShot = new EnemyProjectile(new Vector2(105, 105), new Vector2(105, 105), new StubSprite());
+collisions.BuildTree(new List<IGameObject> { testPlayer, enemyShot });
+collisions.DetectCollision();
+Check("enemy projectile damages and deactivates", testPlayer.DamageCount == 1 && !enemyShot.IsActive);
+var hazard = new Block(new Vector2(100, 100), new StubSprite(), false, BlockKind.Hazard);
+collisions.BuildTree(new List<IGameObject> { hazard, testPlayer });
+collisions.DetectCollision();
+Check("non-solid hazard damages player", testPlayer.DamageCount == 2 && !hazard.IsSolid);
+var resource = new ResourcePickup(Vector2.Zero, new StubSprite(), ItemKind.HealthCell);
+resource.Collect(testPlayer); resource.Collect(testPlayer);
+Check("resource pickup is applied once", testPlayer.ItemsAdded == 1);
 Console.WriteLine($"{passed} regression checks passed.");
 
 sealed class CounterCommand : ICommand { public int Count { get; private set; } public void Execute() => Count++; }
+sealed class StubPlayer : IPlayer
+{
+    public Vector2 Position { get; set; }
+    public int Width => 10;
+    public int Height => 10;
+    public Direction Facing => Direction.Right;
+    public int Health => 100;
+    public int MaxHealth => 100;
+    public int MedkitCount => 0;
+    public int ShieldCount => 0;
+    public bool IsShieldActive => false;
+    public int DamageCount { get; private set; }
+    public int ItemsAdded { get; private set; }
+    public bool TakeDamage() { DamageCount++; return true; }
+    public void AddItem(ItemKind kind) => ItemsAdded++;
+    public bool UseMedkit() => false;
+    public bool UseShield() => false;
+    public void Move(Direction direction) { }
+    public void Jump() { }
+    public void Shoot(bool angled) { }
+    public void UseItem(int itemNumber) { }
+    public void Transform() { }
+    public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position) => Position = position;
+    public void Update(GameTime gameTime) { }
+    public void Draw(SpriteBatch spriteBatch) { }
+}
 sealed class StubSprite : ISprite
 {
     public int Width => 10;

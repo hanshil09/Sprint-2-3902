@@ -22,13 +22,17 @@ namespace TransformersGame.Core
             ['G'] = BlockKind.Ground,
             ['B'] = BlockKind.Brick,
             ['S'] = BlockKind.Stone,
-            ['M'] = BlockKind.Metal
+            ['M'] = BlockKind.Metal,
+            ['C'] = BlockKind.Crate,
+            ['X'] = BlockKind.Hazard
         };
 
         private static readonly Dictionary<char, ItemKind> ItemSymbols = new Dictionary<char, ItemKind>
         {
             ['+'] = ItemKind.Medkit,
-            ['*'] = ItemKind.Shield
+            ['*'] = ItemKind.Shield,
+            ['!'] = ItemKind.HealthCell,
+            ['$'] = ItemKind.ShieldBattery
         };
 
         private static readonly Dictionary<char, EnemyKind> EnemySymbols = new Dictionary<char, EnemyKind>
@@ -37,7 +41,9 @@ namespace TransformersGame.Core
             ['c'] = EnemyKind.Crawler,
             ['h'] = EnemyKind.Hopper,
             ['b'] = EnemyKind.Beetle,
-            ['w'] = EnemyKind.Waver
+            ['w'] = EnemyKind.Waver,
+            ['t'] = EnemyKind.Sentry,
+            ['v'] = EnemyKind.Sentinel
         };
 
         public static LevelParseResult Parse(IEnumerable<string> lines)
@@ -123,6 +129,7 @@ namespace TransformersGame.Core
             List<Placement<BlockKind>> blocks = new List<Placement<BlockKind>>();
             List<Placement<ItemKind>> items = new List<Placement<ItemKind>>();
             List<Placement<EnemyKind>> enemies = new List<Placement<EnemyKind>>();
+            List<Placement<int>> doors = new();
             List<string> spawnLocations = new List<string>();
             Dictionary<char, UnknownTile> unknownTiles = new Dictionary<char, UnknownTile>();
             int playerColumn = 0;
@@ -152,6 +159,10 @@ namespace TransformersGame.Core
                         spawnLocations.Add($"line {rowLine} column {c + 1}");
                         playerColumn = c;
                         playerRow = r;
+                    }
+                    else if (symbol == '<' || symbol == '>')
+                    {
+                        doors.Add(new Placement<int>(symbol == '<' ? -1 : 1, c, r));
                     }
                     else if (BlockSymbols.TryGetValue(symbol, out BlockKind block))
                     {
@@ -202,13 +213,13 @@ namespace TransformersGame.Core
                 name = DefaultName;
             }
 
-            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies);
+            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors);
             return new LevelParseResult(data, errors, warnings);
         }
 
         private static void ParseHeaderLine(string line, int lineNumber, ref string name, List<string> warnings)
         {
-            int colon = line.IndexOf(':');
+            int colon = line.IndexOf(':', StringComparison.Ordinal);
             if (colon <= 0)
             {
                 warnings.Add($"line {lineNumber}: expected 'key: value' before {TilesSection}; ignored '{line}'");

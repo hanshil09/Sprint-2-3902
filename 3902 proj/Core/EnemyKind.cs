@@ -6,6 +6,8 @@ namespace TransformersGame.Core
         Crawler,
         Hopper,
         Beetle,
-        Waver
+        Waver,
+        Sentry,
+        Sentinel
     }
 }

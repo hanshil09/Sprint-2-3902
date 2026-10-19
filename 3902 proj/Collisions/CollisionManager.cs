@@ -9,14 +9,16 @@ namespace TransformersGame.Collisions
     public class CollisionManager
     {
         private readonly Action damagePlayer;
+        private readonly Action<int> enterDoor;
         private readonly Rectangle worldBounds;
         private List<IGameObject> objects = new List<IGameObject>();
 
-        public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null)
+        public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null, Action<int> enterDoor = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxWidth);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxHeight);
             this.damagePlayer = damagePlayer;
+            this.enterDoor = enterDoor;
             worldBounds = new Rectangle(0, 0, maxWidth, maxHeight);
         }
 
@@ -27,6 +29,25 @@ namespace TransformersGame.Collisions
 
         public void DetectCollision()
         {
+            // Resolve each projectile's nearest swept impacts first, independent of object-list order.
+            foreach (IGameObject gameObject in objects)
+            {
+                if (gameObject is not IProjectile projectile || !projectile.IsActive) continue;
+                List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = new();
+                foreach (IGameObject target in objects)
+                {
+                    if (ReferenceEquals(projectile, target) || IsUnavailable(target)
+                        || !TryGetBounds(target, out Rectangle bounds)) continue;
+                    float impact = ImpactTime(projectile, bounds);
+                    if (!float.IsPositiveInfinity(impact)) impacts.Add((target, bounds, impact));
+                }
+                impacts.Sort((a, b) => a.Time.CompareTo(b.Time));
+                foreach (var impact in impacts)
+                {
+                    HandleProjectileCollision(projectile, impact.Bounds, impact.Target);
+                    if (!projectile.IsActive) break;
+                }
+            }
             for (int i = 0; i < objects.Count; i++)
             {
                 IGameObject objectA = objects[i];
@@ -61,15 +82,15 @@ namespace TransformersGame.Collisions
 
         private void HandleCollision(IGameObject objectA, Rectangle boundsA, IGameObject objectB, Rectangle boundsB)
         {
-            if (objectA is IProjectile projectileA)
+            if (boundsA.Intersects(boundsB))
             {
-                HandleProjectileCollision(projectileA, boundsB, objectB);
+                if (objectA is IPlayer && objectB is Door doorB) enterDoor?.Invoke(doorB.Direction);
+                if (objectB is IPlayer && objectA is Door doorA) enterDoor?.Invoke(doorA.Direction);
+                if (objectA is IPlayer hazardPlayerA && objectB is Block hazardB && hazardB.IsHazard)
+                    DamagePlayer(hazardPlayerA);
+                if (objectB is IPlayer hazardPlayerB && objectA is Block hazardA && hazardA.IsHazard)
+                    DamagePlayer(hazardPlayerB);
             }
-            if (objectB is IProjectile projectileB)
-            {
-                HandleProjectileCollision(projectileB, boundsA, objectA);
-            }
-
             if (objectA is IPlayer && objectB is IEnemy enemyB && !enemyB.IsDestroyed
                 && boundsA.Intersects(boundsB))
             {
@@ -95,9 +116,18 @@ namespace TransformersGame.Collisions
                 {
                     bomb.DamageEnemy(bombTarget);
                 }
+                if (bomb.IsExploding && target is Block crate && bomb.Bounds.Intersects(targetBounds))
+                {
+                    crate.Destroy();
+                }
             }
             else if (projectile is EnergyProjectile && target is IEnemy enemy)
             {
+                if (projectile is PiercingProjectile piercing)
+                {
+                    piercing.Hit(enemy);
+                    return;
+                }
                 if (!enemy.IsDestroyed)
                 {
                     enemy.TakeDamage(1);
@@ -111,6 +141,7 @@ namespace TransformersGame.Collisions
             }
             else if (projectile is not Bomb && target is IBlock block && block.IsSolid)
             {
+                if (projectile is EnergyProjectile && block is Block crate) crate.Destroy();
                 projectile.Deactivate();
             }
         }
@@ -137,12 +168,15 @@ namespace TransformersGame.Collisions
         {
             switch (gameObject)
             {
+                case Door door:
+                    bounds = door.Bounds;
+                    return true;
                 case IProjectile projectile:
                     bounds = projectile.Bounds;
                     return true;
                 case IBlock block:
                     bounds = block.Bounds;
-                    return block.IsSolid;
+                    return block.IsSolid || block is Block hazard && hazard.IsHazard;
                 case IItem item:
                     bounds = item.Bounds;
                     return true;
@@ -160,10 +194,15 @@ namespace TransformersGame.Collisions
 
         private static bool SweptIntersects(IProjectile projectile, Rectangle target)
         {
+            return !float.IsPositiveInfinity(ImpactTime(projectile, target));
+        }
+
+        private static float ImpactTime(IProjectile projectile, Rectangle target)
+        {
             Rectangle current = projectile.Bounds;
             if (current.Intersects(target))
             {
-                return true;
+                return 0;
             }
 
             float halfWidth = current.Width / 2f;
@@ -180,7 +219,8 @@ namespace TransformersGame.Collisions
             float exit = 1;
 
             return ClipAxis(startX, deltaX, minX, maxX, ref enter, ref exit)
-                && ClipAxis(startY, deltaY, minY, maxY, ref enter, ref exit);
+                && ClipAxis(startY, deltaY, minY, maxY, ref enter, ref exit)
+                ? enter : float.PositiveInfinity;
         }
 
         private static bool ClipAxis(float origin, float delta, float minimum, float maximum, ref float enter, ref float exit)

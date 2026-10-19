@@ -28,7 +28,8 @@ namespace TransformersGame.Core
             int playerRow,
             IReadOnlyList<Placement<BlockKind>> blocks,
             IReadOnlyList<Placement<ItemKind>> items,
-            IReadOnlyList<Placement<EnemyKind>> enemies)
+            IReadOnlyList<Placement<EnemyKind>> enemies,
+            IReadOnlyList<Placement<int>> doors = null)
         {
             Name = name;
             Columns = columns;
@@ -38,6 +39,7 @@ namespace TransformersGame.Core
             Blocks = blocks;
             Items = items;
             Enemies = enemies;
+            Doors = doors ?? System.Array.Empty<Placement<int>>();
         }
 
         public string Name { get; }
@@ -55,5 +57,6 @@ namespace TransformersGame.Core
         public IReadOnlyList<Placement<ItemKind>> Items { get; }
 
         public IReadOnlyList<Placement<EnemyKind>> Enemies { get; }
+        public IReadOnlyList<Placement<int>> Doors { get; }
     }
 }

@@ -11,6 +11,10 @@ Begin with `name: Room name`, then `[tiles]` and rows of symbols. `#` starts a w
 | G / B / S / M | Ground / Brick / Stone / Metal solid block |
 | + / * | Medkit / Shield |
 | f / c / h / b / w | Flyer / Crawler / Hopper / Beetle / Waver |
+| t / v | Burst Sentry / vertical Sentinel |
+| ! / $ | Immediate Health Cell / Shield Battery |
+| C / X | Breakable crate / non-solid damage hazard |
+| < / > | Previous-room / next-room door trigger |
 
 Rooms should fit the 30-column, 17-row viewport. The parser warns about larger rooms because no scrolling camera exists. Short rows are padded with empty cells. Unknown tile symbols are warned about and treated as empty. Missing files or invalid spawn counts report diagnostics and use a built-in fallback room.
 

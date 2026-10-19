@@ -1,102 +1,69 @@
-# Sprint 3 Collision Matrix and Regression Checklist
+# Sprint 3 collision matrix and regression checklist
 
-> Historical baseline: the matrix below describes the pre-integration branch. Levels and collision corrections were subsequently merged on October 19. Its PASS/FAIL counts are not the current result. See [the integration assessment](Sprint3-Integration-Assessment.md) and [Sprint 3 review](CodeReviews/Sprint3-Levels-Collision-Review.md) for current implementation status and 17 passing automated checks. The unchecked interactive tests remain pending.
+Updated October 19, 2026 for the integrated hanshil_tasks / sprint3-room-lifecycle result.
 
-**Issue:** #11  
-**Branch:** `hanshil_tasks`  
-**Recorded:** October 19, 2026  
-**Scope:** Collision behavior present on this branch after the room-lifecycle and mouse-room-navigation work
+Evidence command: `dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore`.
+Recorded result: 29 automated checks passed. A test checks selected code paths; it does not prove every gameplay scenario. Automated tests use lightweight sprite/entity doubles where graphics are unnecessary.
 
-## Status definitions
+Status: **Automated PASS** means named assertions ran successfully. **Implemented / manual pending** means code exists but a complete graphical test has not been recorded. **Intentional ignore** describes a game rule, not missing coverage disguised as a pass.
 
-- **PASS:** The implemented behavior and code path satisfy the expected result.
-- **PARTIAL:** Part of the expected result works, but an effect or collision direction is missing.
-- **FAIL:** The objects can overlap or interact, but the expected response is not implemented.
-- **NOT IMPLEMENTED:** The required game-object type or gameplay path does not exist on this branch.
-- **N/A:** The pair cannot occur in the current runtime configuration or intentionally has no response.
+| Pair | Expected response | Evidence / status |
+|---|---|---|
+| Player / solid block top | Land and set grounded | Automated PASS: landing |
+| Player / solid block side | Stop at nearest edge | Automated PASS: horizontal wall crossing |
+| Player / block underside | Stop rising at ceiling | Automated PASS: upward ceiling crossing for movement primitive; graphical jump pending |
+| Player / room bounds | Clamp complete sprite within screen | Implemented in Game1; manual pending |
+| Player / enemy | Apply health damage, knockback, one-second damaged decoration; shields prevent damage | Implemented; manual timing/knockback pending |
+| Player / enemy projectile | Damage once and deactivate projectile | Automated PASS with player double; full shield/health interaction manual pending |
+| Player / Medkit | Add once to stored inventory; key 3 heals 25 up to maximum | Integrated; manual pending |
+| Player / Shield | Add once to inventory; key 4 grants five seconds protection | Integrated; manual pending |
+| Player / Health Cell | Heal 10 immediately, capped at maximum; remove pickup | Automated PASS for single-application routing; actual health/UI manual pending |
+| Player / Shield Battery | Add five seconds protection, capped at ten seconds | Implemented; manual pending |
+| Player / Door | Request previous/next room; queue until collision pass ends; enter destination spawn | Automated PASS for parsing and overlap callback; graphical transition pending |
+| Player / Hazard | Damage through non-solid red trigger, respecting central protection rules | Automated PASS for trigger routing; invulnerability manual pending |
+| Player / own shot, piercing shot, orb, spread | No self damage | Intentional ignore; manual pending |
+| Player / own bomb explosion | No self damage | Intentional ignore; manual pending |
+| Ordinary/orb/angled/spread projectile / enemy | Damage enemy, deactivate projectile, ignore destroyed enemy | Automated PASS for swept ordinary shot; each weapon variant manual pending |
+| Piercing projectile / enemy | Damage each distinct enemy once; stop after three enemies | Automated PASS for multi-hit and repeat prevention; third-hit limit manual pending |
+| Player projectile / solid block | Stop at first wall even if an enemy appears earlier in list | Automated PASS: wall impact and nearest-wall ordering |
+| Player projectile / crate | Destroy crate and stop projectile | Automated PASS: crate breaks on impact |
+| Enemy projectile / solid block or crate | Stop shot; crate remains intact | Implemented; manual pending |
+| Enemy projectile / enemy | No friendly fire | Intentional ignore; manual pending |
+| Player projectile / enemy projectile | Pass through each other | Intentional ignore; manual pending |
+| Projectile / item or door or hazard | No pickup or door activation; projectile continues | Intentional ignore; manual pending |
+| Bomb before explosion / enemy or crate | No damage | Implemented fuse gate; manual pending |
+| Bomb explosion / enemy | Damage each enemy once per bomb | Implemented HashSet guard; manual pending |
+| Bomb explosion / crate | Break crate | Implemented; manual pending |
+| Bomb explosion / other solid block | Leave indestructible block intact | Implemented type restriction; manual pending |
+| Projectile / room boundary | Deactivate as soon as current bounds leave world | Automated PASS: immediate boundary cleanup |
+| Ground enemy / solid block | Land, resolve sides/ceilings, avoid ledges | Shared physics checked; all enemy behaviors manual pending |
+| Flying enemy / solid block or boundary | Resolve movement on each axis and remain in world | Implemented; manual pending |
+| Enemy / enemy | Allow overlap, no enemy body blocking | Intentional ignore; manual pending |
+| Enemy / item, hazard, door | Does not collect or activate these player-only triggers | Intentional ignore; manual pending |
+| Static item / block or item | No movement response | Intentional static placement |
+| Static block / block, door / block | No dynamic response | Intentional static placement |
+| Old room / new room objects | Never interact; clear old projectiles and use destination collections | Implemented lifecycle; repeated graphical switching pending |
 
-## System-level findings
+## Reproducible manual run
 
-1. `Game1.UpdateGameplay` rebuilds the collision tree but never calls `CollisionManager.DetectCollision`.
-2. `CollisionManager.CheckCollision` compares object positions within two pixels instead of comparing sprite rectangles.
-3. `CollisionManager.HandleCollision` contains empty branches for player/block, player/enemy projectile, player/enemy, and enemy/block interactions.
-4. `Room.GetCollisionObjects` includes level objects, the player, the currently selected enemy, and active projectiles. It does not include every enemy stored by the cycler at the same time.
-5. No `Door` class or door collision path exists on this branch. Mouse and Page Up/Page Down navigation switch rooms directly through `RoomManager`.
+Setup: build the game, start it, press Enter. Desert is first; right click opens Laboratory and left click returns. Use R and Enter to reset before each independent case. Use a debugger to position entities for hard-to-reach overlaps; record coordinates when doing so.
 
-These findings mean the current collision manager cannot be treated as passing even where another class independently provides a working response.
+1. Run into both sides of each platform, jump into undersides, land on tops, and approach screen edges. Verify no penetration, shaking, or permanently stuck entities.
+2. Walk into each of the four pickups. Check disappearance after one collection; damage with E before testing healing. Activate stored items with 3/4. Confirm shield duration/cap and no repeated damage while protected.
+3. Fire Z/N, K, 1, 5, and 6 into each enemy and wall. Repeat with a wall between the shot and enemy. Verify nearest impact, projectile cleanup, destroyed enemy removal, and three-enemy piercing limit.
+4. Drop bomb with 2 adjacent to an enemy and crate. Verify no fuse damage, one explosion hit per enemy, broken crate no longer solid or drawn, and indestructible blocks remain.
+5. Let enemy shots cross player, walls, and crates. Verify player protection and projectile deactivation; enemy shots should not break crates.
+6. Walk onto a red hazard. Confirm damage respects invulnerability/shields and reaching zero health freezes gameplay; R returns to a fresh start.
+7. Walk into each metal door marker. Verify direction, destination spawn, no immediate bounce, preserved health/inventory, and cleared old projectiles.
+8. Hold each mouse button for several seconds, then release and click again. Verify one transition per press. Switch at least 20 times and confirm no duplicate enemies, items, or projectiles.
+9. Watch all seven enemy behaviors and test contacts with geometry. Record balance issues or corner/spawn problems, rather than marking the entire category passing from one example.
 
-## Collision matrix
+Teardown: reset or exit so the next case begins with fresh room state. A revisited room deliberately reloads its initial objects.
 
-| ID | Collision pair | Expected result | Current implementation and evidence | Status |
-|---|---|---|---|---|
-| CM-01 | Player vs solid block, falling onto top | Player lands on the block, vertical velocity becomes zero, and grounded state becomes true. | `Physics.Apply` calls `LandOnBlocks`; `IsLandingOn` checks horizontal overlap and crossing the block top. | PASS |
-| CM-02 | Player vs solid block, left/right side | Player stops at the block edge and cannot pass through it. | `Player.MoveHorizontally` changes X without testing blocks. The collision-manager response is empty and never called. | FAIL |
-| CM-03 | Player vs solid block, jumping into underside | Player stops below the block and begins falling. | `Physics.Apply` checks only downward movement and top-surface landings. | FAIL |
-| CM-04 | Player vs screen boundary | Player remains fully inside the 960 x 540 viewport. | `Game1.KeepPlayerOnScreen` clamps the player position after movement. | PASS |
-| CM-05 | Player vs medkit | Medkit is collected once, disappears, and applies its health effect. | `Level.CollectItems` removes an intersecting item, but `Medkit.Collect` is empty, so no health effect occurs. | PARTIAL |
-| CM-06 | Player vs shield | Shield is collected once, disappears, and applies its shield effect. | `Level.CollectItems` removes an intersecting item, but `Shield.Collect` is empty, so no shield effect occurs. | PARTIAL |
-| CM-07 | Player vs enemy | Player takes damage once, enters the damaged state, and receives knockback or invulnerability. | `CollisionManager.HandleCollision` has an empty player/enemy branch and detection is not called. | FAIL |
-| CM-08 | Player vs enemy projectile | Player takes damage once and the projectile expires or is removed. | `CollisionManager.HandleCollision` has an empty player/enemy-projectile branch. `EnemyProjectile` only expires after its lifetime. | FAIL |
-| CM-09 | Player energy projectile vs enemy | Enemy takes damage; a destroyed enemy enters its destroyed state; the projectile becomes inactive. | No response pair exists. `Enemy.TakeDamage` exists but no collision path calls it. | FAIL |
-| CM-10 | Player energy projectile vs solid block | Projectile stops or becomes inactive on impact. | No projectile/block response exists. The projectile continues until its three-second lifetime ends. | FAIL |
-| CM-11 | Bomb/explosion vs enemy | An enemy inside the explosion area takes damage once. | `Bomb` changes its sprite after the fuse but exposes no explosion bounds or damage collision response. | FAIL |
-| CM-12 | Bomb/explosion vs solid block | Destructible blocks react; indestructible blocks remain unchanged. | No bomb/block response or destructible-block state exists. | FAIL |
-| CM-13 | Ground enemy vs solid block | Enemy lands on top surfaces, does not walk through walls, and avoids platform edges. | Shared `Physics` supports landing and `HasGroundAhead` supports ledge avoidance. Horizontal `MoveBy` checks only screen bounds, not block sides. | PARTIAL |
-| CM-14 | Flying enemy vs solid block | Enemy is repositioned outside the block and its behavior can react to being blocked. | `Enemy.FlyHorizontally` and `FlyVertically` use rectangle intersection and correct the position at the contacted edge. | PASS |
-| CM-15 | Enemy vs screen boundary | Enemy remains fully inside the viewport. | `MoveBy`, `FlyHorizontally`, and `FlyVertically` clamp movement to screen dimensions. | PASS |
-| CM-16 | Enemy vs enemy | Enemies do not overlap, or the design explicitly documents that overlap is allowed. | Only `Enemies.CurrentObject` is updated/drawn and added to the collision list, so multiple enemies cannot currently collide during normal play. | N/A |
-| CM-17 | Enemy projectile vs solid block | Projectile becomes inactive when it hits a solid block. | No response pair exists; the projectile remains active until its lifetime ends. | FAIL |
-| CM-18 | Projectile vs screen boundary | Projectile becomes inactive after leaving the room. | Both projectile types use a three-second lifetime rather than boundary collision. They may remain active off-screen until the timer expires. | PARTIAL |
-| CM-19 | Player vs door | Crossing a door loads the connected room and places the player at the correct entrance. | No door object or door collision path exists. Rooms switch only through mouse or Page Up/Page Down input. | NOT IMPLEMENTED |
-| CM-20 | Projectile vs item | Items ignore projectiles and remain available to collect. | No response exists, which matches the expected no-interaction rule. | PASS |
-| CM-21 | Item vs block | Static item placement remains stable; no runtime response is required. | Both objects remain static. Items are removed only by player intersection. | PASS |
+## Graphical evidence log
 
-## Reproducible regression checklist
+| Tester | Date / commit | Matrix pair or step | Expected | Actual | PASS/FAIL | Screenshot/video/issue |
+|---|---|---|---|---|---|---|
+| Pending human playthrough | | | | | NOT RUN | |
 
-Use a clean run for each test unless the steps explicitly say otherwise. Record the tester, commit, and result in the evidence table below.
-
-### Setup
-
-1. Build the solution with `dotnet build "3902 proj.sln" --no-restore`.
-2. Start the game with `dotnet run --project "3902 proj/3902 proj.csproj"`.
-3. Press Enter to begin gameplay.
-4. Use Page Up/Page Down or left/right mouse click to choose the room named by the test.
-5. Press R between tests when a clean player, item, enemy, and projectile state is required.
-
-### Tests
-
-- [ ] **RT-01: Player landing.** Jump with W, Up, or J and land on each platform type. Expected: the player rests on the platform without sinking or vibrating. Covers CM-01.
-- [ ] **RT-02: Player side collision.** Walk horizontally into the side of a raised platform for two seconds. Expected: the player stops at the edge. Current expected evidence: failure because horizontal block resolution is missing. Covers CM-02.
-- [ ] **RT-03: Player underside collision.** Jump into the underside of a platform. Expected: upward movement stops at the underside. Current expected evidence: failure because underside handling is missing. Covers CM-03.
-- [ ] **RT-04: Player world bounds.** Hold movement toward the left and right edges and use a jump near the top/bottom limits. Expected: the complete player sprite remains visible. Covers CM-04.
-- [ ] **RT-05: Medkit pickup.** Walk through the medkit, leave the area, and return. Expected: it disappears after the first contact and does not reappear until reset; record that no health effect exists. Covers CM-05.
-- [ ] **RT-06: Shield pickup.** Walk through the shield, leave the area, and return. Expected: it disappears after the first contact and does not reappear until reset; record that no shield effect exists. Covers CM-06.
-- [ ] **RT-07: Player and enemy contact.** Move the active enemy into the player. Expected: one damage event and temporary damaged state. Current expected evidence: failure because the handler is empty. Covers CM-07.
-- [ ] **RT-08: Enemy projectile and player.** Select an enemy that fires, wait for a shot to overlap the player, and observe player state and projectile lifetime. Expected: damage and projectile removal. Current expected evidence: failure. Covers CM-08.
-- [ ] **RT-09: Player shot and enemy.** Fire Z or N through the active enemy. Expected: enemy damage/destruction and projectile removal. Current expected evidence: failure. Covers CM-09.
-- [ ] **RT-10: Player shot and block.** Fire a normal and angled shot into solid platforms. Expected: each projectile stops on impact. Current expected evidence: failure. Covers CM-10.
-- [ ] **RT-11: Bomb and enemy.** Move beside an enemy, press 2, and keep the enemy within the explosion sprite. Expected: enemy damage once. Current expected evidence: failure. Covers CM-11.
-- [ ] **RT-12: Bomb and block.** Drop a bomb beside every block type. Expected: only designated destructible blocks change. Current expected evidence: failure because destructible-block behavior is absent. Covers CM-12.
-- [ ] **RT-13: Ground enemy platforms.** Cycle through ground enemies with O/P and watch at least ten seconds near edges and raised blocks. Expected: landings and ledge avoidance pass; record any horizontal wall overlap. Covers CM-13.
-- [ ] **RT-14: Flying enemy blocks.** Cycle through flying enemies and observe contact with platform sides and undersides. Expected: no penetration and a visible behavior response. Covers CM-14.
-- [ ] **RT-15: Enemy world bounds.** Observe every enemy type for at least ten seconds near screen edges. Expected: the full sprite remains inside the viewport. Covers CM-15.
-- [ ] **RT-16: Enemy projectile and block.** Place the player so an enemy fires through a platform. Expected: projectile stops at the platform. Current expected evidence: failure. Covers CM-17.
-- [ ] **RT-17: Projectile world bounds.** Fire shots at both outer edges and time cleanup. Expected: immediate removal after leaving the room. Current expected evidence: partial because cleanup waits for the lifetime timer. Covers CM-18.
-- [ ] **RT-18: Door transition.** Attempt to locate and cross a door in each room. Expected: connected-room transition and correct spawn. Current expected evidence: not implemented because there are no door objects. Covers CM-19.
-- [ ] **RT-19: Projectile and item.** Fire every player projectile through both item types. Expected: items remain until player contact. Covers CM-20.
-- [ ] **RT-20: Room-switch cleanup.** Fire several projectiles, switch rooms with both mouse buttons, and switch back repeatedly. Expected: old-room projectiles are cleared, player spawn changes, and no room-owned objects duplicate.
-
-## Test evidence
-
-| Test run | Date | Tester | Commit | Build result | Passed | Failed | Notes or evidence link |
-|---|---|---|---|---|---:|---:|---|
-| Code inspection baseline | 2026-10-19 | Hanshil | Working tree on `hanshil_tasks` | PASS: 0 warnings, 0 errors | 6 | 9 | CM-01 through CM-21 above; four partial, one N/A, and one not implemented are reported separately. |
-| Interactive regression | YYYY-MM-DD | Name | Commit SHA | PASS/FAIL | 0 | 0 | Add screenshots, recording, or issue links here. |
-
-## Exit criteria for a future all-green run
-
-- `CollisionManager.DetectCollision` runs once per gameplay update after collision objects are collected.
-- Collision detection uses object rectangles or another documented shape, including projectile and explosion dimensions.
-- Every FAIL or PARTIAL row above has an implemented response and a passing regression result.
-- Door objects and connected-room spawn behavior are either implemented and tested or explicitly removed from the game requirements with instructor approval.
-- A teammate reruns RT-01 through RT-20 on the merge commit and records evidence in this file.
+No graphical pass results have been invented. See Sprint3-Integration-Assessment.md for remaining course requirements and the AI-assisted review for source analysis.
