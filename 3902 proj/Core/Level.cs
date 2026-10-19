@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,70 +11,44 @@ namespace TransformersGame.Core
 {
     public class Level : ILevel
     {
-        private const int FloorTop = 508;
-        private const int FloorLength = 30;
-        private const int LowPlatformTop = 412;
-        private const int MiddlePlatformTop = 316;
-        private const int HighPlatformTop = 220;
-        private readonly List<IGameObject> objs;
-        private readonly int roomIndex;
+        private const int ScreenHeight = 540;
+        private const int TileSize = BlockSpriteFactory.BlockSize;
 
         private static readonly Vector2 BlockShowcasePosition = new Vector2(912, 16);
         private static readonly Vector2 ItemShowcasePosition = new Vector2(864, 16);
-        private static readonly Vector2 FlyerStart = new Vector2(260, 280);
-        private static readonly Vector2 CrawlerStart = new Vector2(110, 460);
-        private static readonly Vector2 HopperStart = new Vector2(456, 268);
-        private static readonly Vector2 BeetleStart = new Vector2(728, 364);
-        private static readonly Vector2 WaverStart = new Vector2(780, 280);
+
+        private readonly LevelData data;
+        private readonly List<IGameObject> objs;
         private readonly List<IBlock> blocks;
         private readonly List<IItem> items;
 
-        public Level()
-            : this(0)
+        public Level(LevelData data)
         {
-        }
-
-        public Level(int roomIndex)
-        {
-            if (roomIndex < 0 || roomIndex > 1)
-            {
-                throw new System.ArgumentOutOfRangeException(nameof(roomIndex));
-            }
-            this.roomIndex = roomIndex;
-            blocks = new List<IBlock>();
+            ArgumentNullException.ThrowIfNull(data);
+            this.data = data;
             objs = new List<IGameObject>();
-            if (roomIndex == 0)
-            {
-                AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
-                AddRow(BlockKind.Brick, 5, LowPlatformTop, 5);
-                AddRow(BlockKind.Stone, 12, MiddlePlatformTop, 6);
-                AddRow(BlockKind.Metal, 19, HighPlatformTop, 2);
-                AddRow(BlockKind.Metal, 21, LowPlatformTop, 5);
-            }
-            else
-            {
-                AddRow(BlockKind.Ground, 0, FloorTop, FloorLength);
-                AddRow(BlockKind.Stone, 2, LowPlatformTop, 4);
-                AddRow(BlockKind.Brick, 8, 348, 4);
-                AddRow(BlockKind.Metal, 14, 284, 4);
-                AddRow(BlockKind.Brick, 20, 348, 3);
-                AddRow(BlockKind.Stone, 25, LowPlatformTop, 4);
-                AddRow(BlockKind.Metal, 11, HighPlatformTop, 2);
-            }
+            blocks = new List<IBlock>();
             items = new List<IItem>();
-            items.Add(new Medkit(
-                roomIndex == 0 ? new Vector2(192, 380) : new Vector2(608, 380),
-                ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
-            items.Add(new Shield(
-                roomIndex == 0 ? new Vector2(448, 284) : new Vector2(320, 284),
-                ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
+
+            foreach (Placement<BlockKind> placement in data.Blocks)
+            {
+                ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
+                blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite, true));
+            }
+
+            foreach (Placement<ItemKind> placement in data.Items)
+            {
+                items.Add(CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
+            }
+
+            PlayerStart = CellPosition(data.PlayerColumn, data.PlayerRow);
         }
 
         public IReadOnlyList<IBlock> Blocks => blocks;
 
         public IReadOnlyList<IItem> Items => items;
 
-        public Vector2 PlayerStart => roomIndex == 0 ? new Vector2(80, 400) : new Vector2(800, 400);
+        public Vector2 PlayerStart { get; }
 
         public void FillBlockCycler(IGameObjectCycler cycler)
         {
@@ -91,29 +66,11 @@ namespace TransformersGame.Core
 
         public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
         {
-            // Each preview demonstrates a distinct timer-driven behavior required for Sprint 2.
-            EnemyConfiguration flyer = new EnemyConfiguration(
-                EnemyKind.Flyer, new EnemyStats(60f, 110f, 280f, 330f, 2.5), new SwoopBehavior());
-            EnemyConfiguration crawler = new EnemyConfiguration(
-                EnemyKind.Crawler, new EnemyStats(50f, 100f, 240f, 120f, 1.0), new StalkBehavior());
-            EnemyConfiguration hopper = new EnemyConfiguration(
-                EnemyKind.Hopper, new EnemyStats(60f, 80f, 320f, 170f, 0.9), new LeapBehavior());
-            EnemyConfiguration beetle = new EnemyConfiguration(
-                EnemyKind.Beetle, new EnemyStats(90f, 60f, 360f, 260f, 1.4), new ChargeBehavior());
-            EnemyConfiguration waver = new EnemyConfiguration(
-                EnemyKind.Waver, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
-
-            Vector2 flyerStart = roomIndex == 0 ? FlyerStart : new Vector2(700, 100);
-            Vector2 crawlerStart = roomIndex == 0 ? CrawlerStart : new Vector2(760, 460);
-            Vector2 hopperStart = roomIndex == 0 ? HopperStart : new Vector2(400, 180);
-            Vector2 beetleStart = roomIndex == 0 ? BeetleStart : new Vector2(120, 360);
-            Vector2 waverStart = roomIndex == 0 ? WaverStart : new Vector2(500, 80);
-
-            cycler.Add(new Enemy(flyerStart, blocks, flyer, player, projectiles));
-            cycler.Add(new Enemy(crawlerStart, blocks, crawler, player, projectiles));
-            cycler.Add(new Enemy(hopperStart, blocks, hopper, player, projectiles));
-            cycler.Add(new Enemy(beetleStart, blocks, beetle, player, projectiles));
-            cycler.Add(new Enemy(waverStart, blocks, waver, player, projectiles));
+            foreach (Placement<EnemyKind> placement in data.Enemies)
+            {
+                Vector2 start = CellPosition(placement.Column, placement.Row);
+                cycler.Add(new Enemy(start, blocks, CreateEnemyConfiguration(placement.Kind), player, projectiles));
+            }
         }
 
         public void CollectItems(IPlayer player)
@@ -156,24 +113,52 @@ namespace TransformersGame.Core
             }
         }
 
+        public List<IGameObject> GetOnScreenObjects()
+        {
+            return objs;
+        }
+
+        private Vector2 CellPosition(int column, int row)
+        {
+            return new Vector2(column * TileSize, ScreenHeight - (data.Rows - row) * TileSize);
+        }
+
         private static Block CreateShowcaseBlock(BlockKind kind)
         {
             return new Block(BlockShowcasePosition, BlockSpriteFactory.Instance.CreateBlockSprite(kind), false);
         }
 
-        private void AddRow(BlockKind kind, int firstColumn, int top, int length)
+        private static IItem CreateItem(ItemKind kind, Vector2 position)
         {
-            for (int column = firstColumn; column < firstColumn + length; column++)
+            ISprite sprite = ItemSpriteFactory.Instance.CreateItemSprite(kind);
+            switch (kind)
             {
-                Vector2 position = new Vector2(column * BlockSpriteFactory.BlockSize, top);
-                blocks.Add(new Block(position, BlockSpriteFactory.Instance.CreateBlockSprite(kind), true));
-                
+                case ItemKind.Medkit:
+                    return new Medkit(position, sprite);
+                case ItemKind.Shield:
+                    return new Shield(position, sprite);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(kind), kind, "No item is defined for this kind.");
             }
         }
 
-        public List<IGameObject> GetOnScreenObjects()
+        private static EnemyConfiguration CreateEnemyConfiguration(EnemyKind kind)
         {
-            return objs;
+            switch (kind)
+            {
+                case EnemyKind.Flyer:
+                    return new EnemyConfiguration(kind, new EnemyStats(60f, 110f, 280f, 330f, 2.5), new SwoopBehavior());
+                case EnemyKind.Crawler:
+                    return new EnemyConfiguration(kind, new EnemyStats(50f, 100f, 240f, 120f, 1.0), new StalkBehavior());
+                case EnemyKind.Hopper:
+                    return new EnemyConfiguration(kind, new EnemyStats(60f, 80f, 320f, 170f, 0.9), new LeapBehavior());
+                case EnemyKind.Beetle:
+                    return new EnemyConfiguration(kind, new EnemyStats(90f, 60f, 360f, 260f, 1.4), new ChargeBehavior());
+                case EnemyKind.Waver:
+                    return new EnemyConfiguration(kind, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(kind), kind, "No enemy is defined for this kind.");
+            }
         }
     }
 }

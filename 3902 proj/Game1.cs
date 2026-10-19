@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Controllers;
@@ -14,6 +15,7 @@ namespace TransformersGame
     {
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
+        private static readonly string[] RoomPaths = { "Content/Levels/desert-01.room", "Content/Levels/laboratory-02.room" };
         private const string MenuTitle = "Transformers - Press Enter to Start";
         private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, Left/Right Click Room, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
@@ -141,11 +143,11 @@ namespace TransformersGame
         private void InitializeGameObjects()
         {
             roomManager?.Unload();
-            Level initialLevel = new Level(0);
+            Level initialLevel = LoadRoomLevel(0);
             IProjectileManager initialProjectiles = new ProjectileManager();
             Player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles);
             Room initialRoom = CreateRoom(initialLevel, initialProjectiles);
-            roomManager = new RoomManager(initialRoom, 2, Player, CreateRoomForIndex);
+            roomManager = new RoomManager(initialRoom, RoomPaths.Length, Player, CreateRoomForIndex);
             collisionManager = new CollisionManager(ScreenWidth, ScreenHeight);
             menuController = ControllerFactory.CreateMenuController(this);
             RefreshGameplayController();
@@ -163,7 +165,17 @@ namespace TransformersGame
 
         private Room CreateRoomForIndex(int roomIndex)
         {
-            return CreateRoom(new Level(roomIndex), new ProjectileManager());
+            return CreateRoom(LoadRoomLevel(roomIndex), new ProjectileManager());
+        }
+
+        private static Level LoadRoomLevel(int roomIndex)
+        {
+            LevelLoadResult loaded = LevelLoader.Load(RoomPaths[roomIndex]);
+            foreach (string message in loaded.Messages)
+            {
+                Console.WriteLine(message);
+            }
+            return new Level(loaded.Data);
         }
 
         private Room CreateRoom(Level roomLevel, IProjectileManager roomProjectiles)
