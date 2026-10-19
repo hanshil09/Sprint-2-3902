@@ -133,6 +133,9 @@ namespace TransformersGame.Core
 
         public List<IGameObject> GetOnScreenObjects()
         {
+            objs.Clear();
+            objs.AddRange(blocks);
+            objs.AddRange(items);
             return objs;
         }
 

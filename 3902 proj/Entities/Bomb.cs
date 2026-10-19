@@ -13,6 +13,7 @@ namespace TransformersGame.Entities
         private ISprite sprite;
         private double timer;
         private bool hasExploded;
+        private readonly System.Collections.Generic.HashSet<IEnemy> damagedEnemies = new();
 
         public Bomb(Vector2 position, ISprite sprite)
         {
@@ -31,6 +32,16 @@ namespace TransformersGame.Entities
         public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
 
         public bool IsActive { get; private set; }
+
+        public bool IsExploding => IsActive && hasExploded;
+
+        public void DamageEnemy(IEnemy enemy)
+        {
+            if (IsExploding && !enemy.IsDestroyed && damagedEnemies.Add(enemy))
+            {
+                enemy.TakeDamage(1);
+            }
+        }
 
         public void Update(GameTime gameTime)
         {

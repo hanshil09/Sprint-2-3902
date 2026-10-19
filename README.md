@@ -27,6 +27,8 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 ## Implemented behavior
 
+Sprint 3 integration loads Desert and Laboratory from external room files and processes all enemies in the active room. See [room format](Documentation/LevelFormat.md), [integration status and remaining gaps](Documentation/Sprint3-Integration-Assessment.md), and [Sprint 3 code review](Documentation/CodeReviews/Sprint3-Levels-Collision-Review.md). Run `dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore` from the repository root for automated checks.
+
 - The player can move, jump on platforms, face horizontal directions and down, switch forms, and animate. Damaged and temporary shooting states alter the player's sprite and available actions.
 - Normal shots and orbs travel horizontally, while the **K** shot travels at an angle. Bombs show a timed explosion and then expire.
 - The level draws a tiled platform layout, and the block showcase cycles through four sprite variants.

@@ -31,7 +31,13 @@ namespace TransformersGame.Core
             Level.Update(gameTime);
             Blocks.Update(gameTime);
             Items.Update(gameTime);
-            Enemies.Update(gameTime);
+            foreach (IGameObject enemy in Enemies.Objects)
+            {
+                if (enemy is not IEnemy combatant || !combatant.IsDestroyed)
+                {
+                    enemy.Update(gameTime);
+                }
+            }
             Projectiles.Update(gameTime);
         }
 
@@ -40,7 +46,13 @@ namespace TransformersGame.Core
             Level.Draw(spriteBatch);
             Blocks.Draw(spriteBatch);
             Items.Draw(spriteBatch);
-            Enemies.Draw(spriteBatch);
+            foreach (IGameObject enemy in Enemies.Objects)
+            {
+                if (enemy is not IEnemy combatant || !combatant.IsDestroyed)
+                {
+                    enemy.Draw(spriteBatch);
+                }
+            }
             Projectiles.Draw(spriteBatch);
         }
 
@@ -55,9 +67,9 @@ namespace TransformersGame.Core
             {
                 player
             };
-            if (Enemies.CurrentObject != null)
+            foreach (IGameObject enemy in Enemies.Objects)
             {
-                objects.Add(Enemies.CurrentObject);
+                objects.Add(enemy);
             }
             foreach (IProjectile projectile in Projectiles.Projectiles)
             {

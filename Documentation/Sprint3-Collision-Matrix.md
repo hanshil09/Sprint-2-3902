@@ -1,5 +1,7 @@
 # Sprint 3 Collision Matrix and Regression Checklist
 
+> Historical baseline: the matrix below describes the pre-integration branch. Levels and collision corrections were subsequently merged on October 19. Its PASS/FAIL counts are not the current result. See [the integration assessment](Sprint3-Integration-Assessment.md) and [Sprint 3 review](CodeReviews/Sprint3-Levels-Collision-Review.md) for current implementation status and 17 passing automated checks. The unchecked interactive tests remain pending.
+
 **Issue:** #11  
 **Branch:** `hanshil_tasks`  
 **Recorded:** October 19, 2026  

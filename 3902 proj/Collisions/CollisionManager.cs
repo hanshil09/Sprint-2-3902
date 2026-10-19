@@ -52,7 +52,7 @@ namespace TransformersGame.Collisions
             foreach (IGameObject gameObject in objects)
             {
                 if (gameObject is IProjectile projectile && projectile.IsActive
-                    && !SweptIntersects(projectile, worldBounds))
+                    && !projectile.Bounds.Intersects(worldBounds))
                 {
                     projectile.Deactivate();
                 }
@@ -89,7 +89,14 @@ namespace TransformersGame.Collisions
                 return;
             }
 
-            if (projectile is EnergyProjectile && target is IEnemy enemy)
+            if (projectile is Bomb bomb)
+            {
+                if (target is IEnemy bombTarget && bomb.Bounds.Intersects(targetBounds))
+                {
+                    bomb.DamageEnemy(bombTarget);
+                }
+            }
+            else if (projectile is EnergyProjectile && target is IEnemy enemy)
             {
                 if (!enemy.IsDestroyed)
                 {
