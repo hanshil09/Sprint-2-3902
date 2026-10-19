@@ -8,6 +8,7 @@ namespace TransformersGame.Core
         Beetle,
         Waver,
         Sentry,
-        Sentinel
+        Sentinel,
+        Warlord
     }
 }

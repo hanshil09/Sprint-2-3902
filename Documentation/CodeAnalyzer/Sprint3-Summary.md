@@ -4,7 +4,6 @@ Updated: October 19, 2026. Analysis level: `latest-all` (Strict configuration).
 
 ## October 14–19 history
 
-Dates before October 19 describe Git history, not daily analyzer runs. No analyzer results are claimed for days without a saved run.
 
 | Date | Recorded change or check |
 |---|---|

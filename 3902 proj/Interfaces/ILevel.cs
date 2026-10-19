@@ -10,17 +10,14 @@ namespace TransformersGame.Interfaces
 
         Vector2 PlayerStart { get; }
 
-        void FillBlockCycler(IGameObjectCycler cycler);
-
-        void FillItemCycler(IGameObjectCycler cycler);
-
         void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles);
 
-        void CollectItems(IPlayer player);
+        IReadOnlyList<IItem> CollectItems(IPlayer player);
 
         void Update(GameTime gameTime);
 
         void Draw(SpriteBatch spriteBatch);
+
         IReadOnlyList<IGameObject> GetOnScreenObjects();
     }
 }

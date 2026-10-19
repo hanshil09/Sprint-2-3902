@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Entities;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
     internal sealed class Room
     {
-        public Room(Level level, IProjectileManager projectiles, GameObjectCycler blocks, GameObjectCycler items, GameObjectCycler enemies)
+        public Room(Level level, IProjectileManager projectiles, GameObjectCycler enemies)
         {
             Level = level;
             Projectiles = projectiles;
-            Blocks = blocks;
-            Items = items;
             Enemies = enemies;
         }
 
@@ -20,17 +19,27 @@ namespace TransformersGame.Core
 
         public IProjectileManager Projectiles { get; }
 
-        public GameObjectCycler Blocks { get; }
-
-        public GameObjectCycler Items { get; }
-
         public GameObjectCycler Enemies { get; }
+
+        public bool IsGoalReached => Level.Goal != null && Level.Goal.IsReached;
+
+        public string Objective
+        {
+            get
+            {
+                if (Level.Goal == null)
+                {
+                    return "GOLD door: next room    CYAN door: return    T/Y U/I O/P: object showcase";
+                }
+                return Level.Goal.IsUnlocked
+                    ? "The beacon is online! Touch it to complete the mission."
+                    : "Defeat the DECEPTICON WARLORD to power the beacon.";
+            }
+        }
 
         public void Update(GameTime gameTime)
         {
             Level.Update(gameTime);
-            Blocks.Update(gameTime);
-            Items.Update(gameTime);
             foreach (IGameObject enemy in Enemies.Objects)
             {
                 if (enemy is not IEnemy combatant || !combatant.IsDestroyed)
@@ -39,13 +48,12 @@ namespace TransformersGame.Core
                 }
             }
             Projectiles.Update(gameTime);
+            Level.Goal?.SetUnlocked(!HasLiveBoss());
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
             Level.Draw(spriteBatch);
-            Blocks.Draw(spriteBatch);
-            Items.Draw(spriteBatch);
             foreach (IGameObject enemy in Enemies.Objects)
             {
                 if (enemy is not IEnemy combatant || !combatant.IsDestroyed)
@@ -56,9 +64,9 @@ namespace TransformersGame.Core
             Projectiles.Draw(spriteBatch);
         }
 
-        public void CollectItems(IPlayer player)
+        public IReadOnlyList<IItem> CollectItems(IPlayer player)
         {
-            Level.CollectItems(player);
+            return Level.CollectItems(player);
         }
 
         public IReadOnlyList<IGameObject> GetCollisionObjects(IPlayer player)
@@ -67,10 +75,7 @@ namespace TransformersGame.Core
             {
                 player
             };
-            foreach (IGameObject enemy in Enemies.Objects)
-            {
-                objects.Add(enemy);
-            }
+            objects.AddRange(Enemies.Objects);
             foreach (IProjectile projectile in Projectiles.Projectiles)
             {
                 if (projectile.IsActive)
@@ -84,6 +89,18 @@ namespace TransformersGame.Core
         public void Unload()
         {
             Projectiles.Clear();
+        }
+
+        private bool HasLiveBoss()
+        {
+            foreach (IGameObject enemy in Enemies.Objects)
+            {
+                if (enemy is Boss boss && !boss.IsDestroyed)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

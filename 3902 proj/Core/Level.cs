@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Behaviors;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -12,16 +11,15 @@ namespace TransformersGame.Core
     internal class Level : ILevel
     {
         private const int ScreenHeight = 540;
+        private const int ScreenWidth = 960;
         private const int TileSize = BlockSpriteFactory.BlockSize;
-
-        private static readonly Vector2 BlockShowcasePosition = new Vector2(912, 16);
-        private static readonly Vector2 ItemShowcasePosition = new Vector2(864, 16);
 
         private readonly LevelData data;
         private readonly List<IGameObject> objs;
         private readonly List<IBlock> blocks;
         private readonly List<IItem> items;
         private readonly List<Door> doors = new();
+        private readonly List<IPlayerTrigger> triggers;
         private Rectangle playerSpawnBounds;
 
         public Level(LevelData data)
@@ -38,53 +36,35 @@ namespace TransformersGame.Core
                 blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite,
                     placement.Kind != BlockKind.Hazard, placement.Kind));
             }
+            LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
+            blocks.AddRange(levelObjects.Platforms);
+            triggers = levelObjects.Triggers;
+            Goal = levelObjects.Goal;
 
             foreach (Placement<ItemKind> placement in data.Items)
             {
-                items.Add(CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
+                items.Add(EntityFactory.CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
             }
             foreach (Placement<int> placement in data.Doors)
             {
                 doors.Add(new Door(CellPosition(placement.Column, placement.Row), placement.Kind,
                     BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind)));
             }
-
-            Vector2 requestedPlayerStart = CellPosition(data.PlayerColumn, data.PlayerRow);
-            ISprite playerSprite = PlayerSpriteFactory.Instance.CreateStandingRobotSprite(Direction.Right);
-            PlayerStart = FindSafeSpawn(
-                requestedPlayerStart,
-                playerSprite.Width,
-                playerSprite.Height,
-                SolidBlockBounds());
-            playerSpawnBounds = new Rectangle(
-                (int)PlayerStart.X,
-                (int)PlayerStart.Y,
-                playerSprite.Width,
-                playerSprite.Height);
+            PlacePlayerStart();
         }
 
         public IReadOnlyList<IBlock> Blocks => blocks;
 
         public IReadOnlyList<IItem> Items => items;
 
-        public Vector2 PlayerStart { get; }
+        public Vector2 PlayerStart { get; private set; }
 
         public string Name => data.Name;
+
         public float Gravity => data.Gravity;
 
-        public void FillBlockCycler(IGameObjectCycler cycler)
-        {
-            cycler.Add(CreateShowcaseBlock(BlockKind.Ground));
-            cycler.Add(CreateShowcaseBlock(BlockKind.Brick));
-            cycler.Add(CreateShowcaseBlock(BlockKind.Stone));
-            cycler.Add(CreateShowcaseBlock(BlockKind.Metal));
-        }
-
-        public void FillItemCycler(IGameObjectCycler cycler)
-        {
-            cycler.Add(new Medkit(ItemShowcasePosition, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Medkit)));
-            cycler.Add(new Shield(ItemShowcasePosition, ItemSpriteFactory.Instance.CreateItemSprite(ItemKind.Shield)));
-        }
+        // The end-of-level beacon, or null when this room has none.
+        public Goal Goal { get; }
 
         public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
         {
@@ -92,54 +72,42 @@ namespace TransformersGame.Core
             occupied.Add(playerSpawnBounds);
             foreach (Placement<EnemyKind> placement in data.Enemies)
             {
-                Vector2 requestedStart = CellPosition(placement.Column, placement.Row);
-                ISprite enemySprite = EnemySpriteFactory.Instance.CreateEnemySprite(placement.Kind, Color.White, true);
-                Vector2 start = FindSafeSpawn(requestedStart, enemySprite.Width, enemySprite.Height, occupied);
-                Enemy enemy = new Enemy(start, blocks, CreateEnemyConfiguration(placement.Kind), player, projectiles, Gravity);
+                Point size = EntityFactory.SpawnSize(placement.Kind);
+                Vector2 start = FindSafeSpawn(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
+                IEnemy enemy = placement.Kind == EnemyKind.Warlord
+                    ? new Boss(start, player, projectiles)
+                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player, projectiles, Gravity);
                 cycler.Add(enemy);
-                occupied.Add(enemy.Bounds);
+                occupied.Add(new Rectangle((int)start.X, (int)start.Y, size.X, size.Y));
             }
         }
 
-        public void CollectItems(IPlayer player)
+        // Returns the items picked up this frame so power-ups can be applied by the game.
+        public IReadOnlyList<IItem> CollectItems(IPlayer player)
         {
             Rectangle playerBounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
-            foreach (IItem item in items.ToArray())
+            List<IItem> collected = items.FindAll(item => playerBounds.Intersects(item.Bounds));
+            foreach (IItem item in collected)
             {
-                if (playerBounds.Intersects(item.Bounds))
-                {
-                    item.Collect(player);
-                    items.Remove(item);
-                }
+                item.Collect(player);
+                items.Remove(item);
             }
+            return collected;
         }
 
         public void Update(GameTime gameTime)
         {
-            objs.Clear();
-            foreach (IBlock block in blocks)
-            {
-                block.Update(gameTime);
-                objs.Add(block);
-            }
-            foreach (IItem item in items)
-            {
-                item.Update(gameTime);
-                objs.Add(item);
-            }
+            blocks.ForEach(block => block.Update(gameTime));
+            items.ForEach(item => item.Update(gameTime));
+            triggers.ForEach(trigger => trigger.Update(gameTime));
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (IBlock block in blocks)
-            {
-                block.Draw(spriteBatch);
-            }
-            foreach (IItem item in items)
-            {
-                item.Draw(spriteBatch);
-            }
-            foreach (Door door in doors) door.Draw(spriteBatch);
+            blocks.ForEach(block => block.Draw(spriteBatch));
+            triggers.ForEach(trigger => trigger.Draw(spriteBatch));
+            items.ForEach(item => item.Draw(spriteBatch));
+            doors.ForEach(door => door.Draw(spriteBatch));
         }
 
         public IReadOnlyList<IGameObject> GetOnScreenObjects()
@@ -148,7 +116,16 @@ namespace TransformersGame.Core
             objs.AddRange(blocks);
             objs.AddRange(items);
             objs.AddRange(doors);
+            objs.AddRange(triggers);
             return objs.AsReadOnly();
+        }
+
+        private void PlacePlayerStart()
+        {
+            ISprite playerSprite = PlayerSpriteFactory.Instance.CreateStandingRobotSprite(Direction.Right);
+            PlayerStart = FindSafeSpawn(CellPosition(data.PlayerColumn, data.PlayerRow),
+                playerSprite.Width, playerSprite.Height, SolidBlockBounds());
+            playerSpawnBounds = new Rectangle((int)PlayerStart.X, (int)PlayerStart.Y, playerSprite.Width, playerSprite.Height);
         }
 
         private Vector2 CellPosition(int column, int row)
@@ -158,104 +135,29 @@ namespace TransformersGame.Core
 
         private List<Rectangle> SolidBlockBounds()
         {
-            List<Rectangle> bounds = new List<Rectangle>();
-            foreach (IBlock block in blocks)
-            {
-                if (block.IsSolid)
-                {
-                    bounds.Add(block.Bounds);
-                }
-            }
-            return bounds;
+            return blocks.FindAll(block => block.IsSolid).ConvertAll(block => block.Bounds);
         }
 
+        // Nearest free position to the requested one, searched on a 16-pixel grid.
         private static Vector2 FindSafeSpawn(Vector2 requested, int width, int height, List<Rectangle> occupied)
         {
             const int searchStep = 16;
             float bestDistance = float.MaxValue;
-            Vector2 bestPosition = Vector2.Zero;
-            bool found = false;
-
+            Vector2? best = null;
             for (int y = 0; y <= ScreenHeight - height; y += searchStep)
             {
-                for (int x = 0; x <= 960 - width; x += searchStep)
+                for (int x = 0; x <= ScreenWidth - width; x += searchStep)
                 {
                     Rectangle candidate = new Rectangle(x, y, width, height);
-                    bool overlaps = false;
-                    foreach (Rectangle bounds in occupied)
-                    {
-                        if (candidate.Intersects(bounds))
-                        {
-                            overlaps = true;
-                            break;
-                        }
-                    }
-                    if (overlaps)
-                    {
-                        continue;
-                    }
-
-                    Vector2 position = new Vector2(x, y);
-                    float distance = Vector2.DistanceSquared(position, requested);
-                    if (distance < bestDistance)
+                    float distance = Vector2.DistanceSquared(new Vector2(x, y), requested);
+                    if (distance < bestDistance && !occupied.Exists(bounds => candidate.Intersects(bounds)))
                     {
                         bestDistance = distance;
-                        bestPosition = position;
-                        found = true;
+                        best = new Vector2(x, y);
                     }
                 }
             }
-
-            if (!found)
-            {
-                throw new InvalidOperationException("The level has no non-overlapping spawn position for an entity.");
-            }
-            return bestPosition;
-        }
-
-        private static Block CreateShowcaseBlock(BlockKind kind)
-        {
-            return new Block(BlockShowcasePosition, BlockSpriteFactory.Instance.CreateBlockSprite(kind), false);
-        }
-
-        private static IItem CreateItem(ItemKind kind, Vector2 position)
-        {
-            ISprite sprite = ItemSpriteFactory.Instance.CreateItemSprite(kind);
-            switch (kind)
-            {
-                case ItemKind.Medkit:
-                    return new Medkit(position, sprite);
-                case ItemKind.Shield:
-                    return new Shield(position, sprite);
-                case ItemKind.HealthCell:
-                case ItemKind.ShieldBattery:
-                    return new ResourcePickup(position, sprite, kind);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(kind), kind, "No item is defined for this kind.");
-            }
-        }
-
-        private static EnemyConfiguration CreateEnemyConfiguration(EnemyKind kind)
-        {
-            switch (kind)
-            {
-                case EnemyKind.Flyer:
-                    return new EnemyConfiguration(kind, new EnemyStats(60f, 110f, 280f, 330f, 2.5), new SwoopBehavior());
-                case EnemyKind.Crawler:
-                    return new EnemyConfiguration(kind, new EnemyStats(50f, 100f, 240f, 120f, 1.0), new StalkBehavior());
-                case EnemyKind.Hopper:
-                    return new EnemyConfiguration(kind, new EnemyStats(60f, 80f, 320f, 170f, 0.9), new LeapBehavior());
-                case EnemyKind.Beetle:
-                    return new EnemyConfiguration(kind, new EnemyStats(90f, 60f, 360f, 260f, 1.4), new ChargeBehavior());
-                case EnemyKind.Waver:
-                    return new EnemyConfiguration(kind, new EnemyStats(70f, 0f, 420f, 95f, 0.0), new DriftBehavior());
-                case EnemyKind.Sentry:
-                    return new EnemyConfiguration(kind, new EnemyStats(0, 0, 500, 0, 2.5), new GuardBehavior(false));
-                case EnemyKind.Sentinel:
-                    return new EnemyConfiguration(kind, new EnemyStats(0, 0, 500, 0, 2.5), new GuardBehavior(true));
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(kind), kind, "No enemy is defined for this kind.");
-            }
+            return best ?? throw new InvalidOperationException("The level has no non-overlapping spawn position for an entity.");
         }
     }
 }

@@ -25,8 +25,9 @@ namespace TransformersGame.Core
             ['M'] = BlockKind.Metal,
             ['C'] = BlockKind.Crate,
             ['X'] = BlockKind.Hazard,
-            ['F'] = BlockKind.CrateFloor,
-            ['H'] = BlockKind.HazardFloor
+            ['W'] = BlockKind.Wood,
+            ['Y'] = BlockKind.Caution,
+            ['A'] = BlockKind.Alloy
         };
 
         private static readonly Dictionary<char, ItemKind> ItemSymbols = new Dictionary<char, ItemKind>
@@ -34,7 +35,12 @@ namespace TransformersGame.Core
             ['+'] = ItemKind.Medkit,
             ['*'] = ItemKind.Shield,
             ['!'] = ItemKind.HealthCell,
-            ['$'] = ItemKind.ShieldBattery
+            ['$'] = ItemKind.ShieldBattery,
+            ['&'] = ItemKind.SparkCore,
+            ['~'] = ItemKind.TurboBoost,
+            ['@'] = ItemKind.Energon,
+            ['%'] = ItemKind.BombPack,
+            ['?'] = ItemKind.MaxHealthUp
         };
 
         private static readonly Dictionary<char, EnemyKind> EnemySymbols = new Dictionary<char, EnemyKind>
@@ -45,7 +51,16 @@ namespace TransformersGame.Core
             ['b'] = EnemyKind.Beetle,
             ['w'] = EnemyKind.Waver,
             ['t'] = EnemyKind.Sentry,
-            ['v'] = EnemyKind.Sentinel
+            ['v'] = EnemyKind.Sentinel,
+            ['m'] = EnemyKind.Warlord
+        };
+
+        private static readonly Dictionary<char, ObjectKind> ObjectSymbols = new Dictionary<char, ObjectKind>
+        {
+            ['='] = ObjectKind.MovingPlatform,
+            ['I'] = ObjectKind.Elevator,
+            ['^'] = ObjectKind.Spring,
+            ['F'] = ObjectKind.Goal
         };
 
         public static LevelParseResult Parse(IEnumerable<string> lines)
@@ -133,6 +148,7 @@ namespace TransformersGame.Core
             List<Placement<ItemKind>> items = new List<Placement<ItemKind>>();
             List<Placement<EnemyKind>> enemies = new List<Placement<EnemyKind>>();
             List<Placement<int>> doors = new();
+            List<Placement<ObjectKind>> objects = new();
             List<string> spawnLocations = new List<string>();
             Dictionary<char, UnknownTile> unknownTiles = new Dictionary<char, UnknownTile>();
             int playerColumn = 0;
@@ -179,6 +195,10 @@ namespace TransformersGame.Core
                     {
                         enemies.Add(new Placement<EnemyKind>(enemy, c, r));
                     }
+                    else if (ObjectSymbols.TryGetValue(symbol, out ObjectKind levelObject))
+                    {
+                        objects.Add(new Placement<ObjectKind>(levelObject, c, r));
+                    }
                     else if (unknownTiles.TryGetValue(symbol, out UnknownTile seen))
                     {
                         seen.Count++;
@@ -216,7 +236,10 @@ namespace TransformersGame.Core
                 name = DefaultName;
             }
 
-            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors, gravity);
+            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors, gravity)
+            {
+                Objects = objects
+            };
             return new LevelParseResult(data, errors, warnings);
         }
 

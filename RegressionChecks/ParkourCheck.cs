@@ -4,8 +4,7 @@ using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Interfaces;
 
-// Verifies geometry with the actual movement resolver, robot size, speed, and jump impulse.
-// Enemies are excluded: this checks a navigable route, not combat difficulty.
+
 internal static class ParkourCheck
 {
     private const int Width = 68;
@@ -19,13 +18,15 @@ internal static class ParkourCheck
             .Select(p => (IBlock)new Block(Cell(p.Column, p.Row), new TileSprite(), true)).ToArray();
         var hazards = data.Blocks.Where(p => p.Kind == BlockKind.Hazard)
             .Select(p => new Rectangle(p.Column * 32, (int)Cell(p.Column, p.Row).Y, 32, 32)).ToArray();
-        var exit = data.Doors.Single(d => d.Kind == 1);
-        var exitBounds = new Rectangle(exit.Column * 32, (int)Cell(exit.Column, exit.Row).Y, 48, 64);
+        var exitBounds = ExitBounds(data);
         Vector2 start = Cell(data.PlayerColumn, data.PlayerRow);
-        var initialPhysics = new Physics(solids, data.Gravity);
+        var initialPhysics = new Physics(solids, data.Gravity) { FootInset = Player.FootInset };
         for (int frame = 0; frame < 120 && !initialPhysics.IsOnGround; frame++)
             start = initialPhysics.Apply(start, Width, Height, Step);
-        var candidates = solids.Select(b => new Vector2(Math.Clamp(b.Bounds.Center.X - Width / 2, 0, 960 - Width), b.Bounds.Top - Height))
+        // Stand in the middle of each tile, or at its very edge with only the feet still on it (where real jumps start).
+        float inset = Player.FootInset;
+        var candidates = solids.SelectMany(b => new[] { b.Bounds.Center.X - Width / 2f, b.Bounds.Right - inset - 1, b.Bounds.Left - Width + inset + 1 }
+                .Select(x => new Vector2(Math.Clamp(x, 0, 960 - Width), b.Bounds.Top - Height)))
             .Append(start).Distinct().Where(p => p.Y >= 0 && !solids.Any(b => Bounds(p).Intersects(b.Bounds))
                 && !hazards.Any(h => Bounds(p).Intersects(h))).ToArray();
         var visited = new HashSet<Vector2> { start };
@@ -49,7 +50,7 @@ internal static class ParkourCheck
 
     private static bool TryMove(Vector2 position, Vector2 target, bool jump, IBlock[] solids, Rectangle[] hazards, float gravity)
     {
-        var physics = new Physics(solids, gravity);
+        var physics = new Physics(solids, gravity) { FootInset = Player.FootInset };
         position = physics.Apply(position, Width, Height, Step);
         if (jump) physics.Jump(650);
         for (int frame = 0; frame < 150; frame++)
@@ -62,6 +63,18 @@ internal static class ParkourCheck
         }
         return false;
     }
+
+    // The forward door, or the goal beacon in a room that ends the level.
+    public static Rectangle ExitBounds(LevelData data)
+    {
+        var door = data.Doors.SingleOrDefault(d => d.Kind == 1);
+        if (door != null) return new Rectangle(door.Column * 32, (int)Cell(door.Column, door.Row).Y, 48, 64);
+        var goal = data.Objects.Single(o => o.Kind == ObjectKind.Goal);
+        return new Rectangle(goal.Column * 32, (int)Cell(goal.Column, goal.Row).Y, 32, 64);
+    }
+
+    public static int ExitRow(LevelData data) =>
+        data.Doors.SingleOrDefault(d => d.Kind == 1)?.Row ?? data.Objects.Single(o => o.Kind == ObjectKind.Goal).Row;
 
     private static Vector2 Cell(int column, int row) => new(column * 32, 540 - (17 - row) * 32);
     private static Rectangle Bounds(Vector2 position) => new((int)position.X, (int)position.Y, Width, Height);

@@ -9,7 +9,7 @@ namespace TransformersGame.Entities
         private readonly HashSet<IEnemy> hitEnemies = new();
         public PiercingProjectile(Vector2 position, Vector2 velocity, ISprite sprite)
             : base(position, velocity, false, velocity.X < 0, sprite) { }
-        public void Hit(IEnemy enemy)
+        public override void HitEnemy(IEnemy enemy)
         {
             if (hitEnemies.Add(enemy)) enemy.TakeDamage(1);
             if (hitEnemies.Count >= 3) Deactivate();

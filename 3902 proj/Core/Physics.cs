@@ -20,6 +20,13 @@ namespace TransformersGame.Core
         }
 
         public bool IsOnGround { get; private set; }
+
+        // The block landed on during the latest Apply; null while airborne.
+        public IBlock SupportingBlock { get; private set; }
+
+        // Pixels ignored on each side when checking what the object stands on, so a sprite with
+        // transparent margins falls off a ledge once its feet (not its empty edges) leave the block.
+        public float FootInset { get; set; }
         public float Gravity { get; private set; }
 
         public void SetBlocks(IReadOnlyList<IBlock> roomBlocks, float gravity = DefaultGravity)
@@ -28,15 +35,23 @@ namespace TransformersGame.Core
             Gravity = gravity;
             verticalVelocity = 0;
             IsOnGround = false;
+            SupportingBlock = null;
         }
 
         public void Jump(float speed)
         {
             if (IsOnGround)
             {
-                verticalVelocity = -speed;
-                IsOnGround = false;
+                Launch(speed);
             }
+        }
+
+        // Sets an upward velocity whether or not the object is grounded.
+        public void Launch(float speed)
+        {
+            verticalVelocity = -speed;
+            IsOnGround = false;
+            SupportingBlock = null;
         }
 
         public Vector2 Apply(Vector2 position, int width, int height, GameTime gameTime)
@@ -46,6 +61,7 @@ namespace TransformersGame.Core
             verticalVelocity += Gravity * elapsed;
             float desiredY = position.Y + verticalVelocity * elapsed;
             IsOnGround = false;
+            SupportingBlock = null;
             foreach (IBlock block in blocks)
             {
                 if (!block.IsSolid || !OverlapsHorizontally(position.X, width, block.Bounds))
@@ -54,12 +70,14 @@ namespace TransformersGame.Core
                 }
 
                 if (verticalVelocity >= 0
+                    && OverlapsHorizontally(position.X + FootInset, width - 2 * FootInset, block.Bounds)
                     && previousY + height <= block.Bounds.Top
                     && desiredY + height >= block.Bounds.Top)
                 {
                     desiredY = System.Math.Min(desiredY, block.Bounds.Top - height);
                     verticalVelocity = 0;
                     IsOnGround = true;
+                    SupportingBlock = block;
                 }
                 else if (verticalVelocity < 0
                     && previousY >= block.Bounds.Bottom
@@ -125,7 +143,7 @@ namespace TransformersGame.Core
             return position;
         }
 
-        private static bool OverlapsHorizontally(float x, int width, Rectangle bounds)
+        private static bool OverlapsHorizontally(float x, float width, Rectangle bounds)
         {
             return x + width > bounds.Left && x < bounds.Right;
         }

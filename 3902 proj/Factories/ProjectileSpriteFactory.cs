@@ -15,6 +15,13 @@ namespace TransformersGame.Factories
         private const int OrbSize = 28;
         private const int BombSize = 20;
         private const int ExplosionSize = 44;
+        private const int BlastGrowthPerLevel = 18;
+        private const int PelletSize = 16;
+        private const int BoomerangSize = 28;
+        private const int FireballSize = 24;
+        private const double PelletFrameTime = 70;
+        private const double BoomerangFrameTime = 50;
+        private const double FireballFrameTime = 90;
 
         private static readonly Rectangle[] RightShotFrames = new Rectangle[]
         {
@@ -37,6 +44,7 @@ namespace TransformersGame.Factories
         private Texture2D rightSpriteSheet;
         private Texture2D leftSpriteSheet;
         private Texture2D bombSpriteSheet;
+        private Texture2D objectSpriteSheet;
 
         private ProjectileSpriteFactory()
         {
@@ -55,6 +63,7 @@ namespace TransformersGame.Factories
             rightSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
             leftSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
             bombSpriteSheet = content.Load<Texture2D>("Sprites/transformer-directional-combat-spritesheet");
+            objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
         }
 
         public ISprite CreateShotSprite(bool facingLeft)
@@ -77,9 +86,25 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(bombSpriteSheet, BombFrame, BombSize, BombSize, Color.White);
         }
 
-        public ISprite CreateExplosionSprite()
+        public ISprite CreateExplosionSprite(int blastLevel = 0)
         {
-            return new AnimatedSprite(rightSpriteSheet, ExplosionFrames, ExplosionSize, ExplosionSize, Color.White, ExplosionFrameTime);
+            int size = ExplosionSize + blastLevel * BlastGrowthPerLevel;
+            return new AnimatedSprite(rightSpriteSheet, ExplosionFrames, size, size, Color.White, ExplosionFrameTime);
+        }
+
+        public ISprite CreateSpreadPelletSprite()
+        {
+            return new AnimatedSprite(objectSpriteSheet, SpriteAtlas.SpreadPellet, PelletSize, PelletSize, Color.White, PelletFrameTime);
+        }
+
+        public ISprite CreateBoomerangSprite()
+        {
+            return new AnimatedSprite(objectSpriteSheet, SpriteAtlas.Boomerang, BoomerangSize, BoomerangSize, Color.White, BoomerangFrameTime);
+        }
+
+        public ISprite CreateBossFireballSprite()
+        {
+            return new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossFireball, FireballSize, FireballSize, Color.White, FireballFrameTime);
         }
     }
 }

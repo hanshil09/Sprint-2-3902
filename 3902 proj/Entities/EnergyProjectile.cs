@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
 {
-    internal class EnergyProjectile : IProjectile
+    internal class EnergyProjectile : IPlayerWeapon
     {
         private const double MaximumLifetime = 3000;
         private const double angleValue = 0.6632;       //38 degrees, in radians
@@ -63,6 +63,25 @@ namespace TransformersGame.Entities
         public void Deactivate()
         {
             IsActive = false;
+        }
+
+        public virtual void HitEnemy(IEnemy enemy)
+        {
+            if (!enemy.IsDestroyed)
+            {
+                enemy.TakeDamage(1);
+            }
+            Deactivate();
+        }
+
+        // Player shots break crates; every solid block stops the shot.
+        public void HitSolid(IBlock block)
+        {
+            if (block is Block crate)
+            {
+                crate.Destroy();
+            }
+            Deactivate();
         }
 
         public void Draw(SpriteBatch spriteBatch)

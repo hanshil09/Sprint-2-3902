@@ -61,5 +61,8 @@ namespace TransformersGame.Core
 
         public IReadOnlyList<Placement<EnemyKind>> Enemies { get; }
         public IReadOnlyList<Placement<int>> Doors { get; }
+
+        // Moving platforms, elevators, springs and goals; one placement per tile.
+        public IReadOnlyList<Placement<ObjectKind>> Objects { get; init; } = System.Array.Empty<Placement<ObjectKind>>();
     }
 }

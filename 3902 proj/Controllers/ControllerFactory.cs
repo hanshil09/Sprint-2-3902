@@ -16,6 +16,16 @@ namespace TransformersGame.Controllers
             return keyboardController;
         }
 
+        // Game over and mission complete screens: reset or quit.
+        public static IController CreateEndScreenController(Game1 game)
+        {
+            KeyboardController keyboardController = new KeyboardController();
+            keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
+            return keyboardController;
+        }
+
         public static IController CreateGameplayController(Game1 game, IPlayer player, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
             KeyboardController keyboardController = new KeyboardController();
@@ -60,6 +70,8 @@ namespace TransformersGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.NumPad5, new UseItemCommand(player, 5));
             keyboardController.RegisterSinglePressCommand(Keys.D6, new UseItemCommand(player, 6));
             keyboardController.RegisterSinglePressCommand(Keys.NumPad6, new UseItemCommand(player, 6));
+            keyboardController.RegisterSinglePressCommand(Keys.D7, new UseItemCommand(player, 7));
+            keyboardController.RegisterSinglePressCommand(Keys.NumPad7, new UseItemCommand(player, 7));
             keyboardController.RegisterSinglePressCommand(Keys.D1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.NumPad1, new UseItemCommand(player, 1));
             keyboardController.RegisterSinglePressCommand(Keys.D2, new UseItemCommand(player, 2));

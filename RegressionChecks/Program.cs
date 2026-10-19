@@ -28,22 +28,33 @@ foreach (string path in roomFiles)
         "Brick Stairway" => BlockKind.Brick,
         "Stone Switchbacks" => BlockKind.Stone,
         "Metal Towers" => BlockKind.Metal,
-        "Crate Workshop" => BlockKind.CrateFloor,
-        "Hazard Crossing" => BlockKind.HazardFloor,
+        "Crate Workshop" => BlockKind.Wood,
+        "Hazard Crossing" => BlockKind.Caution,
+        "Decepticon Fortress" => BlockKind.Alloy,
         _ => throw new InvalidOperationException("Unexpected room theme")
     };
     var baseFloor = result.Data.Blocks.Where(b => b.Row == result.Data.Rows - 1).ToArray();
     Check("complete themed base floor " + path, baseFloor.Length == 30 && baseFloor.All(b => b.Kind == expectedFloor));
+    var platforms = result.Data.Blocks.Where(b => b.Row < result.Data.Rows - 1 && b.Kind != BlockKind.Crate && b.Kind != BlockKind.Hazard).ToArray();
+    Check("parkour blocks match base floor " + path, platforms.Length > 0 && platforms.All(b => b.Kind == expectedFloor));
     var floorPhysics = new Physics(new[] { new Block(new Vector2(100, 508), new StubSprite(), true, expectedFloor) }, result.Data.Gravity);
     Check("themed floor supports falling objects " + path,
         floorPhysics.Apply(new Vector2(100, 400), 10, 10, Step(.5)).Y == 498 && floorPhysics.IsOnGround);
     Check("exactly two enemies " + path, result.Data.Enemies.Count == 2);
-    Check("one focused pickup " + path, result.Data.Items.Count == 1);
-    Check("return and forward doors " + path, result.Data.Doors.Count == 2 && result.Data.Doors.Select(d => d.Kind).Distinct().Count() == 2);
-    Check("exit requires parkour " + path, result.Data.Doors.Single(d => d.Kind == 1).Row < result.Data.PlayerRow);
+    Check("one to three focused pickups " + path, result.Data.Items.Count is >= 1 and <= 3);
+    bool hasForwardDoor = result.Data.Doors.Count(d => d.Kind == 1) == 1;
+    bool hasGoal = result.Data.Objects.Count(o => o.Kind == ObjectKind.Goal) == 1;
+    Check("return door plus one exit (forward door or beacon) " + path,
+        result.Data.Doors.Count(d => d.Kind == -1) == 1 && hasForwardDoor != hasGoal);
+    Check("exit requires parkour " + path, ParkourCheck.ExitRow(result.Data) < result.Data.PlayerRow);
     Check("physics route reaches exit " + path, ParkourCheck.CanReachExit(result.Data));
 }
-Check("six distinct rooms", roomFiles.Length == 6 && roomData.Select(d => d.Name).Distinct().Count() == 6);
+Check("seven distinct rooms", roomFiles.Length == 7 && roomData.Select(d => d.Name).Distinct().Count() == 7);
+Check("each room has two different enemy types", roomData.All(d => d.Enemies.Select(e => e.Kind).Distinct().Count() == 2));
+Check("no two rooms share an enemy pair", roomData.Select(d => string.Join(",", d.Enemies.Select(e => e.Kind).Order())).Distinct().Count() == 7);
+Check("seven distinct room block themes", roomData.Select(d => d.Blocks.Single(b => b.Row == d.Rows - 1 && b.Column == 0).Kind).Distinct().Count() == 7);
+Check("exactly one room has the boss and the beacon", roomData.Count(d => d.Enemies.Any(e => e.Kind == EnemyKind.Warlord)) == 1
+    && roomData.Single(d => d.Enemies.Any(e => e.Kind == EnemyKind.Warlord)).Objects.Any(o => o.Kind == ObjectKind.Goal));
 Check("reject missing spawn", !LevelParser.Parse(new[] { "[tiles]", "GGG" }).Success);
 Check("reject duplicate spawn", !LevelParser.Parse(new[] { "[tiles]", "PP" }).Success);
 var wall = new Block(new Vector2(100, 100), new StubSprite(), true);
@@ -83,8 +94,9 @@ Check("hold right triggers once", next.Count == 1);
 var rebuilt = new MouseController(previous, next, () => mouse);
 rebuilt.Update();
 Check("controller rebuild does not repeat held click", next.Count == 1);
-Check("seven enemy kinds across rooms", roomData.SelectMany(d => d.Enemies).Select(e => e.Kind).Distinct().Count() == 7);
-Check("four pickup kinds across rooms", roomData.SelectMany(d => d.Items).Select(e => e.Kind).Distinct().Count() == 4);
+Check("every enemy kind appears in a room", roomData.SelectMany(d => d.Enemies).Select(e => e.Kind).Distinct().Count() == Enum.GetValues<EnemyKind>().Length);
+Check("every pickup kind appears in a room", roomData.SelectMany(d => d.Items).Select(e => e.Kind).Distinct().Count() == Enum.GetValues<ItemKind>().Length);
+Check("every interactive object kind appears in a room", roomData.SelectMany(d => d.Objects).Select(o => o.Kind).Distinct().Count() == Enum.GetValues<ObjectKind>().Length);
 Check("block variety across rooms", roomData.SelectMany(d => d.Blocks).Select(b => b.Kind).Distinct().Order().SequenceEqual(Enum.GetValues<BlockKind>().Order()));
 var crate = new Block(new Vector2(100, 100), new StubSprite(), true, BlockKind.Crate);
 shot = new EnergyProjectile(new Vector2(80, 100), new Vector2(100, 0), false, false, new StubSprite());
@@ -107,7 +119,7 @@ shot.Update(Step(.2));
 collisions.BuildTree(new List<IGameObject> { shot, enemy, wall });
 collisions.DetectCollision();
 Check("nearest wall shields enemy independent of object order", !shot.IsActive && enemy.Hits == 0);
-Check("room doors parsed", roomData.All(d => d.Doors.Count == 2));
+Check("room doors parsed", roomData.All(d => d.Doors.Count == (d.Objects.Any(o => o.Kind == ObjectKind.Goal) ? 1 : 2)));
 var testPlayer = new StubPlayer { Position = new Vector2(100, 100) };
 int doorDirection = 0;
 collisions = new CollisionManager(960, 540, null, direction => doorDirection = direction);
@@ -125,7 +137,7 @@ Check("non-solid hazard damages player", testPlayer.DamageCount == 2 && !hazard.
 var resource = new ResourcePickup(Vector2.Zero, new StubSprite(), ItemKind.HealthCell);
 resource.Collect(testPlayer); resource.Collect(testPlayer);
 Check("resource pickup is applied once", testPlayer.ItemsAdded == 1);
-Check("six distinct room gravity settings", roomData.Select(d => d.Gravity).Distinct().Count() == 6);
+Check("seven distinct room gravity settings", roomData.Select(d => d.Gravity).Distinct().Count() == 7);
 Check("legacy rooms retain default gravity", LevelParser.Parse(new[] { "[tiles]", "P" }).Data.Gravity == Physics.DefaultGravity);
 foreach (string invalidGravity in new[] { "NaN", "Infinity", "-1", "0", "2201", "heavy" })
     Check("reject invalid gravity " + invalidGravity,
@@ -159,14 +171,6 @@ var hazardSupport = new Block(new Vector2(100, 200), new StubSprite(), false, Bl
 var hazardBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { hazardSupport });
 hazardBomb.Update(Step(.5));
 Check("non-solid hazard does not suspend bomb", hazardBomb.Position.Y > 210);
-var permanentCrateFloor = new Block(Vector2.Zero, new StubSprite(), true, BlockKind.CrateFloor);
-permanentCrateFloor.Destroy();
-Check("crate-themed base cannot be destroyed", permanentCrateFloor.IsSolid && !permanentCrateFloor.IsDestroyed);
-var safeHazardFloor = new Block(new Vector2(100, 100), new StubSprite(), true, BlockKind.HazardFloor);
-var floorPlayer = new StubPlayer { Position = new Vector2(100, 100) };
-collisions.BuildTree(new List<IGameObject> { safeHazardFloor, floorPlayer });
-collisions.DetectCollision();
-Check("hazard-themed base does not cause contact damage", !safeHazardFloor.IsHazard && floorPlayer.DamageCount == 0);
 var timedBomb = new Bomb(new Vector2(100, 100), new StubSprite(), new[] { platform }, createExplosion: () => new StubSprite());
 timedBomb.Update(Step(1.2));
 Check("bomb still explodes after original fuse", timedBomb.IsExploding && timedBomb.Position.Y == 190);
@@ -180,6 +184,24 @@ Check("explosion expires", !timedBomb.IsActive);
 Vector2 finishedPosition = timedBomb.Position;
 timedBomb.Update(Step(1));
 Check("inactive bomb does not move", timedBomb.Position == finishedPosition);
+var ledge = new Block(new Vector2(100, 200), new StubSprite(), true);
+var edgePhysics = new Physics(new[] { ledge }) { FootInset = Player.FootInset };
+Vector2 onlyEdgeOver = edgePhysics.Apply(new Vector2(100 - 68 + Player.FootInset - 2, 150), 68, 50, Step(.2));
+Check("player falls when only the empty edge of its box is over a ledge", !edgePhysics.IsOnGround && onlyEdgeOver.Y > 150);
+edgePhysics = new Physics(new[] { ledge }) { FootInset = Player.FootInset };
+edgePhysics.Apply(new Vector2(100 - 68 + Player.FootInset + 2, 149.5f), 68, 50, Step(.2));
+Check("player stands when its feet are over a ledge", edgePhysics.IsOnGround);
+var slider = new MovingPlatform(new Vector2(200, 400), 3, new Vector2(100, 0), 60f, new StubSprite());
+var pushedPlayer = new Player(new Vector2(225, 380), new IBlock[] { slider }, new ProjectileManager());
+slider.Update(Step(1.0 / 60));
+pushedPlayer.Update(Step(1.0 / 60));
+Check("moving platform pushes the player aside instead of overlapping", pushedPlayer.Position.X >= slider.Bounds.Right);
+var overhead = new MovingPlatform(new Vector2(200, 300), 3, new Vector2(100, 0), 60f, new StubSprite());
+var jumper = new Physics(new IBlock[] { overhead });
+jumper.Apply(new Vector2(205, 330), 10, 10, Step(1.0 / 60));
+jumper.Launch(600);
+Vector2 jumped = jumper.Apply(new Vector2(205, 330), 10, 10, Step(.1));
+Check("jumping into a moving platform from below is stopped by it", jumped.Y >= overhead.Bounds.Bottom);
 Console.WriteLine($"{passed} regression checks passed.");
 
 sealed class CounterCommand : ICommand { public int Count { get; private set; } public void Execute() => Count++; }
@@ -194,6 +216,12 @@ sealed class StubPlayer : IPlayer
     public int MedkitCount => 0;
     public int ShieldCount => 0;
     public bool IsShieldActive => false;
+    public int BombLevel => 0;
+    public int EnergonCount => 0;
+    public bool IsInvincible { get; set; }
+    public float SpeedScale { get; set; } = 1f;
+    public float LastBounce { get; private set; }
+    public void Bounce(float speed) => LastBounce = speed;
     public int DamageCount { get; private set; }
     public int ItemsAdded { get; private set; }
     public bool TakeDamage() { DamageCount++; return true; }

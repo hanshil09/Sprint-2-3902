@@ -46,7 +46,9 @@ namespace TransformersGame.Collisions
                 foreach (var impact in impacts)
                 {
                     HandleProjectileCollision(projectile, impact.Bounds, impact.Target);
-                    if (!projectile.IsActive) break;
+                    // A wall stops anything behind it from being hit this frame, even by weapons that survive the wall.
+                    bool hitWall = impact.Target is IBlock wall && wall.IsSolid && projectile is not Bomb;
+                    if (!projectile.IsActive || hitWall) break;
                 }
             }
             for (int i = 0; i < objects.Count; i++)
@@ -83,24 +85,49 @@ namespace TransformersGame.Collisions
 
         private void HandleCollision(IGameObject objectA, Rectangle boundsA, IGameObject objectB, Rectangle boundsB)
         {
-            if (boundsA.Intersects(boundsB))
+            if (!boundsA.Intersects(boundsB))
             {
-                if (objectA is IPlayer && objectB is Door doorB) enterDoor?.Invoke(doorB.Direction);
-                if (objectB is IPlayer && objectA is Door doorA) enterDoor?.Invoke(doorA.Direction);
-                if (objectA is IPlayer hazardPlayerA && objectB is Block hazardB && hazardB.IsHazard)
-                    DamagePlayer(hazardPlayerA);
-                if (objectB is IPlayer hazardPlayerB && objectA is Block hazardA && hazardA.IsHazard)
-                    DamagePlayer(hazardPlayerB);
+                return;
             }
-            if (objectA is IPlayer && objectB is IEnemy enemyB && !enemyB.IsDestroyed
-                && boundsA.Intersects(boundsB))
+            if (objectA is IPlayer playerA)
             {
-                DamagePlayer((IPlayer)objectA);
+                HandlePlayerContact(playerA, objectB);
             }
-            else if (objectB is IPlayer && objectA is IEnemy enemyA && !enemyA.IsDestroyed
-                && boundsA.Intersects(boundsB))
+            else if (objectB is IPlayer playerB)
             {
-                DamagePlayer((IPlayer)objectB);
+                HandlePlayerContact(playerB, objectA);
+            }
+        }
+
+        private void HandlePlayerContact(IPlayer player, IGameObject other)
+        {
+            switch (other)
+            {
+                case Door door:
+                    enterDoor?.Invoke(door.Direction);
+                    break;
+                case IPlayerTrigger trigger:
+                    trigger.OnPlayerContact(player);
+                    break;
+                case Block block when block.IsHazard:
+                    DamagePlayer(player);
+                    break;
+                case IEnemy enemy when !enemy.IsDestroyed:
+                    HandleEnemyContact(player, enemy);
+                    break;
+            }
+        }
+
+        // An invincible player (Spark Core) damages enemies by touching them instead of being hurt.
+        private void HandleEnemyContact(IPlayer player, IEnemy enemy)
+        {
+            if (player.IsInvincible)
+            {
+                enemy.TakeDamage(1);
+            }
+            else
+            {
+                DamagePlayer(player);
             }
         }
 
@@ -110,40 +137,59 @@ namespace TransformersGame.Collisions
             {
                 return;
             }
+            switch (projectile)
+            {
+                case Bomb bomb:
+                    HandleBombCollision(bomb, targetBounds, target);
+                    break;
+                case IPlayerWeapon weapon:
+                    HandleWeaponCollision(weapon, target);
+                    break;
+                case EnemyProjectile:
+                    HandleEnemyShotCollision(projectile, target);
+                    break;
+            }
+        }
 
-            if (projectile is Bomb bomb)
+        private static void HandleBombCollision(Bomb bomb, Rectangle targetBounds, IGameObject target)
+        {
+            if (!bomb.Bounds.Intersects(targetBounds))
             {
-                if (target is IEnemy bombTarget && bomb.Bounds.Intersects(targetBounds))
-                {
-                    bomb.DamageEnemy(bombTarget);
-                }
-                if (bomb.IsExploding && target is Block crate && bomb.Bounds.Intersects(targetBounds))
-                {
-                    crate.Destroy();
-                }
+                return;
             }
-            else if (projectile is EnergyProjectile && target is IEnemy enemy)
+            if (target is IEnemy enemy)
             {
-                if (projectile is PiercingProjectile piercing)
-                {
-                    piercing.Hit(enemy);
-                    return;
-                }
-                if (!enemy.IsDestroyed)
-                {
-                    enemy.TakeDamage(1);
-                }
-                projectile.Deactivate();
+                bomb.DamageEnemy(enemy);
             }
-            else if (projectile is EnemyProjectile && target is IPlayer)
+            else if (bomb.IsExploding && target is Block crate)
             {
-                DamagePlayer((IPlayer)target);
-                projectile.Deactivate();
+                crate.Destroy();
             }
-            else if (projectile is not Bomb && target is IBlock block && block.IsSolid)
+        }
+
+        // Each weapon decides its own response (pierce, return, break crate...).
+        private static void HandleWeaponCollision(IPlayerWeapon weapon, IGameObject target)
+        {
+            if (target is IEnemy enemy)
             {
-                if (projectile is EnergyProjectile && block is Block crate) crate.Destroy();
-                projectile.Deactivate();
+                weapon.HitEnemy(enemy);
+            }
+            else if (target is IBlock block && block.IsSolid)
+            {
+                weapon.HitSolid(block);
+            }
+        }
+
+        private void HandleEnemyShotCollision(IProjectile shot, IGameObject target)
+        {
+            if (target is IPlayer player)
+            {
+                DamagePlayer(player);
+                shot.Deactivate();
+            }
+            else if (target is IBlock block && block.IsSolid)
+            {
+                shot.Deactivate();
             }
         }
 
@@ -180,6 +226,9 @@ namespace TransformersGame.Collisions
                     return block.IsSolid || block is Block hazard && hazard.IsHazard;
                 case IItem item:
                     bounds = item.Bounds;
+                    return true;
+                case IPlayerTrigger trigger:
+                    bounds = trigger.Bounds;
                     return true;
                 case IPlayer player:
                     bounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);

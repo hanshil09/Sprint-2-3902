@@ -1,0 +1,52 @@
+READABILITY REVIEW
+
+Author of the code review: Hanshil Solanki
+Date of the code review: October 19, 2026
+Sprint number: 3
+Name of the .cs file being reviewed: Level.cs, LevelParser.cs, CollisionManager.cs,
+Physics.cs, Medkit.cs, Shield.cs, and Player.cs
+Author of the .cs file being reviewed: Aarav (Levels), Sami (collision), and
+Ashwinameera Selvakumar (collision fixes and item pickups/controls), with
+shared integration changes
+Number of minutes taken to complete the review: 30 min
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+Aarav's Levels branch separates file parsing from object creation and gives
+useful error messages. Sami's collision branch separates collision work
+from the game loop. Meera's collision-fixes and item-pickups-controls branches
+use clear methods for movement checks, collecting items, and using inventory.
+These responsibilities are easier to follow after merging the branches.
+
+What I noticed could be improved:
+I noticed more rooms are needed to check all the functionality, especially
+doors, hazards, projectiles, and different enemy/item combinations together.
+The variable objs could be renamed to gameObjects. BuildTree could also be
+renamed because it now copies an object list rather than building a tree.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Hanshil Solanki
+Date of the code review: October 19, 2026
+Sprint number: 3
+Name of the .cs file being reviewed: LevelParser.cs, CollisionManager.cs,
+Physics.cs, Player.cs, Medkit.cs, and Shield.cs
+Author of the .cs file being reviewed: Aarav, Sami, and Ashwinameera Selvakumar
+(with shared integration changes)
+
+Specific comments on code quality:
+
+What I noticed:
+Aarav's file-based levels allow layout changes without rewriting object setup.
+Sami's framework and Meera's fixes provide collision handling, while Meera's
+pickup work adds inventory and item effects. The integrated code processes
+projectile impacts in order and ignores inactive or destroyed objects.
+Repeated room switching should also be tested while shields, bombs, and
+enemy projectiles are active to check that the merged systems work together.
+
+Hypothetical change:
+If we add moving platforms or switches, the parser needs new symbols and
+the collision system needs new responses. Separate response handlers and
+named screen-size constants would make those additions easier to maintain.

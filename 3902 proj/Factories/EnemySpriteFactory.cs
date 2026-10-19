@@ -12,6 +12,8 @@ namespace TransformersGame.Factories
         private const int EnemyWidth = 3 * 16;
         private const int EnemyHeight = 3 * 16;
         private const double IdleFrameTime = 250;
+        public const int BossSize = 96;
+        private const double BossFrameTime = 220;
 
         private static readonly Rectangle[] Enemy1Frames =
         {
@@ -47,6 +49,7 @@ namespace TransformersGame.Factories
         private static EnemySpriteFactory instance = new EnemySpriteFactory();
 
         private Texture2D enemySpriteSheet;
+        private Texture2D objectSpriteSheet;
 
         private EnemySpriteFactory()
         {
@@ -63,10 +66,16 @@ namespace TransformersGame.Factories
         public void LoadAllTextures(ContentManager content)
         {
             enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
+            objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
         }
 
         public ISprite CreateEnemySprite(EnemyKind kind, Color tint, bool facingLeft)
         {
+            if (kind == EnemyKind.Warlord)
+            {
+                // Small preview of the boss for the object showcase; the real boss uses CreateBossSprite.
+                return new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossIdle, EnemyWidth, EnemyHeight, tint, BossFrameTime);
+            }
             if (kind == EnemyKind.Sentry || kind == EnemyKind.Sentinel)
             {
                 tint = kind == EnemyKind.Sentry ? Color.Orange : Color.Cyan;
@@ -90,6 +99,22 @@ namespace TransformersGame.Factories
             return new AnimatedSprite(
                 enemySpriteSheet, frames,
                 EnemyWidth, EnemyHeight, tint, IdleFrameTime, effects);
+        }
+
+        public ISprite CreateBossSprite(BossPose pose, Color tint)
+        {
+            return pose switch
+            {
+                BossPose.Attack => Still(SpriteAtlas.BossAttack, tint),
+                BossPose.Enraged => new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossEnraged, BossSize, BossSize, tint, BossFrameTime / 2),
+                BossPose.Defeated => Still(SpriteAtlas.BossDefeated, tint),
+                _ => new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossIdle, BossSize, BossSize, tint, BossFrameTime)
+            };
+        }
+
+        private ISprite Still(Rectangle frame, Color tint)
+        {
+            return new TextureRegionSprite(objectSpriteSheet, frame, BossSize, BossSize, tint);
         }
 
         private static bool ArtFacesLeft(EnemyKind kind)
