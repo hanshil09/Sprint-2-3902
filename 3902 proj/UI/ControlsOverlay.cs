@@ -43,7 +43,7 @@ namespace TransformersGame.UI
         {
             DrawPanel(spriteBatch, new Rectangle(12, 8, 936, 64));
             DrawText(spriteBatch, $"{roomNumber}/{roomCount}  {roomName}     HP {player.Health}/{player.MaxHealth}     F1: help", 26, 16, HeadingColor, 0.62f);
-            DrawText(spriteBatch, "GOLD door: next room    CYAN door: return    Mouse clicks: test rooms", 26, 43, TextColor, 0.53f);
+            DrawText(spriteBatch, "Reach the GOLD door at the top to advance. Mouse clicks: test rooms", 26, 43, TextColor, 0.53f);
             if (!showHelp) return;
             Rectangle panel = new Rectangle(16, 16, 560, 262);
             DrawPanel(spriteBatch, panel);

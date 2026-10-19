@@ -24,7 +24,7 @@ foreach (string path in roomFiles)
     roomData.Add(result.Data);
     Check("exactly two enemies " + path, result.Data.Enemies.Count == 2);
     Check("one focused pickup " + path, result.Data.Items.Count == 1);
-    Check("return and forward doors " + path, result.Data.Doors.Count == 2 && result.Data.Doors.Select(d => d.Kind).Distinct().Count() == 2);
+    Check("one elevated forward door " + path, result.Data.Doors.Count == 1 && result.Data.Doors[0].Kind == 1);
     Check("exit requires parkour " + path, result.Data.Doors.Single(d => d.Kind == 1).Row < result.Data.PlayerRow);
     Check("physics route reaches exit " + path, ParkourCheck.CanReachExit(result.Data));
 }
@@ -92,7 +92,7 @@ shot.Update(Step(.2));
 collisions.BuildTree(new List<IGameObject> { shot, enemy, wall });
 collisions.DetectCollision();
 Check("nearest wall shields enemy independent of object order", !shot.IsActive && enemy.Hits == 0);
-Check("room doors parsed", roomData.All(d => d.Doors.Count == 2));
+Check("one door per room parsed", roomData.All(d => d.Doors.Count == 1));
 var testPlayer = new StubPlayer { Position = new Vector2(100, 100) };
 int doorDirection = 0;
 collisions = new CollisionManager(960, 540, null, direction => doorDirection = direction);
