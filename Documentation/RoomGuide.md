@@ -11,8 +11,9 @@ Each room contains exactly two enemies and one pickup. The shared ground floor p
 | 5 | Crate Workshop | Ground platforms with shootable crate obstacles | Hopper, Beetle |
 | 6 | Hazard Crossing | Elevated platforms above red floor hazards | Crawler, Flyer |
 
-- **One gold door per room:** at the top of the parkour route, leading to the next room. No ground-level return doors are placed.
-- Doors are 48 x 64 pixels and activate on player contact. Each destination uses its safe player spawn away from the elevated exit.
+- **Gold door:** next room, reached by the parkour route.
+- **Cyan door:** previous room, near the entrance.
+- Doors are 48 x 64 pixels and activate on player contact. Each destination uses its safe player spawn, away from the return door, preventing an immediate bounce.
 - A/D or arrows move; W/Up/J jumps. Z/N shoots crates; 2 drops a bomb. The crate-route check assumes blocking crates have been destroyed first.
 - F1 toggles full controls. The default HUD shows the current room and health without covering the platforms.
 - Mouse clicks and Page Up/Page Down still jump between rooms for testing. Both ends wrap.
