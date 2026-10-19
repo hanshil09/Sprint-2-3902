@@ -14,6 +14,9 @@ namespace TransformersGame.UI
 
         private readonly SpriteFont font;
         private readonly Texture2D pixel;
+        private bool showHelp;
+
+        public void ToggleHelp() => showHelp = !showHelp;
 
         public ControlsOverlay(SpriteFont font, GraphicsDevice graphicsDevice)
         {
@@ -36,8 +39,12 @@ namespace TransformersGame.UI
             DrawKeyLine(spriteBatch, "Q / ESC", "Quit", left + 30, top + 140);
         }
 
-        public void DrawGameplay(SpriteBatch spriteBatch, IPlayer player)
+        public void DrawGameplay(SpriteBatch spriteBatch, IPlayer player, string roomName, int roomNumber, int roomCount)
         {
+            DrawPanel(spriteBatch, new Rectangle(12, 8, 936, 64));
+            DrawText(spriteBatch, $"{roomNumber}/{roomCount}  {roomName}     HP {player.Health}/{player.MaxHealth}     F1: help", 26, 16, HeadingColor, 0.62f);
+            DrawText(spriteBatch, "GOLD door: next room    CYAN door: return    Mouse clicks: test rooms", 26, 43, TextColor, 0.53f);
+            if (!showHelp) return;
             Rectangle panel = new Rectangle(16, 16, 560, 262);
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "CONTROLS", 34, 30, HeadingColor, 0.9f);
@@ -46,7 +53,7 @@ namespace TransformersGame.UI
             DrawText(spriteBatch, "ACTION", 34, 91, AccentColor, 0.65f);
             DrawText(spriteBatch, "Z/N shot K angle 1 orb 2 bomb 5 pierce 6 spread SPACE form", 105, 91, TextColor, 0.48f);
             DrawText(spriteBatch, "CYCLE", 34, 119, AccentColor, 0.65f);
-            DrawText(spriteBatch, "T / Y blocks     U / I items     O / P enemies", 105, 119, TextColor, 0.58f);
+            DrawText(spriteBatch, "Left/Right click or Page Up/Down: test rooms", 105, 119, TextColor, 0.55f);
             DrawText(spriteBatch, "ITEMS", 34, 147, AccentColor, 0.65f);
             DrawText(spriteBatch, "3 medkit (+25 health)     4 shield (5 seconds)", 105, 147, TextColor, 0.55f);
             DrawText(spriteBatch, "STATUS", 34, 175, AccentColor, 0.65f);

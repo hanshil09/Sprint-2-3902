@@ -39,5 +39,12 @@ namespace TransformersGame.Factories
             Rectangle frame = new Rectangle(index * BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
+
+        public ISprite CreateDoorSprite(int direction)
+        {
+            Rectangle frame = new Rectangle(3 * BlockSize, 0, BlockSize, BlockSize);
+            return new TextureRegionSprite(blockSpriteSheet, frame, 48, 64,
+                direction > 0 ? Color.Gold : Color.Cyan);
+        }
     }
 }

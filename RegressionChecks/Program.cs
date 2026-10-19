@@ -15,13 +15,20 @@ void Check(string name, bool condition)
     passed++;
 }
 GameTime Step(double seconds) => new(TimeSpan.Zero, TimeSpan.FromSeconds(seconds));
-foreach (string path in Directory.GetFiles("3902 proj/Content/Levels", "*.room"))
+var roomFiles = Directory.GetFiles("3902 proj/Content/Levels", "*.room");
+var roomData = new List<LevelData>();
+foreach (string path in roomFiles)
 {
     LevelParseResult result = LevelParser.Parse(File.ReadAllLines(path));
     Check("valid room " + path, result.Success);
-    Check("base enemy types " + path, result.Data.Enemies.Select(e => e.Kind).Distinct().Count() >= 5);
-    Check("pickup coverage " + path, result.Data.Items.Count >= 2);
+    roomData.Add(result.Data);
+    Check("exactly two enemies " + path, result.Data.Enemies.Count == 2);
+    Check("one focused pickup " + path, result.Data.Items.Count == 1);
+    Check("return and forward doors " + path, result.Data.Doors.Count == 2 && result.Data.Doors.Select(d => d.Kind).Distinct().Count() == 2);
+    Check("exit requires parkour " + path, result.Data.Doors.Single(d => d.Kind == 1).Row < result.Data.PlayerRow);
+    Check("physics route reaches exit " + path, ParkourCheck.CanReachExit(result.Data));
 }
+Check("six distinct rooms", roomFiles.Length == 6 && roomData.Select(d => d.Name).Distinct().Count() == 6);
 Check("reject missing spawn", !LevelParser.Parse(new[] { "[tiles]", "GGG" }).Success);
 Check("reject duplicate spawn", !LevelParser.Parse(new[] { "[tiles]", "PP" }).Success);
 var wall = new Block(new Vector2(100, 100), new StubSprite(), true);
@@ -61,10 +68,9 @@ Check("hold right triggers once", next.Count == 1);
 var rebuilt = new MouseController(previous, next, () => mouse);
 rebuilt.Update();
 Check("controller rebuild does not repeat held click", next.Count == 1);
-var lab = LevelParser.Parse(File.ReadAllLines("3902 proj/Content/Levels/laboratory-02.room")).Data;
-Check("seven enemy kinds available", lab.Enemies.Select(e => e.Kind).Distinct().Count() == 7);
-Check("four pickup kinds available", lab.Items.Select(e => e.Kind).Distinct().Count() == 4);
-Check("environment behaviors available", lab.Blocks.Any(b => b.Kind == BlockKind.Crate) && lab.Blocks.Any(b => b.Kind == BlockKind.Hazard));
+Check("seven enemy kinds across rooms", roomData.SelectMany(d => d.Enemies).Select(e => e.Kind).Distinct().Count() == 7);
+Check("four pickup kinds across rooms", roomData.SelectMany(d => d.Items).Select(e => e.Kind).Distinct().Count() == 4);
+Check("block variety across rooms", roomData.SelectMany(d => d.Blocks).Select(b => b.Kind).Distinct().Count() == 6);
 var crate = new Block(new Vector2(100, 100), new StubSprite(), true, BlockKind.Crate);
 shot = new EnergyProjectile(new Vector2(80, 100), new Vector2(100, 0), false, false, new StubSprite());
 shot.Update(Step(.3));
@@ -86,7 +92,7 @@ shot.Update(Step(.2));
 collisions.BuildTree(new List<IGameObject> { shot, enemy, wall });
 collisions.DetectCollision();
 Check("nearest wall shields enemy independent of object order", !shot.IsActive && enemy.Hits == 0);
-Check("room doors parsed", lab.Doors.Count == 2);
+Check("room doors parsed", roomData.All(d => d.Doors.Count == 2));
 var testPlayer = new StubPlayer { Position = new Vector2(100, 100) };
 int doorDirection = 0;
 collisions = new CollisionManager(960, 540, null, direction => doorDirection = direction);

@@ -46,7 +46,7 @@ namespace TransformersGame.Core
             foreach (Placement<int> placement in data.Doors)
             {
                 doors.Add(new Door(CellPosition(placement.Column, placement.Row), placement.Kind,
-                    BlockSpriteFactory.Instance.CreateBlockSprite(BlockKind.Metal)));
+                    BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind)));
             }
 
             Vector2 requestedPlayerStart = CellPosition(data.PlayerColumn, data.PlayerRow);
@@ -68,6 +68,8 @@ namespace TransformersGame.Core
         public IReadOnlyList<IItem> Items => items;
 
         public Vector2 PlayerStart { get; }
+
+        public string Name => data.Name;
 
         public void FillBlockCycler(IGameObjectCycler cycler)
         {

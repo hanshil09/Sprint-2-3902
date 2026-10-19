@@ -6,7 +6,7 @@ All eight remote branches were fetched and integrated, including main, Enemies, 
 
 ## Implemented improvements
 
-- External room loading, parser diagnostics, invalid-data fallback, and two ordered room files.
+- External room loading, parser diagnostics, invalid-data fallback, and six ordered room files with two enemies each.
 - Active-room-only processing, all room enemies active, old projectile cleanup, safe entity spawn placement, and mouse/Page Up/Page Down navigation with wraparound.
 - Rectangle collision handling, swept projectile tests, nearest-first impacts, wall and ceiling resolution, item collection, player damage/invulnerability, shield protection, health, and a game-over state.
 - Seven enemy kinds: the original five plus stationary burst Sentry and vertically moving Sentinel.
@@ -20,9 +20,9 @@ All eight remote branches were fetched and integrated, including main, Enemies, 
 
 | Requirement | Status and evidence |
 |---|---|
-| Room subsets stored externally and initialized from files | Implemented in two .room files and LevelLoader/LevelParser. |
+| Room subsets stored externally and initialized from files | Implemented in six .room files and LevelLoader/LevelParser. |
 | Every room quickly reachable through mouse controls | Implemented; ordered rooms wrap and old projectiles clear. |
-| Artificial test level includes every implemented object type | Laboratory includes all seven enemies, four pickups, crate/hazard/doors; base blocks are distributed across the two-room collection. Weapons are spawned by numeric controls. |
+| Artificial test level includes every implemented object type | All seven enemy kinds, four pickups, six block/environment kinds, and doors are distributed across six focused rooms. Each room has two enemies; weapons are spawned by numeric controls. |
 | Player/block, enemy/block, player/enemy, projectile/block/enemy/player | Implemented core responses; automated checks cover selected paths, not every combination. |
 | Bomb/environment collision | Crates break; other block types intentionally remain indestructible. Bomb damage is once per enemy per explosion. |
 | Item effects | Integrated inventory, healing, timed shields, and new immediate pickups. |
@@ -30,7 +30,7 @@ All eight remote branches were fetched and integrated, including main, Enemies, 
 | Damage/death | Health/invulnerability/shields integrated; zero health freezes gameplay and shows reset/quit menu. |
 | Professor request for more enemies/items/projectiles/environment | Added two enemies, two pickups, two weapon behaviors, breakable crate, damage hazard, and doors. Grader acceptance and gameplay balance require review. |
 | Controls | Platformer mapping retained: A/D/arrows move horizontally, W/Up jumps, S/Down faces down. This differs from literal four-direction Zelda movement; instructor approval of this project-specific deviation is not established. |
-| Complete first dungeon | Not established. Two artificial rooms do not prove all rooms of the intended dungeon are implemented. |
+| Complete first dungeon | Six artificial parkour rooms are implemented. Matching the intended instructor-approved dungeon is still not established. |
 | Six teammates review and are reviewed | Still requires actual human reviews from all six. AI reviews do not substitute for those records. |
 | Reflection with each teammate's input | Still requires each member's own input. |
 | Metrics tracked over time | Retrospective source-size baseline and current snapshot can be recorded now. Weekly Visual Studio metrics/complexity history remains to be collected. |
@@ -48,4 +48,4 @@ dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore
 dotnet build "3902 proj.sln" -c Strict
 ```
 
-The normal build uses latest-recommended analyzers. The Strict configuration enables all analyzers and now rebuilds with zero warnings and errors. All 29 regression checks pass. A complete visual playthrough is still pending.
+The normal build uses latest-recommended analyzers. The Strict configuration enables all analyzers and rebuilds with zero warnings and errors. All 60 regression checks pass, including a physics-based route to each elevated exit (after breaking crates where necessary). A complete visual combat/balance playthrough is still pending.

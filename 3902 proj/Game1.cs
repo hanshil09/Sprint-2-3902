@@ -15,7 +15,12 @@ namespace TransformersGame
     {
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
-        private static readonly string[] RoomPaths = { "Content/Levels/desert-01.room", "Content/Levels/laboratory-02.room" };
+        private static readonly string[] RoomPaths =
+        {
+            "Content/Levels/desert-01.room", "Content/Levels/laboratory-02.room",
+            "Content/Levels/stone-03.room", "Content/Levels/metal-04.room",
+            "Content/Levels/crates-05.room", "Content/Levels/hazards-06.room"
+        };
         private const string MenuTitle = "Transformers - Press Enter to Start";
         private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, Left/Right Click Room, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
 
@@ -41,6 +46,8 @@ namespace TransformersGame
         }
 
         public IPlayer Player { get; set; }
+
+        public void ToggleHelp() => controlsOverlay.ToggleHelp();
 
         public void StartGame()
         {
@@ -143,7 +150,8 @@ namespace TransformersGame
                 spriteBatch.Begin(samplerState: SamplerState.PointClamp);
                 roomManager.ActiveRoom.Draw(spriteBatch);
                 Player.Draw(spriteBatch);
-                controlsOverlay.DrawGameplay(spriteBatch, Player);
+                controlsOverlay.DrawGameplay(spriteBatch, Player, roomManager.ActiveRoom.Level.Name,
+                    roomManager.ActiveRoomIndex + 1, roomManager.RoomCount);
                 spriteBatch.End();
             }
             base.Draw(gameTime);
@@ -210,8 +218,6 @@ namespace TransformersGame
             GameObjectCycler blocks = new GameObjectCycler();
             GameObjectCycler items = new GameObjectCycler();
             GameObjectCycler enemies = new GameObjectCycler();
-            roomLevel.FillBlockCycler(blocks);
-            roomLevel.FillItemCycler(items);
             roomLevel.FillEnemyCycler(enemies, Player, roomProjectiles);
             return new Room(roomLevel, roomProjectiles, blocks, items, enemies);
         }
