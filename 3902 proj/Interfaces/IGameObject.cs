@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    public interface IGameObject
+    internal interface IGameObject
     {
         Vector2 Position { get; set; }
 

@@ -8,7 +8,7 @@ using TransformersGame.States;
 
 namespace TransformersGame.Entities
 {
-    public class Enemy : IEnemy
+    internal class Enemy : IEnemy
     {
         private const int StartingHealth = 1;
         private const int ScreenWidth = 960;
@@ -20,7 +20,7 @@ namespace TransformersGame.Entities
         private readonly IProjectileManager projectiles;
         private int health;
 
-        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target, IProjectileManager projectiles)
+        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
         {
             Position = position;
             Home = position;
@@ -31,7 +31,7 @@ namespace TransformersGame.Entities
             Target = target;
             this.blocks = blocks;
             this.projectiles = projectiles;
-            physics = new Physics(blocks);
+            physics = new Physics(blocks, gravity);
             health = StartingHealth;
             LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true);
             RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, false);
@@ -221,7 +221,7 @@ namespace TransformersGame.Entities
             }
         }
 
-        public void FireProjectile()
+        public void LaunchProjectile()
         {
             Vector2 center = Center;
             ISprite sprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(TargetCenter.X < center.X);

@@ -8,30 +8,41 @@ using TransformersGame.States;
 
 namespace TransformersGame.Entities
 {
-    public class Player : IPlayer
+    internal class Player : IPlayer
     {
+        private const int StartingHealth = 100;
+        private const int MaximumHealthCap = 200;
+        private const int MaxHealthUpgrade = 20;
+        private const int HealthCellAmount = 10;
+        private const int DamageAmount = 3;
+        private const double ShieldDuration = 5000;
+        private const double MaximumShieldTime = 10000;
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
-        private const float ShotSpeed = 520f;
-        private const float ShotRecoilDistance = 10f;
-        private const float OrbSpeed = 300f;
-        private const float MuzzleHeight = 0.3f;
+        private const int ScreenWidth = 960;
+
+        // The robot art has transparent margins, so only the middle of the 68-pixel box counts as feet.
+        public const float FootInset = 16f;
 
         private readonly Physics physics;
-        private readonly IProjectileManager projectiles;
+        private readonly PlayerInventory inventory = new PlayerInventory();
+        private IReadOnlyList<IBlock> roomBlocks;
         private IPlayerState state;
         private ISprite sprite;
         private bool movedThisFrame;
         private bool wasOnGround;
+        private double shieldTimeRemaining;
 
-        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles)
+        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
         {
             Position = position;
-            physics = new Physics(blocks);
-            this.projectiles = projectiles;
+            physics = new Physics(blocks, gravity) { FootInset = FootInset };
+            roomBlocks = blocks;
+            Arsenal = new PlayerArsenal(this, projectiles);
             Facing = Direction.Right;
-            FacingLeft = false;
-            IsMoving = false;
+            Health = StartingHealth;
+            MaxHealth = StartingHealth;
+            SpeedScale = 1f;
             state = new RobotState(this);
             sprite = state.CreateSprite();
         }
@@ -43,31 +54,34 @@ namespace TransformersGame.Entities
         public bool FacingLeft { get; private set; }
 
         public bool IsMoving { get; private set; }
-        public bool angledShot { get; private set; }
 
-        public bool IsOnGround
-        {
-            get
-            {
-                return physics.IsOnGround;
-            }
-        }
+        public PlayerArsenal Arsenal { get; }
 
-        public int Width
-        {
-            get
-            {
-                return sprite.Width;
-            }
-        }
+        public int Health { get; private set; }
 
-        public int Height
-        {
-            get
-            {
-                return sprite.Height;
-            }
-        }
+        public int MaxHealth { get; private set; }
+
+        public int MedkitCount => inventory.MedkitCount;
+
+        public int ShieldCount => inventory.ShieldCount;
+
+        public int BombLevel => inventory.BombLevel;
+
+        public int EnergonCount => inventory.EnergonCount;
+
+        public bool IsShieldActive => shieldTimeRemaining > 0;
+
+        public bool IsInvincible => false;
+
+        public float SpeedScale { get; set; }
+
+        public bool IsOnGround => physics.IsOnGround;
+
+        public int Width => sprite.Width;
+
+        public int Height => sprite.Height;
+
+        public Vector2 Center => new Vector2(Position.X + Width / 2f, Position.Y + Height / 2f);
 
         public void Move(Direction direction)
         {
@@ -86,30 +100,82 @@ namespace TransformersGame.Entities
             }
         }
 
-        public void Jump()
-        {
-            physics.Jump(JumpSpeed);
-        }
+        public void Jump() => physics.Jump(JumpSpeed);
 
-        public void Shoot(bool angled)
-        {
-            angledShot = angled;
-            state.Shoot(angledShot);
-        }
+        public void Bounce(float speed) => physics.Launch(speed);
 
-        public void UseItem(int itemNumber)
-        {
-            state.UseItem(itemNumber);
-        }
+        public void Shoot(bool angled) => state.Shoot(angled);
 
-        public void Transform()
-        {
-            state.Transform();
-        }
+        public void UseItem(int itemNumber) => state.UseItem(itemNumber);
 
-        public void TakeDamage()
+        public void Transform() => state.Transform();
+
+        public bool TakeDamage()
         {
+            if (IsShieldActive)
+            {
+                return false;
+            }
+            Health = System.Math.Max(0, Health - DamageAmount);
             physics.Jump(KnockbackSpeed);
+            return true;
+        }
+
+        public void AddItem(ItemKind kind)
+        {
+            if (inventory.TryCollect(kind))
+            {
+                return;
+            }
+            switch (kind)
+            {
+                case ItemKind.HealthCell:
+                    Health = System.Math.Min(MaxHealth, Health + HealthCellAmount);
+                    break;
+                case ItemKind.ShieldBattery:
+                    shieldTimeRemaining = System.Math.Min(MaximumShieldTime, shieldTimeRemaining + ShieldDuration);
+                    break;
+                case ItemKind.MaxHealthUp:
+                    MaxHealth = System.Math.Min(MaximumHealthCap, MaxHealth + MaxHealthUpgrade);
+                    Health = MaxHealth;
+                    break;
+                default:
+                    throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "This item is not added to the player's inventory.");
+            }
+        }
+
+        public bool UseMedkit()
+        {
+            if (Health == MaxHealth || !inventory.TryUseMedkit())
+            {
+                return false;
+            }
+            Health = MaxHealth;
+            return true;
+        }
+
+        public bool UseShield()
+        {
+            if (IsShieldActive || !inventory.TryUseShield())
+            {
+                return false;
+            }
+            shieldTimeRemaining = ShieldDuration;
+            return true;
+        }
+
+        public void DropBomb()
+        {
+            Arsenal.DropBomb(roomBlocks, physics.Gravity, BombLevel);
+        }
+
+        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)
+        {
+            physics.SetBlocks(blocks, gravity);
+            roomBlocks = blocks;
+            Arsenal.EnterRoom(projectiles);
+            Position = position;
+            wasOnGround = false;
         }
 
         public void SetState(IPlayerState newState)
@@ -120,39 +186,17 @@ namespace TransformersGame.Entities
             Position = new Vector2(Position.X, Position.Y + oldHeight - Height);
         }
 
-        public void FireShot()
-        {
-            ISprite shotSprite = ProjectileSpriteFactory.Instance.CreateShotSprite(FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(shotSprite), ShotVelocity(ShotSpeed), angledShot, FacingLeft, shotSprite));
-
-            // Recoil always pushes the player in the direction opposite of the shot.
-            float recoil = FacingLeft ? ShotRecoilDistance : -ShotRecoilDistance;
-            Position = new Vector2(Position.X + recoil, Position.Y);
-        }
-
-        public void FireOrb()
-        {
-            ISprite orbSprite = ProjectileSpriteFactory.Instance.CreateOrbSprite(FacingLeft);
-            bool angled = false;
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(orbSprite), ShotVelocity(OrbSpeed), angled, FacingLeft, orbSprite));
-        }
-
-        public void DropBomb()
-        {
-            ISprite bombSprite = ProjectileSpriteFactory.Instance.CreateBombSprite();
-            float x = Position.X + (Width - bombSprite.Width) / 2f;
-            float y = Position.Y + Height - bombSprite.Height;
-            projectiles.Add(new Bomb(new Vector2(x, y), bombSprite));
-        }
-
         public void Update(GameTime gameTime)
         {
+            shieldTimeRemaining = System.Math.Max(0, shieldTimeRemaining - gameTime.ElapsedGameTime.TotalMilliseconds);
             if (!movedThisFrame && IsMoving)
             {
                 IsMoving = false;
                 RefreshSprite();
             }
             movedThisFrame = false;
+            GetPushedByMovingBlocks();
+            RideMovingBlock();
             MoveHorizontally(gameTime);
             Position = physics.Apply(Position, Width, Height, gameTime);
             if (physics.IsOnGround != wasOnGround)
@@ -169,26 +213,40 @@ namespace TransformersGame.Entities
             sprite.Draw(spriteBatch, Position);
         }
 
+        // A moving platform that slides into the player shoves them aside instead of overlapping them.
+        private void GetPushedByMovingBlocks()
+        {
+            Rectangle body = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
+            foreach (IBlock block in roomBlocks)
+            {
+                if (block is IMovingBlock platform && platform != physics.SupportingBlock
+                    && platform.Delta.X != 0 && platform.Bounds.Intersects(body))
+                {
+                    float targetX = platform.Delta.X > 0 ? platform.Bounds.Right : platform.Bounds.Left - Width;
+                    Position = physics.MoveHorizontally(Position, Width, Height, targetX - Position.X, 0, ScreenWidth - Width);
+                }
+            }
+        }
+
+        // A platform moved before the player updated, so carry the player by the same amount.
+        private void RideMovingBlock()
+        {
+            if (physics.SupportingBlock is not IMovingBlock platform || platform.Delta == Vector2.Zero)
+            {
+                return;
+            }
+            Position = physics.MoveHorizontally(Position, Width, Height, platform.Delta.X, 0, ScreenWidth - Width);
+            Position = new Vector2(Position.X, Position.Y + platform.Delta.Y);
+        }
+
         private void MoveHorizontally(GameTime gameTime)
         {
             if (IsMoving)
             {
                 float direction = FacingLeft ? -1 : 1;
-                float distance = direction * state.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                Position = physics.MoveHorizontally(Position, Width, Height, distance, 0, 960 - Width);
+                float distance = direction * state.Speed * SpeedScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                Position = physics.MoveHorizontally(Position, Width, Height, distance, 0, ScreenWidth - Width);
             }
-        }
-
-        private Vector2 MuzzlePosition(ISprite projectileSprite)
-        {
-            float x = FacingLeft ? Position.X - projectileSprite.Width : Position.X + Width;
-            float y = Position.Y + Height * MuzzleHeight;
-            return new Vector2(x, y);
-        }
-
-        private Vector2 ShotVelocity(float speed)
-        {
-            return new Vector2(FacingLeft ? -speed : speed, 0);
         }
 
         private void RefreshSprite()

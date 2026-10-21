@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TransformersGame.Core
 {
-    public sealed class LevelLoadResult
+    internal sealed class LevelLoadResult
     {
         public LevelLoadResult(LevelData data, bool usedFallback, IReadOnlyList<string> messages)
         {

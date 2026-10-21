@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TransformersGame.Core
 {
-    public static class LevelParser
+    internal static class LevelParser
     {
         public const int MaxColumns = 200;
         public const int MaxRows = 100;
@@ -22,13 +22,25 @@ namespace TransformersGame.Core
             ['G'] = BlockKind.Ground,
             ['B'] = BlockKind.Brick,
             ['S'] = BlockKind.Stone,
-            ['M'] = BlockKind.Metal
+            ['M'] = BlockKind.Metal,
+            ['C'] = BlockKind.Crate,
+            ['X'] = BlockKind.Hazard,
+            ['W'] = BlockKind.Wood,
+            ['Y'] = BlockKind.Caution,
+            ['A'] = BlockKind.Alloy
         };
 
         private static readonly Dictionary<char, ItemKind> ItemSymbols = new Dictionary<char, ItemKind>
         {
             ['+'] = ItemKind.Medkit,
-            ['*'] = ItemKind.Shield
+            ['*'] = ItemKind.Shield,
+            ['!'] = ItemKind.HealthCell,
+            ['$'] = ItemKind.ShieldBattery,
+            ['&'] = ItemKind.SparkCore,
+            ['~'] = ItemKind.TurboBoost,
+            ['@'] = ItemKind.Energon,
+            ['%'] = ItemKind.BombPack,
+            ['?'] = ItemKind.MaxHealthUp
         };
 
         private static readonly Dictionary<char, EnemyKind> EnemySymbols = new Dictionary<char, EnemyKind>
@@ -37,7 +49,18 @@ namespace TransformersGame.Core
             ['c'] = EnemyKind.Crawler,
             ['h'] = EnemyKind.Hopper,
             ['b'] = EnemyKind.Beetle,
-            ['w'] = EnemyKind.Waver
+            ['w'] = EnemyKind.Waver,
+            ['t'] = EnemyKind.Sentry,
+            ['v'] = EnemyKind.Sentinel,
+            ['m'] = EnemyKind.Warlord
+        };
+
+        private static readonly Dictionary<char, ObjectKind> ObjectSymbols = new Dictionary<char, ObjectKind>
+        {
+            ['='] = ObjectKind.MovingPlatform,
+            ['I'] = ObjectKind.Elevator,
+            ['^'] = ObjectKind.Spring,
+            ['F'] = ObjectKind.Goal
         };
 
         public static LevelParseResult Parse(IEnumerable<string> lines)
@@ -49,6 +72,7 @@ namespace TransformersGame.Core
             List<string> rows = new List<string>();
             List<int> rowLineNumbers = new List<int>();
             string name = null;
+            float gravity = Physics.DefaultGravity;
             bool sawTiles = false;
             int lineNumber = 0;
 
@@ -86,7 +110,7 @@ namespace TransformersGame.Core
                 }
                 else
                 {
-                    ParseHeaderLine(line, lineNumber, ref name, warnings);
+                    ParseHeaderLine(line, lineNumber, ref name, ref gravity, warnings, errors);
                 }
             }
 
@@ -123,6 +147,8 @@ namespace TransformersGame.Core
             List<Placement<BlockKind>> blocks = new List<Placement<BlockKind>>();
             List<Placement<ItemKind>> items = new List<Placement<ItemKind>>();
             List<Placement<EnemyKind>> enemies = new List<Placement<EnemyKind>>();
+            List<Placement<int>> doors = new();
+            List<Placement<ObjectKind>> objects = new();
             List<string> spawnLocations = new List<string>();
             Dictionary<char, UnknownTile> unknownTiles = new Dictionary<char, UnknownTile>();
             int playerColumn = 0;
@@ -153,6 +179,10 @@ namespace TransformersGame.Core
                         playerColumn = c;
                         playerRow = r;
                     }
+                    else if (symbol == '<' || symbol == '>')
+                    {
+                        doors.Add(new Placement<int>(symbol == '<' ? -1 : 1, c, r));
+                    }
                     else if (BlockSymbols.TryGetValue(symbol, out BlockKind block))
                     {
                         blocks.Add(new Placement<BlockKind>(block, c, r));
@@ -164,6 +194,10 @@ namespace TransformersGame.Core
                     else if (EnemySymbols.TryGetValue(symbol, out EnemyKind enemy))
                     {
                         enemies.Add(new Placement<EnemyKind>(enemy, c, r));
+                    }
+                    else if (ObjectSymbols.TryGetValue(symbol, out ObjectKind levelObject))
+                    {
+                        objects.Add(new Placement<ObjectKind>(levelObject, c, r));
                     }
                     else if (unknownTiles.TryGetValue(symbol, out UnknownTile seen))
                     {
@@ -202,13 +236,16 @@ namespace TransformersGame.Core
                 name = DefaultName;
             }
 
-            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies);
+            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors, gravity)
+            {
+                Objects = objects
+            };
             return new LevelParseResult(data, errors, warnings);
         }
 
-        private static void ParseHeaderLine(string line, int lineNumber, ref string name, List<string> warnings)
+        private static void ParseHeaderLine(string line, int lineNumber, ref string name, ref float gravity, List<string> warnings, List<string> errors)
         {
-            int colon = line.IndexOf(':');
+            int colon = line.IndexOf(':', StringComparison.Ordinal);
             if (colon <= 0)
             {
                 warnings.Add($"line {lineNumber}: expected 'key: value' before {TilesSection}; ignored '{line}'");
@@ -225,6 +262,16 @@ namespace TransformersGame.Core
                     warnings.Add($"line {lineNumber}: 'name' is set more than once; using the last one");
                 }
                 name = value;
+            }
+            else if (string.Equals(key, "gravity", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!float.TryParse(value, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out float parsed)
+                    || !float.IsFinite(parsed) || parsed < 600 || parsed > 2200)
+                {
+                    errors.Add($"line {lineNumber}: gravity must be between 600 and 2200 pixels/second squared");
+                }
+                else gravity = parsed;
             }
             else
             {

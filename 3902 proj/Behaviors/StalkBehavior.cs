@@ -3,7 +3,7 @@ using TransformersGame.Entities;
 
 namespace TransformersGame.Behaviors
 {
-    public class StalkBehavior : GroundBehavior
+    internal class StalkBehavior : GroundBehavior
     {
         private const float SameLevelTolerance = 60f;
         private const float StopDistance = 24f;
@@ -23,7 +23,7 @@ namespace TransformersGame.Behaviors
                 fireCooldown -= elapsed;
                 if (fireCooldown <= 0)
                 {
-                    enemy.FireProjectile();
+                    enemy.LaunchProjectile();
                     fireCooldown = FireCooldownSeconds;
                 }
             }

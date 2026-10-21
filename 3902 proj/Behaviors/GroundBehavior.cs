@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Behaviors
 {
-    public abstract class GroundBehavior : IEnemyBehavior
+    internal abstract class GroundBehavior : IEnemyBehavior
     {
         private int patrolDirection = -1;
 

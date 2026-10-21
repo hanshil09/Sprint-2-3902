@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
 {
-    public class RobotState : IPlayerState
+    internal class RobotState : IPlayerState
     {
         public const float RobotSpeed = 180f;
 
@@ -31,22 +31,34 @@ namespace TransformersGame.States
 
         public void Shoot(bool angled)
         {
-            player.FireShot();
+            player.Arsenal.FireShot(angled);
             player.SetState(new ShootingRobotState(player, angled));
         }
 
+        // Robot form can use every weapon: 1 orb, 2 bomb, 5 piercing, 6 spread, 7 boomerang.
         public void UseItem(int itemNumber)
         {
-            if (itemNumber == 1)
+            switch (itemNumber)
             {
-                player.FireOrb();
-                bool angled = false;
-                player.SetState(new ShootingRobotState(player, angled));
+                case 1:
+                    player.Arsenal.FireOrb();
+                    break;
+                case 2:
+                    player.DropBomb();
+                    return;
+                case 5:
+                    player.Arsenal.FirePiercing();
+                    break;
+                case 6:
+                    player.Arsenal.FireSpread();
+                    break;
+                case 7:
+                    player.Arsenal.ThrowBoomerang();
+                    break;
+                default:
+                    return;
             }
-            else if (itemNumber == 2)
-            {
-                player.DropBomb();
-            }
+            player.SetState(new ShootingRobotState(player, false));
         }
 
         public void Update(GameTime gameTime)

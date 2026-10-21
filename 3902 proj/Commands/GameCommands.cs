@@ -2,7 +2,14 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Commands
 {
-    public class StartGameCommand : ICommand
+    internal sealed class ToggleHelpCommand : ICommand
+    {
+        private readonly Game1 game;
+        public ToggleHelpCommand(Game1 game) => this.game = game;
+        public void Execute() => game.ToggleHelp();
+    }
+
+    internal class StartGameCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -17,7 +24,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class ResetGameCommand : ICommand
+    internal class ResetGameCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -32,7 +39,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class QuitCommand : ICommand
+    internal class QuitCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -47,7 +54,7 @@ namespace TransformersGame.Commands
         }
     }
 
-    public class DamagePlayerCommand : ICommand
+    internal class DamagePlayerCommand : ICommand
     {
         private readonly Game1 game;
 
@@ -59,6 +66,30 @@ namespace TransformersGame.Commands
         public void Execute()
         {
             game.DamagePlayer();
+        }
+    }
+
+    internal class RoomNavigationCommand : ICommand
+    {
+        private readonly Game1 game;
+        private readonly bool next;
+
+        public RoomNavigationCommand(Game1 game, bool next)
+        {
+            this.game = game;
+            this.next = next;
+        }
+
+        public void Execute()
+        {
+            if (next)
+            {
+                game.NextRoom();
+            }
+            else
+            {
+                game.PreviousRoom();
+            }
         }
     }
 }

@@ -1,11 +1,14 @@
 namespace TransformersGame.Core
 {
-    public enum EnemyKind
+    internal enum EnemyKind
     {
         Flyer,
         Crawler,
         Hopper,
         Beetle,
-        Waver
+        Waver,
+        Sentry,
+        Sentinel,
+        Warlord
     }
 }

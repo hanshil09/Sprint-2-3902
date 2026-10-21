@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    public interface ISprite
+    internal interface ISprite
     {
         int Width { get; }
 

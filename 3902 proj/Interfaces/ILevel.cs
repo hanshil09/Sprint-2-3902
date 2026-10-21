@@ -4,23 +4,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    public interface ILevel
+    internal interface ILevel
     {
         IReadOnlyList<IBlock> Blocks { get; }
 
         Vector2 PlayerStart { get; }
 
-        void FillBlockCycler(IGameObjectCycler cycler);
-
-        void FillItemCycler(IGameObjectCycler cycler);
-
         void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles);
 
-        void CollectItems(IPlayer player);
+        IReadOnlyList<IItem> CollectItems(IPlayer player);
 
         void Update(GameTime gameTime);
 
         void Draw(SpriteBatch spriteBatch);
-        List<IGameObject> GetOnScreenObjects();
+
+        IReadOnlyList<IGameObject> GetOnScreenObjects();
     }
 }

@@ -5,7 +5,7 @@ using System.Security;
 
 namespace TransformersGame.Core
 {
-    public static class LevelLoader
+    internal static class LevelLoader
     {
         public static LevelLoadResult Load(string path)
         {

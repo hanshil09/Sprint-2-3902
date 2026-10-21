@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TransformersGame.Core
 {
-    public sealed class LevelParseResult
+    internal sealed class LevelParseResult
     {
         public LevelParseResult(LevelData data, IReadOnlyList<string> errors, IReadOnlyList<string> warnings)
         {

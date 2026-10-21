@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Behaviors
 {
-    public class SwoopBehavior : IEnemyBehavior
+    internal class SwoopBehavior : IEnemyBehavior
     {
         private const float BobAmplitude = 14f;
         private const double BobPeriodSeconds = 1.6;

@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
 {
-    public class ShootingRobotState : IPlayerState
+    internal class ShootingRobotState : IPlayerState
     {
         private const double ShootDuration = 280;
 

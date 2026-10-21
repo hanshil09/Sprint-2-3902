@@ -1,41 +1,44 @@
-using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Controllers;
 using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
-using TransformersGame.Collisions;
+using TransformersGame.Sprites;
 using TransformersGame.UI;
-using System.Collections.Generic;
 
 namespace TransformersGame
 {
-    public class Game1 : Game
+    internal class Game1 : Game, IPlayerHost
     {
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
-        private const string LevelPath = "Content/Levels/desert-01.room";
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W/Up/J Jump, S Face, Space Transform, Z/N Shoot, K Angle Shoot, 1/2 Items, E Damage, T/Y Block, U/I Item, O/P Enemy, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, K Angle, 1/5/6/7 Weapons, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(18, 24, 38);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
+
+        private readonly RoomFactory roomFactory = new RoomFactory(
+            "Content/Levels/desert-01.room", "Content/Levels/laboratory-02.room",
+            "Content/Levels/stone-03.room", "Content/Levels/metal-04.room",
+            "Content/Levels/crates-05.room", "Content/Levels/hazards-06.room",
+            "Content/Levels/fortress-07.room");
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private GameState gameState;
         private IController menuController;
         private IController gameplayController;
-        private ILevel level;
-        private List<IGameObject> gameObjects;
         private CollisionManager collisionManager;
-        private IProjectileManager projectiles;
-        private IGameObjectCycler blockCycler;
-        private IGameObjectCycler itemCycler;
-        private IGameObjectCycler enemyCycler;
+        private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
+        private ObjectShowcase showcase;
+        private IPlayer player;
+        private int pendingDoorDirection;
 
         public Game1()
         {
@@ -45,7 +48,22 @@ namespace TransformersGame
             Window.Title = MenuTitle;
         }
 
-        public IPlayer Player { get; set; }
+        // The outermost player (possibly wrapped in decorators). Replacing it rebinds the controls to the new wrapper.
+        public IPlayer Player
+        {
+            get => player;
+            set
+            {
+                player = value;
+                RefreshGameplayController();
+            }
+        }
+
+        public GameState State => gameState;
+
+        public Room ActiveRoom => roomManager.ActiveRoom;
+
+        public void ToggleHelp() => controlsOverlay.ToggleHelp();
 
         public void StartGame()
         {
@@ -60,14 +78,22 @@ namespace TransformersGame
             Window.Title = MenuTitle;
         }
 
+        public void NextRoom() => SwitchRoom(roomManager.SwitchNext);
+
+        public void PreviousRoom() => SwitchRoom(roomManager.SwitchPrevious);
+
         public void DamagePlayer()
         {
-            if (Player is DamagedPlayer)
+            if (Player is DamagedPlayer || !Player.TakeDamage())
             {
                 return;
             }
-            Player.TakeDamage();
             Player = new DamagedPlayer(Player, this);
+        }
+
+        public void RemovePlayerDecorator(PlayerDecorator decorator)
+        {
+            Player = PlayerDecorator.RemoveFromChain(Player, decorator);
         }
 
         protected override void Initialize()
@@ -82,18 +108,20 @@ namespace TransformersGame
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            SpriteAtlas.LoadAllTextures(Content);
             PlayerSpriteFactory.Instance.LoadAllTextures(Content);
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
             controlsOverlay = new ControlsOverlay(Content.Load<SpriteFont>("Fonts/Controls"), GraphicsDevice);
+            showcase = new ObjectShowcase();
             InitializeGameObjects();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (gameState == GameState.StartMenu)
+            if (gameState != GameState.Gameplay)
             {
                 menuController.Update();
             }
@@ -105,82 +133,129 @@ namespace TransformersGame
             base.Update(gameTime);
         }
 
-        protected override void UnloadContent()
+        protected override void Dispose(bool disposing)
         {
-            controlsOverlay?.Dispose();
-            base.UnloadContent();
+            if (disposing)
+            {
+                roomManager?.Unload();
+                controlsOverlay?.Dispose();
+                controlsOverlay = null;
+                spriteBatch?.Dispose();
+                spriteBatch = null;
+                graphics?.Dispose();
+                graphics = null;
+            }
+            base.Dispose(disposing);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            if (gameState == GameState.StartMenu)
+            bool playing = gameState == GameState.Gameplay;
+            GraphicsDevice.Clear(playing ? GameplayColor : MenuColor);
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            if (playing)
             {
-                GraphicsDevice.Clear(MenuColor);
-                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport);
-                spriteBatch.End();
+                DrawGameplay();
             }
             else
             {
-                GraphicsDevice.Clear(GameplayColor);
-                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-                level.Draw(spriteBatch);
-                blockCycler.Draw(spriteBatch);
-                itemCycler.Draw(spriteBatch);
-                enemyCycler.Draw(spriteBatch);
-                projectiles.Draw(spriteBatch);
-                Player.Draw(spriteBatch);
-                controlsOverlay.DrawGameplay(spriteBatch);
-                spriteBatch.End();
+                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport, gameState, Player);
             }
+            spriteBatch.End();
             base.Draw(gameTime);
+        }
+
+        private void DrawGameplay()
+        {
+            Room room = roomManager.ActiveRoom;
+            room.Draw(spriteBatch);
+            Player.Draw(spriteBatch);
+            string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
+            controlsOverlay.DrawGameplay(spriteBatch, Player, room.Level.Name, roomStatus, room.Objective);
+            showcase.Draw(spriteBatch, controlsOverlay);
         }
 
         private void InitializeGameObjects()
         {
-            LevelLoadResult loaded = LevelLoader.Load(LevelPath);
-            foreach (string message in loaded.Messages)
-            {
-                Console.WriteLine(message);
-            }
-            level = new Level(loaded.Data);
-            projectiles = new ProjectileManager();
-            Player = new Player(level.PlayerStart, level.Blocks, projectiles);
-            blockCycler = new GameObjectCycler();
-            itemCycler = new GameObjectCycler();
-            enemyCycler = new GameObjectCycler();
-            level.FillBlockCycler(blockCycler);
-            level.FillItemCycler(itemCycler);
-            level.FillEnemyCycler(enemyCycler, Player, projectiles);
-            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer);
+            roomManager?.Unload();
+            roomManager = null;
+            Level initialLevel = roomFactory.LoadLevel(0);
+            IProjectileManager initialProjectiles = new ProjectileManager();
+            player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles, initialLevel.Gravity);
+            Room initialRoom = RoomFactory.CreateRoom(initialLevel, player, initialProjectiles);
+            roomManager = new RoomManager(initialRoom, roomFactory.RoomCount, player,
+                index => RoomFactory.CreateRoom(roomFactory.LoadLevel(index), Player, new ProjectileManager()));
+            collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer,
+                direction => pendingDoorDirection = direction);
+            pendingDoorDirection = 0;
             menuController = ControllerFactory.CreateMenuController(this);
-            gameplayController = ControllerFactory.CreateGameplayController(this, Player, blockCycler, itemCycler, enemyCycler);
-            
+            RefreshGameplayController();
         }
 
         private void UpdateGameplay(GameTime gameTime)
         {
-            level.Update(gameTime);
-            blockCycler.Update(gameTime);
-            itemCycler.Update(gameTime);
-            enemyCycler.Update(gameTime);
+            Room activeRoom = roomManager.ActiveRoom;
+            activeRoom.Update(gameTime);
             Player.Update(gameTime);
-            projectiles.Update(gameTime);
             KeepPlayerOnScreen();
-            gameObjects = new List<IGameObject>(level.GetOnScreenObjects());
-            level.CollectItems(Player);
-
-            if (enemyCycler.CurrentObject is IEnemy)
-            {
-                gameObjects.Add(enemyCycler.CurrentObject);
-            }
-            gameObjects.Add(Player);
-            foreach (IProjectile projectile in projectiles.Projectiles)
-            {
-                gameObjects.Add(projectile);
-            }
-            collisionManager.BuildTree(gameObjects);
+            ApplyPowerUps(activeRoom.CollectItems(Player));
+            showcase.Update(gameTime);
+            collisionManager.BuildTree(activeRoom.GetCollisionObjects(Player));
             collisionManager.DetectCollision();
+            if (pendingDoorDirection != 0 && Player.Health > 0)
+            {
+                int direction = pendingDoorDirection;
+                pendingDoorDirection = 0;
+                if (direction > 0) NextRoom(); else PreviousRoom();
+            }
+            CheckForGameEnd();
+        }
+
+        private void ApplyPowerUps(IReadOnlyList<IItem> collected)
+        {
+            foreach (IItem item in collected)
+            {
+                if (item is IPowerUp powerUp)
+                {
+                    Player = powerUp.Apply(Player, this);
+                }
+            }
+        }
+
+        private void CheckForGameEnd()
+        {
+            if (Player.Health <= 0)
+            {
+                EndGame(GameState.GameOver, "Game Over - R to reset, Q to quit");
+            }
+            else if (roomManager.ActiveRoom.IsGoalReached)
+            {
+                EndGame(GameState.Victory, "Mission Complete - R to play again, Q to quit");
+            }
+        }
+
+        private void EndGame(GameState endState, string title)
+        {
+            gameState = endState;
+            Window.Title = title;
+            menuController = ControllerFactory.CreateEndScreenController(this);
+        }
+
+        private void SwitchRoom(System.Action switchRoom)
+        {
+            switchRoom();
+            collisionManager.BuildTree(roomManager.ActiveRoom.GetCollisionObjects(Player));
+            RefreshGameplayController();
+        }
+
+        private void RefreshGameplayController()
+        {
+            if (roomManager?.ActiveRoom == null)
+            {
+                return;
+            }
+            gameplayController = ControllerFactory.CreateGameplayController(
+                this, Player, showcase.Blocks, showcase.Items, showcase.Enemies);
         }
 
         private void KeepPlayerOnScreen()

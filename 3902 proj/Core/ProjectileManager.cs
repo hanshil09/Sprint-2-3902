@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
 {
-    public class ProjectileManager : IProjectileManager
+    internal class ProjectileManager : IProjectileManager
     {
         private readonly List<IProjectile> projectiles;
 
@@ -19,6 +19,11 @@ namespace TransformersGame.Core
         public void Add(IProjectile projectile)
         {
             projectiles.Add(projectile);
+        }
+
+        public void Clear()
+        {
+            projectiles.Clear();
         }
 
         public void Update(GameTime gameTime)

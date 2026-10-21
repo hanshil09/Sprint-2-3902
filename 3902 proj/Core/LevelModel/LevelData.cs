@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TransformersGame.Core
 {
-    public sealed class Placement<TKind>
+    internal sealed class Placement<TKind>
     {
         public Placement(TKind kind, int column, int row)
         {
@@ -18,7 +18,7 @@ namespace TransformersGame.Core
         public int Row { get; }
     }
 
-    public sealed class LevelData
+    internal sealed class LevelData
     {
         public LevelData(
             string name,
@@ -28,9 +28,12 @@ namespace TransformersGame.Core
             int playerRow,
             IReadOnlyList<Placement<BlockKind>> blocks,
             IReadOnlyList<Placement<ItemKind>> items,
-            IReadOnlyList<Placement<EnemyKind>> enemies)
+            IReadOnlyList<Placement<EnemyKind>> enemies,
+            IReadOnlyList<Placement<int>> doors = null,
+            float gravity = Physics.DefaultGravity)
         {
             Name = name;
+            Gravity = gravity;
             Columns = columns;
             Rows = rows;
             PlayerColumn = playerColumn;
@@ -38,9 +41,11 @@ namespace TransformersGame.Core
             Blocks = blocks;
             Items = items;
             Enemies = enemies;
+            Doors = doors ?? System.Array.Empty<Placement<int>>();
         }
 
         public string Name { get; }
+        public float Gravity { get; }
 
         public int Columns { get; }
 
@@ -55,5 +60,9 @@ namespace TransformersGame.Core
         public IReadOnlyList<Placement<ItemKind>> Items { get; }
 
         public IReadOnlyList<Placement<EnemyKind>> Enemies { get; }
+        public IReadOnlyList<Placement<int>> Doors { get; }
+
+        // Moving platforms, elevators, springs and goals; one placement per tile.
+        public IReadOnlyList<Placement<ObjectKind>> Objects { get; init; } = System.Array.Empty<Placement<ObjectKind>>();
     }
 }

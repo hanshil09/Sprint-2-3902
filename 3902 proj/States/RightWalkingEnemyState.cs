@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.States
 {
-    public class RightWalkingEnemyState : IEnemyState
+    internal class RightWalkingEnemyState : IEnemyState
     {
         private Enemy enemy;
 

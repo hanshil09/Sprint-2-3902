@@ -1,4 +1,4 @@
 namespace TransformersGame.Core
 {
-    public enum ItemKind { Medkit, Shield }
+    internal enum ItemKind { Medkit, Shield, HealthCell, ShieldBattery, SparkCore, TurboBoost, Energon, BombPack, MaxHealthUp }
 }

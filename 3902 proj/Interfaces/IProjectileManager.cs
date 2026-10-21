@@ -4,11 +4,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    public interface IProjectileManager
+    internal interface IProjectileManager
     {
         IReadOnlyList<IProjectile> Projectiles { get; }
 
         void Add(IProjectile projectile);
+
+        void Clear();
 
         void Update(GameTime gameTime);
 

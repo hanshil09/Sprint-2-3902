@@ -3,7 +3,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Commands
 {
-    public class PreviousObjectCommand : ICommand
+    internal class PreviousObjectCommand : ICommand
     {
         private readonly IGameObjectCycler cycler;
 

@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Sprites
 {
-    public class AnimatedSprite : ISprite
+    internal class AnimatedSprite : ISprite
     {
         private readonly Texture2D texture;
         private readonly Rectangle[] frames;

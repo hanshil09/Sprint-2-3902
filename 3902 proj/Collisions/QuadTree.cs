@@ -6,7 +6,7 @@ namespace TransformersGame.Collisions
 {
 
     // The main quadtree class
-    public class QuadTree
+    internal class QuadTree
     {
         
         struct Node

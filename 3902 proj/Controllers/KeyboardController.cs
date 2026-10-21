@@ -4,7 +4,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Controllers
 {
-    public class KeyboardController : IController
+    internal class KeyboardController : IController
     {
         private Dictionary<Keys, ICommand> controllerMappings;
         private Dictionary<Keys, ICommand> singlePressMappings;
@@ -14,6 +14,8 @@ namespace TransformersGame.Controllers
         {
             controllerMappings = new Dictionary<Keys, ICommand>();
             singlePressMappings = new Dictionary<Keys, ICommand>();
+            // Start from the current keys so a key held while the controller is rebuilt does not fire again.
+            previousState = Keyboard.GetState();
         }
 
         public void RegisterCommand(Keys key, ICommand command)
