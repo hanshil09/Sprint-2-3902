@@ -14,7 +14,7 @@ namespace TransformersGame.Core
         public Physics(IReadOnlyList<IBlock> blocks, float gravity = DefaultGravity)
         {
             this.blocks = blocks;
-            Gravity = gravity;
+            Gravity = gravity; //  1500f pixels/seconds^2
             verticalVelocity = 0;
             IsOnGround = false;
         }
@@ -38,6 +38,7 @@ namespace TransformersGame.Core
             SupportingBlock = null;
         }
 
+        //The object jumps only if it is on the ground. If it is already airborne, this method does nothing.
         public void Jump(float speed)
         {
             if (IsOnGround)
@@ -47,17 +48,19 @@ namespace TransformersGame.Core
         }
 
         // Sets an upward velocity whether or not the object is grounded.
+        // Negative speed moves up due to screen coordinates.
         public void Launch(float speed)
         {
-            verticalVelocity = -speed;
+            verticalVelocity = -speed; 
             IsOnGround = false;
             SupportingBlock = null;
         }
 
         public Vector2 Apply(Vector2 position, int width, int height, GameTime gameTime)
         {
+
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            float previousY = position.Y;
+            float previousY = position.Y; // Just checking if object crosses the block or not.
             verticalVelocity += Gravity * elapsed;
             float desiredY = position.Y + verticalVelocity * elapsed;
             IsOnGround = false;
@@ -74,6 +77,8 @@ namespace TransformersGame.Core
                     && previousY + height <= block.Bounds.Top
                     && desiredY + height >= block.Bounds.Top)
                 {
+                    // This is just checking if The object is falling or has zero vertical speed.
+                    // If it is then we use min so higher position and smaller Y so another block cannot push it farther down.
                     desiredY = System.Math.Min(desiredY, block.Bounds.Top - height);
                     verticalVelocity = 0;
                     IsOnGround = true;
@@ -82,6 +87,7 @@ namespace TransformersGame.Core
                 else if (verticalVelocity < 0
                     && previousY >= block.Bounds.Bottom
                     && desiredY <= block.Bounds.Bottom)
+                    //Checking ceiling
                 {
                     desiredY = System.Math.Max(desiredY, block.Bounds.Bottom);
                     verticalVelocity = 0;
@@ -95,7 +101,7 @@ namespace TransformersGame.Core
         {
             float startX = position.X;
             float desiredX = MathHelper.Clamp(startX + distance, minimumX, maximumX);
-            float resolvedX = desiredX;
+            float resolvedX = desiredX; //Just position adjusted for any collisions.
             foreach (IBlock block in blocks)
             {
                 Rectangle bounds = block.Bounds;
@@ -104,7 +110,8 @@ namespace TransformersGame.Core
                     continue;
                 }
 
-                if (distance > 0 && startX + width <= bounds.Left && desiredX + width > bounds.Left)
+                //checks that the object’s right edge starts before the wall but would cross it
+                if (distance > 0 && startX + width <= bounds.Left && desiredX + width > bounds.Left) 
                 {
                     resolvedX = System.Math.Min(resolvedX, bounds.Left - width);
                 }
