@@ -199,6 +199,8 @@ namespace TransformersGame.Entities
             RideMovingBlock();
             MoveHorizontally(gameTime);
             Position = physics.Apply(Position, Width, Height, gameTime);
+            UpdateStandingBlocks();
+            if (physics.SupportingBlock is IStandingBlock standingBlock) standingBlock.OnStand();
             if (physics.IsOnGround != wasOnGround)
             {
                 wasOnGround = physics.IsOnGround;
@@ -237,6 +239,15 @@ namespace TransformersGame.Entities
             }
             Position = physics.MoveHorizontally(Position, Width, Height, platform.Delta.X, 0, ScreenWidth - Width);
             Position = new Vector2(Position.X, Position.Y + platform.Delta.Y);
+        }
+
+        private void UpdateStandingBlocks()
+        {
+            Rectangle bounds = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
+            foreach (IBlock block in roomBlocks)
+            {
+                if (block is IStandingBlock standingBlock) standingBlock.SetPlayerBounds(bounds);
+            }
         }
 
         private void MoveHorizontally(GameTime gameTime)

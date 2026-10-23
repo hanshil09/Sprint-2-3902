@@ -7,13 +7,25 @@ namespace TransformersGame.Core
     internal sealed class RoomFactory
     {
         private readonly string[] roomPaths;
+        private readonly Random random = new Random();
+        private readonly int[] roomSeeds;
 
         public RoomFactory(params string[] roomPaths)
         {
             this.roomPaths = roomPaths;
+            roomSeeds = new int[roomPaths.Length];
+            StartNewGame();
         }
 
         public int RoomCount => roomPaths.Length;
+
+        public void StartNewGame()
+        {
+            for (int i = 0; i < roomSeeds.Length; i++)
+            {
+                roomSeeds[i] = random.Next();
+            }
+        }
 
         public Level LoadLevel(int roomIndex)
         {
@@ -22,7 +34,7 @@ namespace TransformersGame.Core
             {
                 Console.WriteLine(message);
             }
-            return new Level(loaded.Data);
+            return new Level(loaded.Data, new Random(roomSeeds[roomIndex]));
         }
 
         public static Room CreateRoom(Level level, IPlayer player, IProjectileManager projectiles)

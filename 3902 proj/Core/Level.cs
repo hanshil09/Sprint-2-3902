@@ -22,7 +22,7 @@ namespace TransformersGame.Core
         private readonly List<IPlayerTrigger> triggers;
         private Rectangle playerSpawnBounds;
 
-        public Level(LevelData data)
+        public Level(LevelData data, Random random = null)
         {
             ArgumentNullException.ThrowIfNull(data);
             this.data = data;
@@ -36,6 +36,7 @@ namespace TransformersGame.Core
                 blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite,
                     placement.Kind != BlockKind.Hazard, placement.Kind));
             }
+            if (random != null) CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random);
             LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
             blocks.AddRange(levelObjects.Platforms);
             triggers = levelObjects.Triggers;

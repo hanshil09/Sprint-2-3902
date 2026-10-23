@@ -56,6 +56,21 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
+        public ISprite CreateCrumblingSprite(CrumbleKind kind, bool warning, bool reforming)
+        {
+            Color tint;
+            switch (kind)
+            {
+                case CrumbleKind.Fast: tint = Color.Coral; break;
+                case CrumbleKind.Medium: tint = Color.Gold; break;
+                default: tint = Color.MediumPurple; break;
+            }
+            if (warning) tint = Color.White;
+            if (reforming) tint *= 0.35f;
+            Rectangle frame = new Rectangle(BlockSize, 0, BlockSize, BlockSize);
+            return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
+        }
+
         public ISprite CreateDoorSprite(int direction)
         {
             Rectangle frame = new Rectangle(3 * BlockSize, 0, BlockSize, BlockSize);

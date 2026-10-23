@@ -179,6 +179,7 @@ namespace TransformersGame
         {
             roomManager?.Unload();
             roomManager = null;
+            roomFactory.StartNewGame();
             Level initialLevel = roomFactory.LoadLevel(0);
             IProjectileManager initialProjectiles = new ProjectileManager();
             player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles, initialLevel.Gravity);

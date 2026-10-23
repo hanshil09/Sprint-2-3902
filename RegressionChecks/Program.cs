@@ -1,5 +1,11 @@
 using TransformersGame.Core;
 
+if (args.Contains("--crumbling"))
+{
+    CrumblingChecks.Run();
+    return;
+}
+
 // Default: small room-only suite for the presentation.
 // The original full suite is still available with --extended.
 if (args.Contains("--extended"))

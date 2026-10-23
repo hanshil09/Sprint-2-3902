@@ -16,6 +16,13 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 ## Controls
 
+Each new game (including **R** reset) selects **2–3 elevated platform sections per room**
+to crumble when the player stands on them. Coral lasts **0.6 seconds**, gold **1.2 seconds**,
+and purple **2 seconds**. They flash before disappearing, remain absent for three seconds,
+then show a faded return preview. A platform waits to become solid if the player occupies
+its space. Room revisits keep the current game's platform selection. Existing floor tiles
+and platform positions are preserved. See [crumbling platforms](Documentation/CrumblingPlatforms.md).
+
 Sprint 3 additions: **5** fires a three-enemy piercing shot; **6** fires a three-way spread (numpad supported). Cyan Health Cells heal 10 immediately; cyan Shield Batteries grant five seconds of protection, capped at ten seconds. Orange crates break on player shots/explosions; red hazards damage on contact. Metal door markers at room edges transition to the preceding/following room. At zero health, gameplay stops; **R** resets and **Q** quits.
 
 Metal Towers includes an orange stationary burst Sentry and a cyan vertical Sentinel. Seven enemy kinds are distributed across the six rooms. Gold doors lead forward after the jumping route; cyan doors near the entrance lead back. Existing artwork is reused with tinting for these variants.
