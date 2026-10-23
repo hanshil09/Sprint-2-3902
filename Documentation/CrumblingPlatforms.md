@@ -9,9 +9,9 @@ by chance, as with any random selection.
 
 | Variant | Color | Delay after standing |
 |---|---|---|
-| Fast | Coral | 0.6 seconds |
-| Medium | Gold | 1.2 seconds |
-| Slow | Purple | 2 seconds |
+| Fast | Coral | 0.9 seconds |
+| Medium | Gold | 1.5 seconds |
+| Slow | Purple | 2.3 seconds |
 
 Standing starts a countdown that continues after stepping off. The platform
 flashes, becomes non-solid and invisible for three seconds, then displays a

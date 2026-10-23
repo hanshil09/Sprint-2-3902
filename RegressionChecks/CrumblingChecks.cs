@@ -27,7 +27,7 @@ internal static class CrumblingChecks
 
     private static void CheckLifecycle(CrumbleKind kind)
     {
-        double delay = kind == CrumbleKind.Fast ? 0.6 : kind == CrumbleKind.Medium ? 1.2 : 2.0;
+        double delay = kind == CrumbleKind.Fast ? 0.9 : kind == CrumbleKind.Medium ? 1.5 : 2.3;
         var state = new CrumblingPlatformStateMachine(kind);
         state.Update(Step(10), true);
         Check(kind + " stays ready without standing contact", state.Phase == CrumblingPhase.Ready);
@@ -55,7 +55,7 @@ internal static class CrumblingChecks
         var player = new Player(new Vector2(110, 100), new List<IBlock> { platform }, new ProjectileManager());
         player.Update(Step(0.3));
         Check("player lands on crumble platform", player.IsOnGround && player.Position.Y == 144);
-        platform.Update(Step(0.61));
+        platform.Update(Step(0.91));
         player.Update(Step(0.1));
         Check("player contact starts timer and falls after platform vanishes", !player.IsOnGround && player.Position.Y > 144);
         platform.SetPlayerBounds(new Rectangle(110, 200, 68, 56));

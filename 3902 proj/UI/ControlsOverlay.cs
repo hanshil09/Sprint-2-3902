@@ -115,7 +115,7 @@ namespace TransformersGame.UI
             DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 239);
             DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 267);
             DrawHelpLine(spriteBatch, "SYSTEM", "E damage     R reset     Q / ESC quit", 295);
-            DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.6s   Gold 1.2s   Purple 2s   Flash, fall, return", 323);
+            DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 323);
         }
 
         private void DrawHelpLine(SpriteBatch spriteBatch, string label, string text, int y)

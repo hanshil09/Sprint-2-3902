@@ -17,8 +17,8 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 ## Controls
 
 Each new game (including **R** reset) selects **2–3 elevated platform sections per room**
-to crumble when the player stands on them. Coral lasts **0.6 seconds**, gold **1.2 seconds**,
-and purple **2 seconds**. They flash before disappearing, remain absent for three seconds,
+to crumble when the player stands on them. Coral lasts **0.9 seconds**, gold **1.5 seconds**,
+and purple **2.3 seconds**. They flash before disappearing, remain absent for three seconds,
 then show a faded return preview. A platform waits to become solid if the player occupies
 its space. Room revisits keep the current game's platform selection. Existing floor tiles
 and platform positions are preserved. See [crumbling platforms](Documentation/CrumblingPlatforms.md).

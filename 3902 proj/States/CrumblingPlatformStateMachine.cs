@@ -17,9 +17,9 @@ namespace TransformersGame.States
         {
             switch (kind)
             {
-                case CrumbleKind.Fast: crumbleSeconds = 0.6; break;
-                case CrumbleKind.Medium: crumbleSeconds = 1.2; break;
-                default: crumbleSeconds = 2.0; break;
+                case CrumbleKind.Fast: crumbleSeconds = 0.9; break;
+                case CrumbleKind.Medium: crumbleSeconds = 1.5; break;
+                default: crumbleSeconds = 2.3; break;
             }
         }
 
