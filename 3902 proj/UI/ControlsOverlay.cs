@@ -105,7 +105,7 @@ namespace TransformersGame.UI
 
         private void DrawHelp(SpriteBatch spriteBatch, IPlayer player)
         {
-            Rectangle panel = new Rectangle(16, 80, 580, 290);
+            Rectangle panel = new Rectangle(16, 80, 580, 318);
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "CONTROLS", 34, 94, HeadingColor, 0.9f);
             DrawHelpLine(spriteBatch, "MOVE", "A / D or arrows     W / UP / J jump     S / DOWN face", 127);
@@ -116,6 +116,7 @@ namespace TransformersGame.UI
             DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 267);
             DrawHelpLine(spriteBatch, "SYSTEM", "E damage     R reset     Q / ESC quit", 295);
             DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 323);
+            DrawHelpLine(spriteBatch, "CRATES", "Green: Health Cell (+10 HP)   Gold: Energon   Shoot or bomb", 351);
         }
 
         private void DrawHelpLine(SpriteBatch spriteBatch, string label, string text, int y)

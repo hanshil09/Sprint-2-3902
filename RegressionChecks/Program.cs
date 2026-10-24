@@ -1,5 +1,11 @@
 using TransformersGame.Core;
 
+if (args.Contains("--crate-drops"))
+{
+    CrateDropChecks.Run();
+    return;
+}
+
 if (args.Contains("--crumbling"))
 {
     CrumblingChecks.Run();

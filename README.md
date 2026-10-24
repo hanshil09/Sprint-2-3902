@@ -16,6 +16,13 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 ## Controls
 
+In Crate Workshop, green supply crates drop one Health Cell (+10 HP, up to the
+health cap), and gold supply crates drop one Energon pickup. Shoot or bomb them
+and touch the released pickup to collect it. Each supply crate drops only once
+per room instance. Plain crates remain empty. Room files use `H` for health
+crates, `E` for Energon crates, and `C` for empty crates.
+See [supply crates](Documentation/SupplyCrates.md) for details.
+
 Each new game (including **R** reset) selects **2–3 elevated platform sections per room**
 to crumble when the player stands on them. Coral lasts **0.9 seconds**, gold **1.5 seconds**,
 and purple **2.3 seconds**. They flash before disappearing, remain absent for three seconds,

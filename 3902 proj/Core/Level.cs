@@ -32,9 +32,7 @@ namespace TransformersGame.Core
 
             foreach (Placement<BlockKind> placement in data.Blocks)
             {
-                ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
-                blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite,
-                    placement.Kind != BlockKind.Hazard, placement.Kind));
+                blocks.Add(CreateBlock(placement));
             }
             if (random != null) CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random);
             LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
@@ -99,6 +97,7 @@ namespace TransformersGame.Core
         public void Update(GameTime gameTime)
         {
             blocks.ForEach(block => block.Update(gameTime));
+            ReleaseCrateItems();
             items.ForEach(item => item.Update(gameTime));
             triggers.ForEach(trigger => trigger.Update(gameTime));
         }
@@ -119,6 +118,32 @@ namespace TransformersGame.Core
             objs.AddRange(doors);
             objs.AddRange(triggers);
             return objs.AsReadOnly();
+        }
+
+        private IBlock CreateBlock(Placement<BlockKind> placement)
+        {
+            Vector2 position = CellPosition(placement.Column, placement.Row);
+            foreach (Placement<ItemKind> drop in data.CrateDrops)
+            {
+                if (placement.Kind == BlockKind.Crate && drop.Column == placement.Column && drop.Row == placement.Row)
+                {
+                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(drop.Kind);
+                    return new SupplyCrate(position, crateSprite, drop.Kind);
+                }
+            }
+            ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
+            return new Block(position, sprite, placement.Kind != BlockKind.Hazard, placement.Kind);
+        }
+
+        private void ReleaseCrateItems()
+        {
+            foreach (IBlock block in blocks)
+            {
+                if (block is IItemDropBlock crate && crate.TryReleaseItem(out ItemKind kind))
+                {
+                    items.Add(EntityFactory.CreateItem(kind, block.Position));
+                }
+            }
         }
 
         private void PlacePlayerStart()

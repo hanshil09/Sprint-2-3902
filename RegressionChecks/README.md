@@ -8,6 +8,13 @@ Run commands from the repository folder.
 
 Program.cs checks seven room files, then six conditions per room: valid data/player spawn, two different enemies, one to three pickups, a return door plus exactly one forward door or goal, an elevated exit, and simulated exit reachability. A successful run reports 43 assertions across seven rooms, not 43 separate test methods.
 
+## Supply crate checks (optional)
+
+`dotnet run --project RegressionChecks -c Strict --no-restore -- --crate-drops`
+
+Checks room-file contents, shot and bomb destruction, exactly one pickup per
+crate, collection effects, and empty/indestructible blocks.
+
 ## Crumbling platform checks (optional)
 
 `dotnet run --project RegressionChecks -c Strict --no-restore -- --crumbling`
