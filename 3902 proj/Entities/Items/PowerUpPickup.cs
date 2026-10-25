@@ -23,8 +23,9 @@ namespace TransformersGame.Entities
         public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
 
         // The effect is applied through Apply, because a decorator must replace the game's player reference.
-        public void Collect(IPlayer player)
+        public bool TryCollect(IPlayer player)
         {
+            return true;
         }
 
         public IPlayer Apply(IPlayer player, IPlayerHost host)

@@ -23,6 +23,13 @@ per room instance. Plain crates remain empty. Room files use `H` for health
 crates, `E` for Energon crates, and `C` for empty crates.
 See [supply crates](Documentation/SupplyCrates.md) for details.
 
+Pickups stay in the room when they provide no benefit: Health Cells at full
+health, Shield Batteries at the ten-second protection cap, Bomb Packs at the
+maximum bomb level (3), and Max Health upgrades when both health and maximum
+health are already 200. Max Health upgrades still heal an injured player at that
+cap. Stored Medkits, Shields, and Energon remain collectible; temporary power-ups
+still refresh their effect. See [pickup checks](RegressionChecks/README.md).
+
 Each new game (including **R** reset) selects **2–3 elevated platform sections per room**
 to crumble when the player stands on them. Coral lasts **0.9 seconds**, gold **1.5 seconds**,
 and purple **2.3 seconds**. They flash before disappearing, remain absent for three seconds,

@@ -85,10 +85,9 @@ namespace TransformersGame.Core
         public IReadOnlyList<IItem> CollectItems(IPlayer player)
         {
             Rectangle playerBounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
-            List<IItem> collected = items.FindAll(item => playerBounds.Intersects(item.Bounds));
+            List<IItem> collected = items.FindAll(item => playerBounds.Intersects(item.Bounds) && item.TryCollect(player));
             foreach (IItem item in collected)
             {
-                item.Collect(player);
                 items.Remove(item);
             }
             return collected;

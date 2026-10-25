@@ -1,5 +1,11 @@
 using TransformersGame.Core;
 
+if (args.Contains("--pickups"))
+{
+    PickupChecks.Run();
+    return;
+}
+
 if (args.Contains("--crate-drops"))
 {
     CrateDropChecks.Run();

@@ -48,7 +48,7 @@ namespace TransformersGame.Interfaces
 
         bool TakeDamage();
 
-        void AddItem(ItemKind kind);
+        bool TryAddItem(ItemKind kind);
 
         bool UseMedkit();
 

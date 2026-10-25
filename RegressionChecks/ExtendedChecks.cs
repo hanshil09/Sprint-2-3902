@@ -139,7 +139,7 @@ internal static class ExtendedChecks
         collisions.DetectCollision();
         Check("non-solid hazard damages player", testPlayer.DamageCount == 2 && !hazard.IsSolid);
         var resource = new ResourcePickup(Vector2.Zero, new StubSprite(), ItemKind.HealthCell);
-        resource.Collect(testPlayer); resource.Collect(testPlayer);
+        resource.TryCollect(testPlayer); resource.TryCollect(testPlayer);
         Check("resource pickup is applied once", testPlayer.ItemsAdded == 1);
         Check("seven distinct room gravity settings", roomData.Select(d => d.Gravity).Distinct().Count() == 7);
         Check("legacy rooms retain default gravity", LevelParser.Parse(new[] { "[tiles]", "P" }).Data.Gravity == Physics.DefaultGravity);
@@ -231,7 +231,7 @@ sealed class StubPlayer : IPlayer
     public int DamageCount { get; private set; }
     public int ItemsAdded { get; private set; }
     public bool TakeDamage() { DamageCount++; return true; }
-    public void AddItem(ItemKind kind) => ItemsAdded++;
+    public bool TryAddItem(ItemKind kind) { ItemsAdded++; return true; }
     public bool UseMedkit() => false;
     public bool UseShield() => false;
     public void Move(Direction direction) { }

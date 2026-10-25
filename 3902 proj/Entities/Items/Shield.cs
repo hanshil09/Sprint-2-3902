@@ -16,14 +16,14 @@ namespace TransformersGame.Entities
             this.sprite = sprite;
         }
 
-        public void Collect(IPlayer player)
+        public bool TryCollect(IPlayer player)
         {
-            if (isCollected)
+            if (isCollected || !player.TryAddItem(ItemKind.Shield))
             {
-                return;
+                return false;
             }
-            player.AddItem(ItemKind.Shield);
             isCollected = true;
+            return true;
         }
 
         public Vector2 Position { get; set; }

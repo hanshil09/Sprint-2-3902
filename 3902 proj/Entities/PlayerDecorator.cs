@@ -45,7 +45,7 @@ namespace TransformersGame.Entities
         public virtual void UseItem(int itemNumber) => Inner.UseItem(itemNumber);
         public virtual void Transform() => Inner.Transform();
         public virtual bool TakeDamage() => Inner.TakeDamage();
-        public virtual void AddItem(ItemKind kind) => Inner.AddItem(kind);
+        public virtual bool TryAddItem(ItemKind kind) => Inner.TryAddItem(kind);
         public virtual bool UseMedkit() => Inner.UseMedkit();
         public virtual bool UseShield() => Inner.UseShield();
         public virtual void Draw(SpriteBatch spriteBatch) => Inner.Draw(spriteBatch);

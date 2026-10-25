@@ -30,9 +30,13 @@ namespace TransformersGame.Core
 
         public int EnergonCount { get; private set; }
 
-        // Returns false when the kind is not something the inventory stores or counts.
+        // Returns false for unsupported items or an upgrade already at its cap.
         public bool TryCollect(ItemKind kind)
         {
+            if (kind == ItemKind.BombPack && BombLevel == MaximumBombLevel)
+            {
+                return false;
+            }
             if (!collectActions.TryGetValue(kind, out Action collect))
             {
                 return false;
