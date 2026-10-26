@@ -9,20 +9,14 @@ namespace TransformersGame.States
     {
         private const float VehicleSpeed = 280f;
 
-        private Player player;
+        private readonly Player player;
 
         public VehicleState(Player player)
         {
             this.player = player;
         }
 
-        public float Speed
-        {
-            get
-            {
-                return VehicleSpeed;
-            }
-        }
+        public float Speed => VehicleSpeed;
 
         public void Transform()
         {

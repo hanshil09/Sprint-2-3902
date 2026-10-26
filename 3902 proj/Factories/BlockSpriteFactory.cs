@@ -33,7 +33,7 @@ namespace TransformersGame.Factories
 
         public void LoadAllTextures(ContentManager content)
         {
-            blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks");
+            blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
         }
 

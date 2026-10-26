@@ -9,137 +9,139 @@ namespace TransformersGame.Factories
 {
     internal class PlayerSpriteFactory
     {
-        private const int CellWidth = 170;
-        private const int CellHeight = 140;
-        private const int FramesPerRow = 8;
-        private const int RobotWidth = 68;
-        private const int RobotHeight = 56;
-        private const int ShootingWidth = RobotWidth;
-        private const int BallWidth = 56;
-        private const int BallHeight = 40;
-        private const double RunFrameTime = 85;
+        private const int PlayerWidth = 68;
+        private const int PlayerHeight = 80;
+
+        private const int BallWidth = 68;
+        private const int BallHeight = 68;
+
+        private const double IdleFrameTime = 250;
+        private const double RunFrameTime = 83;
         private const double ShootFrameTime = 140;
         private const double RollFrameTime = 90;
-        private const int RightRowTop = 7;
-        private const int LeftRowTop = 157;
-        private const int UpRowTop = 309;
-        private const int DownRowTop = 452;
 
-        private static readonly Rectangle JumpFrame = new Rectangle(361, 592, 170, 140);
-        private static readonly Rectangle[] RightShootFrames = new Rectangle[]
+        // Idle: 3 frames
+        private static readonly Rectangle[] IdleFrames =
         {
-            new Rectangle(30, 606, 160, 140),
-            new Rectangle(200, 606, 160, 140)
-        };
-        private static readonly Rectangle RightBallFrame = new Rectangle(460, 426, 140, 100);
-        private static readonly Rectangle LeftBallFrame = new Rectangle(465, 427, 140, 100);
-        private static readonly Rectangle[] RightRollFrames = new Rectangle[]
-        {
-            new Rectangle(659, 426, 140, 100),
-            new Rectangle(787, 426, 140, 100),
-            new Rectangle(917, 426, 140, 100),
-            new Rectangle(1042, 426, 140, 100),
-            new Rectangle(1165, 426, 140, 100),
-            new Rectangle(1292, 426, 140, 100)
-        };
-        private static readonly Rectangle[] LeftRollFrames = new Rectangle[]
-        {
-            new Rectangle(608, 427, 140, 100),
-            new Rectangle(749, 427, 140, 100),
-            new Rectangle(890, 427, 140, 100),
-            new Rectangle(1036, 427, 140, 100),
-            new Rectangle(1177, 427, 140, 100),
-            new Rectangle(1319, 427, 140, 100)
+            new Rectangle(4, 58, 70, 100),
+            new Rectangle(76, 58, 70, 100),
+            new Rectangle(148, 58, 70, 100)
         };
 
-        private static PlayerSpriteFactory instance = new PlayerSpriteFactory();
+        // Run: 3 frames
+        private static readonly Rectangle[] RunFrames =
+        {
+            new Rectangle(220, 58, 86, 100),
+            new Rectangle(308, 58, 88, 100),
+            new Rectangle(398, 58, 86, 100)
+        };
 
-        private Texture2D robotSpriteSheet;
-        private Texture2D rightBallSpriteSheet;
-        private Texture2D leftBallSpriteSheet;
+        // Shoot: 1 frame
+        private static readonly Rectangle ShootFrame =
+            new Rectangle(486, 58, 74, 100);
+
+        // Jump: 1 frame
+        private static readonly Rectangle JumpFrame =
+            new Rectangle(562, 58, 82, 100);
+
+        // Ball: 2 frames
+        private static readonly Rectangle[] BallFrames =
+        {
+            new Rectangle(646, 78, 76, 80),
+            new Rectangle(724, 78, 76, 80)
+        };
+
+        private static readonly PlayerSpriteFactory instance =
+            new PlayerSpriteFactory();
+
+        private Texture2D dilloSpriteSheet;
 
         private PlayerSpriteFactory()
         {
         }
 
-        public static PlayerSpriteFactory Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
+        public static PlayerSpriteFactory Instance => instance;
 
         public void LoadAllTextures(ContentManager content)
         {
-            robotSpriteSheet = content.Load<Texture2D>("Sprites/transformer-directional-combat-spritesheet");
-            rightBallSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
-            leftBallSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
+            dilloSpriteSheet = content.Load<Texture2D>(
+                "Sprites/dilloSpriteTest2");
+        }
+
+        private static SpriteEffects GetFlipEffect(bool facingLeft)
+        {
+            return facingLeft
+                ? SpriteEffects.FlipHorizontally
+                : SpriteEffects.None;
         }
 
         public ISprite CreateStandingRobotSprite(Direction facing)
         {
-            Rectangle frame = new Rectangle(0, RowTop(facing), CellWidth, CellHeight);
-            return new TextureRegionSprite(robotSpriteSheet, frame, RobotWidth, RobotHeight, Color.White);
+            return new AnimatedSprite(
+                dilloSpriteSheet,
+                IdleFrames,
+                PlayerWidth,
+                PlayerHeight,
+                Color.White,
+                IdleFrameTime,
+                GetFlipEffect(facing == Direction.Left));
         }
 
         public ISprite CreateRunningRobotSprite(bool facingLeft)
         {
-            Rectangle[] frames = RowFrames(RowTop(facingLeft ? Direction.Left : Direction.Right));
-            return new AnimatedSprite(robotSpriteSheet, frames, RobotWidth, RobotHeight, Color.White, RunFrameTime);
-        }
-
-        public ISprite CreateJumpingRobotSprite(bool facingLeft)
-        {
-            SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            return new TextureRegionSprite(robotSpriteSheet, JumpFrame, RobotWidth, RobotHeight, Color.White, effects);
+            return new AnimatedSprite(
+                dilloSpriteSheet,
+                RunFrames,
+                PlayerWidth,
+                PlayerHeight,
+                Color.White,
+                RunFrameTime,
+                GetFlipEffect(facingLeft));
         }
 
         public ISprite CreateShootingRobotSprite(bool facingLeft)
         {
-            SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            return new AnimatedSprite(
-                robotSpriteSheet, RightShootFrames,
-                ShootingWidth, RobotHeight, Color.White, ShootFrameTime, effects);
+            return new TextureRegionSprite(
+                dilloSpriteSheet,
+                ShootFrame,
+                PlayerWidth,
+                PlayerHeight,
+                Color.White,
+                GetFlipEffect(facingLeft));
+        }
+
+        public ISprite CreateJumpingRobotSprite(bool facingLeft)
+        {
+            return new TextureRegionSprite(
+                dilloSpriteSheet,
+                JumpFrame,
+                PlayerWidth,
+                PlayerHeight,
+                Color.White,
+                GetFlipEffect(facingLeft));
         }
 
         public ISprite CreateBallSprite(bool facingLeft)
         {
-            Texture2D sheet = facingLeft ? leftBallSpriteSheet : rightBallSpriteSheet;
-            Rectangle frame = facingLeft ? LeftBallFrame : RightBallFrame;
-            return new TextureRegionSprite(sheet, frame, BallWidth, BallHeight, Color.White);
+            return new TextureRegionSprite(
+                dilloSpriteSheet,
+                BallFrames[0],
+                BallWidth,
+                BallHeight,
+                Color.White,
+                GetFlipEffect(facingLeft));
         }
 
         public ISprite CreateRollingBallSprite(bool facingLeft)
         {
-            Texture2D sheet = facingLeft ? leftBallSpriteSheet : rightBallSpriteSheet;
-            Rectangle[] frames = facingLeft ? LeftRollFrames : RightRollFrames;
-            return new AnimatedSprite(sheet, frames, BallWidth, BallHeight, Color.White, RollFrameTime);
-        }
-
-        private static int RowTop(Direction facing)
-        {
-            switch (facing)
-            {
-                case Direction.Left:
-                    return LeftRowTop;
-                case Direction.Up:
-                    return UpRowTop;
-                case Direction.Down:
-                    return DownRowTop;
-                default:
-                    return RightRowTop;
-            }
-        }
-
-        private static Rectangle[] RowFrames(int top)
-        {
-            Rectangle[] frames = new Rectangle[FramesPerRow];
-            for (int index = 0; index < FramesPerRow; index++)
-            {
-                frames[index] = new Rectangle(index * CellWidth, top, CellWidth, CellHeight);
-            }
-            return frames;
+            return new AnimatedSprite(
+                dilloSpriteSheet,
+                BallFrames,
+                BallWidth,
+                BallHeight,
+                Color.White,
+                RollFrameTime,
+                GetFlipEffect(facingLeft));
         }
     }
 }

@@ -8,11 +8,11 @@ namespace TransformersGame.UI
 {
     internal sealed class ControlsOverlay : IDisposable
     {
-        private static readonly Color PanelColor = new Color(8, 13, 24, 225);
-        private static readonly Color AccentColor = new Color(42, 210, 194);
-        private static readonly Color HeadingColor = new Color(245, 249, 255);
-        private static readonly Color TextColor = new Color(190, 204, 220);
-        private static readonly Color PowerColor = new Color(255, 220, 90);
+        private static readonly Color PanelColor = new Color(48, 30, 20, 235);
+        private static readonly Color AccentColor = new Color(156, 104, 55);
+        private static readonly Color HeadingColor = new Color(255, 232, 190);
+        private static readonly Color TextColor = new Color(220, 194, 151);
+        private static readonly Color PowerColor = new Color(231, 181, 76);
         private const float SmallTextScale = 0.42f;
 
         private readonly SpriteFont font;
@@ -70,10 +70,20 @@ namespace TransformersGame.UI
 
         public void DrawPanel(SpriteBatch spriteBatch, Rectangle bounds)
         {
-            spriteBatch.Draw(pixel, new Rectangle(bounds.X + 5, bounds.Y + 5, bounds.Width, bounds.Height), new Color(0, 0, 0, 90));
-            spriteBatch.Draw(pixel, bounds, PanelColor);
-            spriteBatch.Draw(pixel, new Rectangle(bounds.X, bounds.Y, 6, bounds.Height), AccentColor);
-            spriteBatch.Draw(pixel, new Rectangle(bounds.X, bounds.Bottom - 2, bounds.Width, 2), new Color(42, 210, 194, 100));
+            spriteBatch.Draw(
+                pixel,
+                new Rectangle(bounds.X + 5, bounds.Y + 5, bounds.Width, bounds.Height),
+                new Color(20, 12, 8, 100));
+
+            spriteBatch.Draw(
+                pixel,
+                new Rectangle(bounds.X, bounds.Y, 6, bounds.Height),
+                AccentColor);
+
+            spriteBatch.Draw(
+                pixel,
+                new Rectangle(bounds.X, bounds.Bottom - 2, bounds.Width, 2),
+                new Color(156, 104, 55, 120));
         }
 
         public void DrawSmallText(SpriteBatch spriteBatch, string text, int x, int y, bool accent)
