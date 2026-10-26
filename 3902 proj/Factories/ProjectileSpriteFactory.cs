@@ -78,7 +78,7 @@ namespace TransformersGame.Factories
         {
             Texture2D sheet = facingLeft ? leftSpriteSheet : rightSpriteSheet;
             Rectangle frame = facingLeft ? LeftOrbFrame : RightOrbFrame;
-            return new TextureRegionSprite(sheet, frame, OrbSize, OrbSize, Color.White);
+            return new TextureRegionSprite(sheet, frame, OrbSize, OrbSize, Color.LightGreen);
         }
 
         public ISprite CreateBombSprite()
