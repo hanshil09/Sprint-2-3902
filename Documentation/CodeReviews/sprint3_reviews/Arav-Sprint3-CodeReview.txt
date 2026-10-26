@@ -1,34 +1,54 @@
-Code Review - Player.cs
-Sprint 2 (3902)
-- Arav Bhagat
+READABILITY REVIEW
 
-Took a pass through Player.cs, overall looks pretty good. Few notes below.
+Author of Review: Arav Bhagat
+Date of Review: 10-26-2026
+Sprint Number: 3
+Files Being Reviewed: QuadTree.cs
+Author of File(s): Sami
+Time Elapsed: 20
 
-The good stuff:
-- state pattern is clean, like how the state-specific logic is delegated out instead of a giant switch. SetState handling the height adjustment is a nice touch, wouldve forgot that
-- constants at the top instead of magic numbers scattered everywhere, makes it way easier to tune later
-- physics/collision stuff is kept separate which is good, player class isnt doing too much
-- DI through the constructor makes this testable
+General Notes:
+The overall structure reads fine, the four child trees (topLeftTree, topRightTree, 
+botLeftTree, botRightTree) are named clearly so you know which quadrant is which. 
+The comments above each branch ("Indicates topLeftTree" etc) help you follow the 
+subdivision logic. InBoundary is a clean little helper and does exactly what the 
+name says. The Node struct is simple and makes sense, position plus the game object.
 
-Stuff to fix / look at:
+Improvements:
+A few naming things make this harder to read than it needs to be. 'n' is a one 
+letter field name and it's used all over, something like rootNode would be clearer. 
+The underscore param names (_data) don't match the rest of the codebase style. The 
+Insert and Search methods repeat the same (topLeft.X + botRight.X) / 2 midpoint 
+math over and over, pulling that into a midX/midY local would cut the noise a lot 
+and make the quadrant checks easier to read. Also there's a blank default comment 
+block in Search that says "quad of unit length" but it's actually the node-found 
+case, the comment is copied from Insert and doesn't match.
 
-1. shield durations dont match up. UseShield sets it to ShieldDuration (5000) but picking up shield batteries can stack to MaximumShieldTime (10000). is that intentional? feels like a bug or at least needs a comment
+CODE QUALITY REVIEW
 
-2. no null check on projectiles in the constructor. collisionManager gets a fallback but projectiles doesnt, so if someone passes null Arsenal will blow up. just throw ArgumentNullException
+Author of Review: Arav Bhagat
+Date of Review: 10-26-2026
+Sprint Number: 3
+Files Being Reviewed: QuadTree.cs
+Author of File(s): Sami
 
-3. Shoot(bool angled) - boolean param is kinda confusing at the call site, Shoot(true) doesnt tell you much. maybe an enum? not a big deal though
+Notes:
+The recursive insert/search structure is the standard quadtree approach and it's 
+reasonable. That said there are some real correctness concerns. The big one is each 
+node only holds a single object (the Node n field), so two objects that land in the 
+same unit cell, the second one just gets dropped since it only writes when n equals 
+default. For a collision system with lots of blocks/enemies that's going to lose 
+objects. Using default(Node) as the "empty" sentinel is also risky, a real object 
+sitting exactly at (0,0) would compare equal to default and get treated as empty. 
+There's no Remove method either, so moving objects can't be updated, which matters 
+a lot since the player and enemies move every frame. The repeated midpoint math is 
+a maintainability smell too, easy to typo one of them.
 
-4. FootInset is defined here AND theres CollisionManager.PlayerFootInset. two sources of truth, pick one
-
-5. Health can hit 0 but theres no death handling in here. assuming the state machine deals with it but a comment wouldnt hurt
-
-6. no XML docs on the public methods. would be nice to have especially for the state transition stuff
-
-minor:
-- RefreshSprite makes a new sprite every movement change, probably fine but if CreateSprite is expensive it could add up. not worried about it for now
-
-testing - should def add tests for the shield stacking edge cases and the health/maxhealth item interactions, those are the spots most likely to break
-
-verdict: approve, just fix the shield thing and the null check. rest can wait
-
-4/5
+Hypothetical Change:
+Instead of one object per node, each quad should hold a small list of objects and 
+only subdivide once it passes a capacity threshold (classic quadtree). That fixes 
+the dropped-object problem. I'd also add a Remove or a Clear so the tree can be 
+rebuilt each frame as things move, right now there's no way to update it. And swap 
+the default(Node) sentinel for an explicit bool like hasNode so a valid object at 
+(0,0) doesn't get mistaken for empty. Pulling the midpoint into midX/midY locals 
+would clean up both methods at the same time.
