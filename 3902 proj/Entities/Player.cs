@@ -118,26 +118,25 @@ namespace TransformersGame.Entities
             return true;
         }
 
-        public void AddItem(ItemKind kind)
+        public bool TryAddItem(ItemKind kind)
         {
-            if (inventory.TryCollect(kind))
-            {
-                return;
-            }
             switch (kind)
             {
                 case ItemKind.HealthCell:
+                    if (Health == MaxHealth) return false;
                     Health = System.Math.Min(MaxHealth, Health + HealthCellAmount);
-                    break;
+                    return true;
                 case ItemKind.ShieldBattery:
+                    if (shieldTimeRemaining == MaximumShieldTime) return false;
                     shieldTimeRemaining = System.Math.Min(MaximumShieldTime, shieldTimeRemaining + ShieldDuration);
-                    break;
+                    return true;
                 case ItemKind.MaxHealthUp:
+                    if (MaxHealth == MaximumHealthCap && Health == MaxHealth) return false;
                     MaxHealth = System.Math.Min(MaximumHealthCap, MaxHealth + MaxHealthUpgrade);
                     Health = MaxHealth;
-                    break;
+                    return true;
                 default:
-                    throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "This item is not added to the player's inventory.");
+                    return inventory.TryCollect(kind);
             }
         }
 

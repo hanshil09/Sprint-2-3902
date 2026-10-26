@@ -10,8 +10,8 @@ grid controls contents, following the existing external level-data approach:
 | E | Gold crate | One Energon pickup |
 
 Shoot or bomb a supply crate, then touch its released item to collect it. Health
-Cells use the existing immediate-health behavior, including being consumed when
-health is already full. Supply crates reset when a room is recreated, just like
+Cells heal immediately when health is missing and stay available when health is
+already full. Supply crates reset when a room is recreated, just like
 existing crates and placed pickups; this feature does not change room persistence.
 
 ## Implementation

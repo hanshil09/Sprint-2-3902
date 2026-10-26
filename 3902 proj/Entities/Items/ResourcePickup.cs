@@ -24,13 +24,14 @@ namespace TransformersGame.Entities
 
         public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
 
-        public void Collect(IPlayer player)
+        public bool TryCollect(IPlayer player)
         {
-            if (!collected)
+            if (collected || !player.TryAddItem(kind))
             {
-                player.AddItem(kind);
-                collected = true;
+                return false;
             }
+            collected = true;
+            return true;
         }
 
         public void Update(GameTime gameTime)
