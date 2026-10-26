@@ -41,7 +41,7 @@ internal static class ExtendedChecks
             Check("complete themed base floor " + path, baseFloor.Length == 30 && baseFloor.All(b => b.Kind == expectedFloor));
             var platforms = result.Data.Blocks.Where(b => b.Row < result.Data.Rows - 1 && b.Kind != BlockKind.Crate && b.Kind != BlockKind.Hazard).ToArray();
             Check("parkour blocks match base floor " + path, platforms.Length > 0 && platforms.All(b => b.Kind == expectedFloor));
-            var floorPhysics = new Physics(new[] { new Block(new Vector2(100, 508), new StubSprite(), true, expectedFloor) }, result.Data.Gravity);
+            var floorPhysics = new MovementProbe(new[] { new Block(new Vector2(100, 508), new StubSprite(), true, expectedFloor) }, result.Data.Gravity);
             Check("themed floor supports falling objects " + path,
                 floorPhysics.Apply(new Vector2(100, 400), 10, 10, Step(.5)).Y == 498 && floorPhysics.IsOnGround);
             Check("exactly two enemies " + path, result.Data.Enemies.Count == 2);
@@ -62,7 +62,7 @@ internal static class ExtendedChecks
         Check("reject missing spawn", !LevelParser.Parse(new[] { "[tiles]", "GGG" }).Success);
         Check("reject duplicate spawn", !LevelParser.Parse(new[] { "[tiles]", "PP" }).Success);
         var wall = new Block(new Vector2(100, 100), new StubSprite(), true);
-        var physics = new Physics(new[] { wall });
+        var physics = new MovementProbe(new[] { wall });
         Check("horizontal wall crossing", physics.MoveHorizontally(new Vector2(70, 100), 10, 10, 100, 0, 960).X == 90);
         Check("upward ceiling crossing", physics.MoveVertically(new Vector2(100, 130), 10, 10, -100, 0, 540).Y == 110);
         Check("landing", physics.Apply(new Vector2(100, 80), 10, 10, Step(.2)).Y == 90 && physics.IsOnGround);
@@ -189,10 +189,10 @@ internal static class ExtendedChecks
         timedBomb.Update(Step(1));
         Check("inactive bomb does not move", timedBomb.Position == finishedPosition);
         var ledge = new Block(new Vector2(100, 200), new StubSprite(), true);
-        var edgePhysics = new Physics(new[] { ledge }) { FootInset = Player.FootInset };
+        var edgePhysics = new MovementProbe(new[] { ledge }) { FootInset = CollisionManager.PlayerFootInset };
         Vector2 onlyEdgeOver = edgePhysics.Apply(new Vector2(100 - 68 + Player.FootInset - 2, 150), 68, 50, Step(.2));
         Check("player falls when only the empty edge of its box is over a ledge", !edgePhysics.IsOnGround && onlyEdgeOver.Y > 150);
-        edgePhysics = new Physics(new[] { ledge }) { FootInset = Player.FootInset };
+        edgePhysics = new MovementProbe(new[] { ledge }) { FootInset = CollisionManager.PlayerFootInset };
         edgePhysics.Apply(new Vector2(100 - 68 + Player.FootInset + 2, 149.5f), 68, 50, Step(.2));
         Check("player stands when its feet are over a ledge", edgePhysics.IsOnGround);
         var slider = new MovingPlatform(new Vector2(200, 400), 3, new Vector2(100, 0), 60f, new StubSprite());
@@ -201,7 +201,7 @@ internal static class ExtendedChecks
         pushedPlayer.Update(Step(1.0 / 60));
         Check("moving platform pushes the player aside instead of overlapping", pushedPlayer.Position.X >= slider.Bounds.Right);
         var overhead = new MovingPlatform(new Vector2(200, 300), 3, new Vector2(100, 0), 60f, new StubSprite());
-        var jumper = new Physics(new IBlock[] { overhead });
+        var jumper = new MovementProbe(new IBlock[] { overhead });
         jumper.Apply(new Vector2(205, 330), 10, 10, Step(1.0 / 60));
         jumper.Launch(600);
         Vector2 jumped = jumper.Apply(new Vector2(205, 330), 10, 10, Step(.1));

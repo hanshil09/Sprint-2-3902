@@ -17,7 +17,6 @@ namespace TransformersGame.Factories
 
         private const double IdleFrameTime = 250;
         private const double RunFrameTime = 83;
-        private const double ShootFrameTime = 140;
         private const double RollFrameTime = 90;
 
         // Idle: 3 frames

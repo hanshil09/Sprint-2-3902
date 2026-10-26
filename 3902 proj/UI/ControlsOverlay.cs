@@ -8,7 +8,6 @@ namespace TransformersGame.UI
 {
     internal sealed class ControlsOverlay : IDisposable
     {
-        private static readonly Color PanelColor = new Color(48, 30, 20, 235);
         private static readonly Color AccentColor = new Color(156, 104, 55);
         private static readonly Color HeadingColor = new Color(255, 232, 190);
         private static readonly Color TextColor = new Color(220, 194, 151);

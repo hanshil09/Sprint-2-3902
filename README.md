@@ -71,3 +71,8 @@ dotnet run --project RegressionChecks -c Strict --no-restore
 The basic suite contains 43 room assertions. Extra checks are optional;
 see the [regression guide](RegressionChecks/README.md). Automated reachability
 checks use simplified geometry and do not replace manual playtesting.
+
+## Credits
+
+- ChatGPT was used to help draft and organize the basic README documentation.
+- Artwork credits and source links are listed in the [gameplay guide](Documentation/GameplayGuide.md#credits).

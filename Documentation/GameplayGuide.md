@@ -8,16 +8,6 @@ to complete the game.
 
 Repository: [hanshil09/Sprint-2-3902](https://github.com/hanshil09/Sprint-2-3902).
 
-## Run
-
-Install the .NET 9 SDK, then run from the repository root:
-
-```text
-dotnet run --project "3902 proj/3902 proj.csproj"
-```
-
-The project restores its NuGet dependencies. MonoGame's content builder builds
-the sprite sheets and font; room files are copied to the output folder.
 
 ## Controls
 
@@ -149,77 +139,3 @@ room's gravity, rest on solid blocks, and explode after a fuse. Collision
 handling includes landing, ceilings, walls, hazards, enemies, projectile impacts,
 and room transitions. Pickups and interactive-object triggers are processed
 through their own interfaces.
-
-## Checks and code quality
-
-The project uses built-in .NET Roslyn analyzers: `latest-recommended` normally,
-and `latest-all` with warnings treated as errors in the Strict configuration.
-Run from the repository root:
-
-```text
-dotnet build "3902 proj.sln" -c Strict
-dotnet run --project RegressionChecks -c Strict
-dotnet run --project RegressionChecks -c Strict --no-build -- --extended
-dotnet run --project RegressionChecks -c Strict --no-build -- --crumbling
-dotnet run --project RegressionChecks -c Strict --no-build -- --crate-drops
-dotnet run --project RegressionChecks -c Strict --no-build -- --pickups
-```
-
-The last verification after the pickup fix passed with zero build warnings or
-errors and 278 assertions across five modes: 43 basic room, 129 extended,
-51 crumbling-platform, 23 supply-crate, and 32 pickup checks. These are assertion
-counts, not separate test-method counts. See the [regression-check guide](../RegressionChecks/README.md)
-for coverage and limitations.
-
-The [Sprint 3 analyzer summary](CodeAnalyzer/Sprint3-Summary.md)
-records the October 14–19 history; the [Sprint 2 results](CodeAnalyzer/Sprint2-Results.md)
-preserve the earlier analysis. Current `.editorconfig` exceptions retain
-interface-based integration (CA1859) and allow non-security gameplay randomness
-only in RoomFactory and CrumblingPlatformLayout (CA5394). The latter exception
-is also explained in the crumbling-platform documentation.
-
-## Code reviews and sprint documentation
-
-Sprint 3 reviews:
-
-- [Hanshil's review](CodeReviews/sprint3_reviews/Hanshil-Sprint3-CodeReview.txt).
-- [Meera's review](CodeReviews/sprint3_reviews/Meera-sprint3-codereview.txt).
-- [Arnav's review of Hanshil's PlayerArsenal](CodeReviews/sprint3_reviews/Arnav-Hanshil-Sprint3-CodeReview.txt).
-
-Reviewers should record their actual review time and complete the required
-readability and maintainability reviews, including having their own work
-reviewed. Arnav's review currently has a review-time placeholder to fill in.
-Historical reviews are kept in [sprint2_reviews](CodeReviews/sprint2_reviews).
-
-The [Sprint 3 reflection](SprintReflection.md) discusses team progress and next steps. The
-[updated progress chart](burndown_chart.png) covers October 15–26, 2026.
-The green Open series shows remaining issues; the purple Completed series
-shows completed issues. It does not include an ideal-progress line.
-
-According to the team, some already-finished tasks were only marked complete
-on October 26. The final drop includes those delayed tracking updates, rather
-than indicating that all remaining implementation happened that day. The chart
-tracks issue completion, not Git commit counts.
-
-## Known limitations and deviations
-
-- This project uses platformer movement and Transformers/Metroid-style artwork
-  instead of Zelda's top-down movement. The equivalent feature scope still
-  needs confirmation against the grader-approved project plan.
-- Normal shots remain horizontal when facing down; K is the separate angled
-  shot command.
-- Room object state resets on revisits, so collected items and crate drops can
-  be obtained again. Player inventory and upgrades persist.
-- Normal-shot recoil directly changes horizontal position without resolving
-  wall collisions. Firing beside a wall needs a collision-safe recoil fix.
-- Automated room reachability checks model static geometry. They do not prove
-  every randomized, timed platform route is playable. A full interactive
-  playthrough, combat-balance check, and upward platform-carrying/ceiling check
-  remain pending.
-
-## Credits
-
-- Metroid SNES Enemy Sprites by ronny14:
-  [sprite source](https://www.spriters-resource.com/custom_edited/metroidcustoms/asset/55700/).
-- Samus Aran Metroid Sprites by Mister Mike:
-  [sprite source](https://www.spriters-resource.com/nes/metroid/asset/1774/).
