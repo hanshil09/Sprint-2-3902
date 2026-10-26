@@ -34,7 +34,6 @@ From the repository root:
 
 ```powershell
 dotnet build "3902 proj.sln" -c Strict -t:Rebuild
-dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore
 ```
 
 The verified full strict rebuild used `--no-restore` with restored dependencies. Rebuild forces analyzers to run even when output is up to date.
