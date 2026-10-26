@@ -1,0 +1,45 @@
+READABILITY REVIEW
+
+Author of code review: Shreya Aradhya
+Date of code review: October 26, 2026
+Sprint number: 3
+Name of the .cs file being reviewed: BlockCollision.cs, Physics.cs, PlayerCollision.cs
+Author of the .cs file being reviewed: Sami Mannan
+Number of minutes taken to complete the review: ~40 minutes
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+
+  BlockCollision has clear method names that describe the exact collision operation being performed. Methods like IsOnGround, TryJump, MoveHorizontally, MoveVertically, HasGroundAhead, and UpdateVerticalMovement make these main collision operations easy to identify.
+The BlockCollisionState class keeps information about blocks, foot inset, and ground state together. This makes it much easier to understand which information the collision system needs to remember for every game object.
+The revised Physics.cs is especially straightforward to read. Gravity and vertical velocity are stored in one place, while Jump, Launch, SetGravity, and Apply provide their basic physics operations.
+PlayerCollision is easy to follow because HandleContact uses switch to separate doors, player triggers, and enemies. HandleEnemyContact separates enemy-specific damage behavior instead of putting everything in one method.
+
+What I noticed could be improved:
+
+  BlockCollision contains several different kinds of collision behavior including player movement, moving platforms, enemy ledge detection, and projectile impacts. The individual methods are readable, but the class contains so many different behaviors that it can take time to determine where new collision features are to be added.
+UpdatePlayerMovement is also fairly long and performs many different operations like moving platforms, horizontal movement, gravity, and ground-state changes. Potentially splitting some of these operations into helper methods could make this sequence easier to follow without having to change the collision behavior.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Shreya Aradhya
+Date of the code review: October 26, 2026
+Sprint number: 3
+Name of the .cs file being reviewed: BlockCollision.cs, Physics.cs, PlayerCollision.cs
+Author of the .cs file being reviewed: Sami Mannan
+
+Specific comments on code quality:
+
+What I noticed:
+
+  BlockCollision provides a reusable collision system for different game objects instead of requiring the Player and Enemy to perform their own block checks. It allows for the same BlockCollision instance to manage different objects while keeping their supporting block and ground state separate.
+The separation between Physics and BlockCollision is useful. Physics handles gravity and vertical velocity, while BlockCollision resolves that movement against the level geometry. For example, UpdateVerticalMovement first applies Physics and only then uses BlockCollisionHelper to resolve the resulting position against blocks.
+PlayerCollision also keeps player contact behaviour separate from block movement. It handles doors, triggers, and enemy contacts without adding those cases directly to the player's movement code.
+An issue I noticed during testing is an edge case when the player is attacked while moving upward on a moving platform. This seems to be a collision error, and this interaction certainly needs to be looked into so that platform movement and knockback have a consistent order.
+
+Hypothetical change:
+
+  If ladders are added in the next sprint, our collision system will need to support another type of player movement that is different from normal gravity-based movement. I would recommend adding ladder detection separately from the existing block collision checks and giving the player a clearer climbing state.
+While climbing, the player's vertical movement should be controlled by the ladder rather than normal gravity. The player would return to normal physics when leaving the ladder. This should also be tested with the existing moving platform collision error to make sure climbing does not face similar conflicts.

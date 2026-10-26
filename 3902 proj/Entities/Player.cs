@@ -20,36 +20,55 @@ namespace TransformersGame.Entities
         private const double MaximumShieldTime = 10000;
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
+
+        public const float FootInset = 16f;
+
         private readonly Physics physics;
         private readonly CollisionManager collisionManager;
         private readonly PlayerInventory inventory = new PlayerInventory();
+
         private IPlayerState state;
         private ISprite sprite;
         private bool movedThisFrame;
         private double shieldTimeRemaining;
 
-        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles,
-            float gravity = Physics.DefaultGravity, CollisionManager collisionManager = null)
+        public Player(
+            Vector2 position,
+            IReadOnlyList<IBlock> blocks,
+            IProjectileManager projectiles,
+            float gravity = Physics.DefaultGravity,
+            CollisionManager collisionManager = null)
         {
             Position = position;
+
             physics = new Physics(gravity);
-            this.collisionManager = collisionManager ?? new CollisionManager(960, 540);
-            this.collisionManager.SetBlocks(this, blocks, CollisionManager.PlayerFootInset);
-            Arsenal = new PlayerArsenal(this, projectiles, this.collisionManager, blocks);
+
+            this.collisionManager =
+                collisionManager ?? new CollisionManager(960, 540);
+
+            this.collisionManager.SetBlocks(
+                this,
+                blocks,
+                CollisionManager.PlayerFootInset);
+
+            Arsenal = new PlayerArsenal(
+                this,
+                projectiles,
+                this.collisionManager,
+                blocks);
+
             Facing = Direction.Right;
             Health = StartingHealth;
             MaxHealth = StartingHealth;
             SpeedScale = 1f;
+
             state = new RobotState(this);
             sprite = state.CreateSprite();
         }
 
         public Vector2 Position { get; set; }
-
         public Direction Facing { get; private set; }
-
-        public bool FacingLeft { get; private set; }
-
+        public bool FacingLeft => Facing == Direction.Left;
         public bool IsMoving { get; private set; }
 
         public PlayerArsenal Arsenal { get; }
@@ -61,51 +80,66 @@ namespace TransformersGame.Entities
         public int MedkitCount => inventory.MedkitCount;
 
         public int ShieldCount => inventory.ShieldCount;
-
         public int BombLevel => inventory.BombLevel;
-
         public int EnergonCount => inventory.EnergonCount;
-
         public bool IsShieldActive => shieldTimeRemaining > 0;
-
         public bool IsInvincible => false;
 
         public float SpeedScale { get; set; }
-
         public bool IsOnGround => collisionManager.IsOnGround(this);
 
         public int Width => sprite.Width;
-
         public int Height => sprite.Height;
 
-        public Vector2 Center => new Vector2(Position.X + Width / 2f, Position.Y + Height / 2f);
+        public Vector2 Center =>
+            new Vector2(
+                Position.X + Width / 2f,
+                Position.Y + Height / 2f);
 
         public void Move(Direction direction)
         {
-            bool isHorizontal = direction == Direction.Left || direction == Direction.Right;
-            bool hasChanged = Facing != direction || IsMoving != isHorizontal;
+            bool isHorizontal =
+                direction == Direction.Left ||
+                direction == Direction.Right;
+
+            bool hasChanged =
+                Facing != direction ||
+                IsMoving != isHorizontal;
+
             movedThisFrame = true;
             Facing = direction;
             IsMoving = isHorizontal;
-            if (isHorizontal)
-            {
-                FacingLeft = direction == Direction.Left;
-            }
+
             if (hasChanged)
             {
                 RefreshSprite();
             }
         }
 
-        public void Jump() => collisionManager.TryJump(this, physics, JumpSpeed);
+        public void Jump()
+        {
+            collisionManager.TryJump(this, physics, JumpSpeed);
+        }
 
-        public void Bounce(float speed) => collisionManager.Launch(this, physics, speed);
+        public void Bounce(float speed)
+        {
+            collisionManager.Launch(this, physics, speed);
+        }
 
-        public void Shoot(bool angled) => state.Shoot(angled);
+        public void Shoot(bool angled)
+        {
+            state.Shoot(angled);
+        }
 
-        public void UseItem(int itemNumber) => state.UseItem(itemNumber);
+        public void UseItem(int itemNumber)
+        {
+            state.UseItem(itemNumber);
+        }
 
-        public void Transform() => state.Transform();
+        public void Transform()
+        {
+            state.Transform();
+        }
 
         public bool TakeDamage()
         {
@@ -113,8 +147,10 @@ namespace TransformersGame.Entities
             {
                 return false;
             }
+
             Health = System.Math.Max(0, Health - DamageAmount);
             collisionManager.TryJump(this, physics, KnockbackSpeed);
+
             return true;
         }
 
@@ -123,18 +159,44 @@ namespace TransformersGame.Entities
             switch (kind)
             {
                 case ItemKind.HealthCell:
-                    if (Health == MaxHealth) return false;
-                    Health = System.Math.Min(MaxHealth, Health + HealthCellAmount);
+                    if (Health == MaxHealth)
+                    {
+                        return false;
+                    }
+
+                    Health = System.Math.Min(
+                        MaxHealth,
+                        Health + HealthCellAmount);
+
                     return true;
+
                 case ItemKind.ShieldBattery:
-                    if (shieldTimeRemaining == MaximumShieldTime) return false;
-                    shieldTimeRemaining = System.Math.Min(MaximumShieldTime, shieldTimeRemaining + ShieldDuration);
+                    if (shieldTimeRemaining == MaximumShieldTime)
+                    {
+                        return false;
+                    }
+
+                    shieldTimeRemaining = System.Math.Min(
+                        MaximumShieldTime,
+                        shieldTimeRemaining + ShieldDuration);
+
                     return true;
+
                 case ItemKind.MaxHealthUp:
-                    if (MaxHealth == MaximumHealthCap && Health == MaxHealth) return false;
-                    MaxHealth = System.Math.Min(MaximumHealthCap, MaxHealth + MaxHealthUpgrade);
+                    if (MaxHealth == MaximumHealthCap &&
+                        Health == MaxHealth)
+                    {
+                        return false;
+                    }
+
+                    MaxHealth = System.Math.Min(
+                        MaximumHealthCap,
+                        MaxHealth + MaxHealthUpgrade);
+
                     Health = MaxHealth;
+
                     return true;
+
                 default:
                     return inventory.TryCollect(kind);
             }
@@ -146,6 +208,7 @@ namespace TransformersGame.Entities
             {
                 return false;
             }
+
             Health = MaxHealth;
             return true;
         }
@@ -156,6 +219,7 @@ namespace TransformersGame.Entities
             {
                 return false;
             }
+
             shieldTimeRemaining = ShieldDuration;
             return true;
         }
@@ -165,39 +229,86 @@ namespace TransformersGame.Entities
             Arsenal.DropBomb(physics.Gravity, BombLevel);
         }
 
-        public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)
+        public void EnterRoom(
+            IReadOnlyList<IBlock> blocks,
+            IProjectileManager projectiles,
+            Vector2 position,
+            float gravity = Physics.DefaultGravity)
         {
             physics.SetGravity(gravity);
-            collisionManager.SetBlocks(this, blocks, CollisionManager.PlayerFootInset);
+
+            collisionManager.SetBlocks(
+                this,
+                blocks,
+                CollisionManager.PlayerFootInset);
+
             Arsenal.EnterRoom(projectiles, blocks);
+
             Position = position;
         }
 
-        internal void RefreshGroundState() => RefreshSprite();
+        internal void RefreshGroundState()
+        {
+            RefreshSprite();
+        }
 
         public void SetState(IPlayerState newState)
         {
             int oldHeight = Height;
+
             state = newState;
             RefreshSprite();
-            Position = new Vector2(Position.X, Position.Y + oldHeight - Height);
+
+            Position = new Vector2(
+                Position.X,
+                Position.Y + oldHeight - Height);
         }
 
         public void Update(GameTime gameTime)
         {
-            shieldTimeRemaining = System.Math.Max(0, shieldTimeRemaining - gameTime.ElapsedGameTime.TotalMilliseconds);
+            UpdateShield(gameTime);
+            UpdateMovementState();
+
+            float horizontalDistance = 0f;
+
+            if (IsMoving)
+            {
+                float direction = FacingLeft ? -1f : 1f;
+
+                horizontalDistance =
+                    direction *
+                    state.Speed *
+                    SpeedScale *
+                    (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            collisionManager.UpdatePlayerMovement(
+                this,
+                physics,
+                gameTime,
+                horizontalDistance);
+
+            state.Update(gameTime);
+            sprite.Update(gameTime);
+        }
+
+        private void UpdateShield(GameTime gameTime)
+        {
+            shieldTimeRemaining = System.Math.Max(
+                0,
+                shieldTimeRemaining -
+                gameTime.ElapsedGameTime.TotalMilliseconds);
+        }
+
+        private void UpdateMovementState()
+        {
             if (!movedThisFrame && IsMoving)
             {
                 IsMoving = false;
                 RefreshSprite();
             }
+
             movedThisFrame = false;
-            float horizontalDistance = IsMoving
-                ? (FacingLeft ? -1 : 1) * state.Speed * SpeedScale * (float)gameTime.ElapsedGameTime.TotalSeconds
-                : 0;
-            collisionManager.UpdatePlayerMovement(this, physics, gameTime, horizontalDistance);
-            state.Update(gameTime);
-            sprite.Update(gameTime);
         }
 
         public void Draw(SpriteBatch spriteBatch)

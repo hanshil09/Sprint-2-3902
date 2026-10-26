@@ -19,7 +19,7 @@ namespace TransformersGame
         private const string MenuTitle = "Transformers - Press Enter to Start";
         private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, K Angle, 1/5/6/7 Weapons, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
 
-        private static readonly Color MenuColor = new Color(18, 24, 38);
+        private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
 
         private readonly RoomFactory roomFactory = new RoomFactory(

@@ -1,0 +1,52 @@
+READABILITY REVIEW
+
+Author of the code review: Ashwinameera Selvakumar
+Date of the code review: October 26, 2026
+Sprint number: 3
+Name of the .cs file(s) being reviewed: SupplyCrate.cs, IItemDropBlock.cs,
+CrumblingPlatform.cs, CrumblingPlatformLayout.cs,
+CrumblingPlatformStateMachine.cs, CrumbleKind.cs, Level.cs, LevelData.cs,
+LevelParser.cs, BlockSpriteFactory.cs, and RoomFactory.cs
+Author of the .cs file(s) being reviewed: Arnav
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+SupplyCrate.TryReleaseItem makes it clear that a crate releases its item only
+once. CrumblingPlatformStateMachine keeps the platform phases and timers
+separate from the drawing code, and the phase names are easy to follow.
+LevelParser also keeps the crate symbols separate from regular item symbols.
+
+What I noticed could be improved:
+The H and E symbols appear in both BlockSymbols and CrateSymbols, so a short
+comment explaining that they make crates with different contents would make
+the room format easier to understand.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Ashwinameera Selvakumar
+Date of the code review: October 26, 2026
+Sprint number: 3
+Name of the .cs file(s) being reviewed: SupplyCrate.cs, IItemDropBlock.cs,
+CrumblingPlatform.cs, CrumblingPlatformLayout.cs,
+CrumblingPlatformStateMachine.cs, CrumbleKind.cs, Level.cs, LevelData.cs,
+LevelParser.cs, BlockSpriteFactory.cs, and RoomFactory.cs
+Author of the .cs file(s) being reviewed: Arnav
+
+Specific comments on code quality:
+
+What I noticed:
+CrumblingPlatformLayout chooses two or three suitable platform locations, and
+the state machine handles cracking, disappearing, and reforming. In Level,
+crate drops are created through EntityFactory, while SupplyCrate prevents the
+same item from being released more than once. These pieces give the features
+clear responsibilities.
+
+Hypothetical change:
+If we added another item to a crate, we would add a symbol-to-item mapping in
+LevelParser and make sure the item has the right sprite and pickup behavior.
+Ordinary resource items already use ResourcePickup through EntityFactory. A
+new block type would also need a parser symbol and a sprite mapping. The
+existing separation makes these additions manageable, as long as the mappings
+stay consistent.

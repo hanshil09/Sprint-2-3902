@@ -54,11 +54,12 @@ internal static class CrumblingChecks
         var platform = new CrumblingPlatform(new Vector2(100, 200), 3, CrumbleKind.Fast);
         var player = new Player(new Vector2(110, 100), new List<IBlock> { platform }, new ProjectileManager());
         player.Update(Step(0.3));
-        Check("player lands on crumble platform", player.IsOnGround && player.Position.Y == 144);
+        float standingY = platform.Bounds.Top - player.Height;
+        Check("player lands on crumble platform", player.IsOnGround && player.Position.Y == standingY);
         platform.Update(Step(0.91));
         player.Update(Step(0.1));
-        Check("player contact starts timer and falls after platform vanishes", !player.IsOnGround && player.Position.Y > 144);
-        platform.SetPlayerBounds(new Rectangle(110, 200, 68, 56));
+        Check("player contact starts timer and falls after platform vanishes", !player.IsOnGround && player.Position.Y > standingY);
+        platform.SetPlayerBounds(new Rectangle(110, 200, player.Width, player.Height));
         platform.Update(Step(4));
         platform.Update(Step(1));
         Check("overlapping player prevents restoration", !platform.IsSolid);
@@ -86,7 +87,8 @@ internal static class CrumblingChecks
                 valid &= crumbles.Select(p => p.Kind).Distinct().Count() == crumbles.Length;
                 valid &= crumbles.All(p => p.Bounds.Bottom <= 508);
                 valid &= level.Blocks.Count(b => b.Bounds.Top == 508 && b.IsSolid) == 30;
-                valid &= level.Blocks.All(b => !b.Bounds.Intersects(new Rectangle((int)level.PlayerStart.X, (int)level.PlayerStart.Y, 68, 56)));
+                var spawnPlayer = new Player(level.PlayerStart, level.Blocks, new ProjectileManager());
+                valid &= level.Blocks.All(b => !b.Bounds.Intersects(new Rectangle((int)level.PlayerStart.X, (int)level.PlayerStart.Y, spawnPlayer.Width, spawnPlayer.Height)));
                 layouts.Add(Describe(level));
             }
             Check(Path.GetFileName(path) + " has 2-3 distinct variants, safe spawn and unchanged floor for 24 seeds", valid);

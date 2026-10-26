@@ -1,6 +1,10 @@
 # Sprint 3 Code Analyzer Summary
 
-Updated: October 19, 2026. Analysis level: `latest-all` (Strict configuration).
+Updated: October 26, 2026. Analysis level: `latest-all` (Strict configuration).
+
+Code analysis was used during Sprint 3 and checked again before submitting
+the sprint. This document combines the earlier cleanup with the final
+pre-submission check.
 
 ## October 14–19 history
 
@@ -24,20 +28,48 @@ Updated: October 19, 2026. Analysis level: `latest-all` (Strict configuration).
 | CA1030 | 3 | Renamed weapon commands to ShootEnergy, LaunchOrb, and LaunchProjectile and updated callers. |
 | CA2213 | 3 | Dispose graphics resources in Game1.Dispose(bool), clearing references for repeated disposal. |
 
-No new analyzer suppressions were added. The existing CA1859 exception for interface-based integration remains in `.editorconfig`.
+## October 26 — final analysis before Sprint 3 submission
 
-Strict now treats warnings as errors so future changes cannot silently reintroduce warnings.
+Before submitting Sprint 3, we ran the Strict code analyzer again on the latest
+game code. It reported eight analyzer findings, which were treated as build
+errors. We fixed these issues without disabling rules or lowering the analysis
+level.
 
-## Reproduce
+| Rule | Count | Problem and fix |
+|---|---:|---|
+| CA1515 | 4 | IGameObject, IProjectile, Direction, and CollisionHelper did not need to be public. Changed them to internal. |
+| CA1052 | 1 | CollisionHelper only contains static methods. Made the class static. |
+| CA1062 | 1 | ImpactTime used projectile without checking for null. Added ArgumentNullException.ThrowIfNull(projectile). |
+| CA1823 | 2 | Removed unused ShootFrameTime from PlayerSpriteFactory.cs and PanelColor from ControlsOverlay.cs. |
+
+After these fixes, the game-only Strict rebuild passed with **0 warnings and
+0 errors**. This final check followed the earlier October 19 cleanup; the two
+results were recorded on different versions of the code, not one combined run.
+
+No new analyzer suppressions were added for these fixes. Existing exceptions
+remain in `.editorconfig`. Strict treats warnings as errors so new findings
+cannot silently pass the build.
+
+## Run code analysis
 
 From the repository root:
 
 ```powershell
-dotnet build "3902 proj.sln" -c Strict -t:Rebuild
-dotnet run --project RegressionChecks/RegressionChecks.csproj --no-restore
+dotnet build "3902 proj/3902 proj.csproj" -c Strict -t:Rebuild
 ```
 
-The verified full strict rebuild used `--no-restore` with restored dependencies. Rebuild forces analyzers to run even when output is up to date.
+This checks the game project only and does not run regression tests.
+The verified rebuild used `--no-restore` with dependencies already restored.
+Rebuild forces analyzers to run even when previous output is up to date.
+
+## Separate test-project repair
+
+The October 26 solution build also exposed 23 compile errors in the existing
+regression project. Its outdated movement calls and empty ParkourCheck were
+repaired to match the current game, without adding checks. All existing suites
+then passed, and the full Strict solution rebuild had zero warnings/errors.
+These were test-project repairs, not additional code-analyzer findings.
+See [the regression guide](../../RegressionChecks/README.md) for details.
 
 ## Metrics note
 

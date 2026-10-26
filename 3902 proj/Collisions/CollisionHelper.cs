@@ -5,7 +5,7 @@ using TransformersGame.Interfaces;
 
 namespace Collisions
 {
-    public class CollisionHelper
+    internal static class CollisionHelper
     {
 
         public static bool TryGetBounds(IGameObject gameObject, out Rectangle bounds)
@@ -46,6 +46,7 @@ namespace Collisions
 
         public static float ImpactTime(IProjectile projectile, Rectangle target)
         {
+            ArgumentNullException.ThrowIfNull(projectile);
             Rectangle current = projectile.Bounds;
             if (current.Intersects(target))
             {

@@ -8,21 +8,13 @@ namespace TransformersGame.States
     internal class RobotState : IPlayerState
     {
         public const float RobotSpeed = 180f;
-
-        private Player player;
+        private readonly Player player;
 
         public RobotState(Player player)
         {
             this.player = player;
         }
-
-        public float Speed
-        {
-            get
-            {
-                return RobotSpeed;
-            }
-        }
+        public float Speed => RobotSpeed;
 
         public void Transform()
         {
@@ -35,7 +27,7 @@ namespace TransformersGame.States
             player.SetState(new ShootingRobotState(player, angled));
         }
 
-        // Robot form can use every weapon: 1 orb, 2 bomb, 5 piercing, 6 spread, 7 boomerang.
+        // Standard form can use every weapon: 1 orb, 2 bomb, 5 piercing, 6 spread, 7 boomerang.
         public void UseItem(int itemNumber)
         {
             switch (itemNumber)
