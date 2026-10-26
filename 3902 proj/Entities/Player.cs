@@ -181,17 +181,17 @@ namespace TransformersGame.Entities
             Position = physics.Apply(Position, Width, Height, gameTime);
 
             UpdateGroundState();
+            UpdateStandingBlocks();
+
+            if (physics.SupportingBlock is IStandingBlock standingBlock)
+            {
+                standingBlock.OnStand();
+            }
 
             state.Update(gameTime);
             sprite.Update(gameTime);
         }
-        private void UpdateShield(GameTime gameTime)
-        {
-            shieldTimeRemaining = System.Math.Max(
-                0,
-                shieldTimeRemaining -
-                gameTime.ElapsedGameTime.TotalMilliseconds);
-        }
+
         private void UpdateMovementState()
         {
             if (!movedThisFrame && IsMoving)
@@ -201,13 +201,6 @@ namespace TransformersGame.Entities
             }
 
             movedThisFrame = false;
-            GetPushedByMovingBlocks();
-            RideMovingBlock();
-            MoveHorizontally(gameTime);
-            Position = physics.Apply(Position, Width, Height, gameTime);
-            UpdateStandingBlocks();
-            if (physics.SupportingBlock is IStandingBlock standingBlock) standingBlock.OnStand();
-            if (physics.IsOnGround != wasOnGround);
         }
         private void UpdateGroundState()
         {
@@ -218,6 +211,14 @@ namespace TransformersGame.Entities
 
             wasOnGround = physics.IsOnGround;
             RefreshSprite();
+        }
+
+        private void UpdateShield(GameTime gameTime)
+        {
+            shieldTimeRemaining = System.Math.Max(
+                0,
+                shieldTimeRemaining -
+                gameTime.ElapsedGameTime.TotalMilliseconds);
         }
 
         public void Draw(SpriteBatch spriteBatch)
