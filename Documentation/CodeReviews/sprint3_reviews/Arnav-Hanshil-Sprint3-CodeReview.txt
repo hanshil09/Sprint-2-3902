@@ -1,0 +1,74 @@
+READABILITY REVIEW
+
+Author of the code review: Arnav Kumar
+Date of the code review: October 26, 2026
+Sprint number: 3
+Name of the .cs file being reviewed: PlayerArsenal.cs (3902 proj/Entities)
+Author of the .cs file being reviewed: Hanshil Solanki
+Number of minutes taken to complete the review: [Enter your actual review time before submitting]
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+FireShot, FireOrb, FirePiercing, FireSpread, ThrowBoomerang, and DropBomb have
+clear names that explain which weapon they create. Named constants such as
+ShotSpeed, SpreadAngleDegrees, and ShotRecoilDistance make the weapon settings
+easy to find. MuzzlePosition and Forward keep the shared position and direction
+calculations in one place instead of repeating them in every firing method.
+The early return in ThrowBoomerang clearly prevents a second active boomerang.
+Method and constant names use PascalCase, while fields and parameters use
+camelCase, following the project's C# naming conventions.
+
+What I noticed could be improved:
+MuzzleHeight is a fraction of the player's height rather than a pixel height.
+Calling it MuzzleHeightRatio would make the value 0.3f easier to understand.
+The Direction property returns a horizontal sign, -1 or 1, rather than the
+game's Direction enum. HorizontalDirectionSign would explain that difference.
+The EnergyProjectile constructor calls contain several arguments, including
+booleans. Named arguments would make the angle and facing values easier to
+follow without opening the projectile class.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Arnav Kumar
+Date of the code review: October 26, 2026
+Sprint number: 3
+Name of the .cs file being reviewed: PlayerArsenal.cs (3902 proj/Entities)
+Author of the .cs file being reviewed: Hanshil Solanki
+
+Specific comments on code quality:
+
+What I noticed:
+PlayerArsenal groups weapon creation separately from the player's health,
+inventory, and movement updates. It uses IProjectileManager and obtains sprites
+through ProjectileSpriteFactory, which keeps projectile storage and sprite
+creation separate from weapon selection. EnterRoom replaces the projectile
+manager and clears the old boomerang reference, allowing another boomerang to
+be thrown in the new room.
+
+FireShot directly changes player.Position to apply recoil. This bypasses the
+Physics.MoveHorizontally method used for ordinary horizontal movement, so
+recoil can send the player into a nearby wall or past the screen boundary.
+A focused recoil method on Player could use the existing physics checks while
+PlayerArsenal remain responsible for the request of recoil.
+
+FireShot and FireOrb repeat a similar sprite/create/add sequence. Their short
+methods are currently easy to follow. If more weapons repeat exactly that
+sequence, a small helper could share it without combining the distinct bomb,
+spread shot, and boomerang behaviour into one large method.
+
+
+
+Hypothetical change:
+Suppose we add another straight-firing weapon with a different speed and recoil
+distance. The current design can support it with a named speed constant and a
+small firing method that reuses MuzzlePosition and Forward. The relevant player
+state would also need an item-selection case, and the sprite factory would
+need another method if the weapon uses different artwork.
+
+The projectile creation is straightforward, but copying FireShot's direct
+position change would repeat the recoil collision problem. Moving recoil into
+a Player method that resolves horizontal collisions would let both weapons
+reuse the same safe movement behavior. Checks should cover firing beside a
+wall and at each screen edge, as well as normal firing in open space.

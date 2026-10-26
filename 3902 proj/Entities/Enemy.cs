@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Core;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -13,14 +14,13 @@ namespace TransformersGame.Entities
         private const int StartingHealth = 1;
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
-        private const int LedgeInset = 12;
-
-        private readonly IReadOnlyList<IBlock> blocks;
+        private readonly CollisionManager collisionManager;
         private readonly Physics physics;
         private readonly IProjectileManager projectiles;
         private int health;
 
-        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
+        public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target,
+            IProjectileManager projectiles, float gravity = Physics.DefaultGravity, CollisionManager collisionManager = null)
         {
             Position = position;
             Home = position;
@@ -29,9 +29,10 @@ namespace TransformersGame.Entities
             Stats = configuration.Stats;
             Behavior = configuration.Behavior;
             Target = target;
-            this.blocks = blocks;
+            this.collisionManager = collisionManager ?? new CollisionManager(ScreenWidth, ScreenHeight);
+            this.collisionManager.SetBlocks(this, blocks);
             this.projectiles = projectiles;
-            physics = new Physics(blocks, gravity);
+            physics = new Physics(gravity);
             health = StartingHealth;
             LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true);
             RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, false);
@@ -74,10 +75,7 @@ namespace TransformersGame.Entities
 
         public bool IsOnGround
         {
-            get
-            {
-                return physics.IsOnGround;
-            }
+            get => collisionManager.IsOnGround(this);
         }
 
         public int Width
@@ -144,7 +142,8 @@ namespace TransformersGame.Entities
 
         public void MoveBy(float distance)
         {
-            Position = physics.MoveHorizontally(Position, Width, Height, distance, 0, ScreenWidth - Width);
+            Position = collisionManager.MoveHorizontally(this, Position, Width, Height, distance,
+                0, ScreenWidth - Width);
         }
 
         public bool FlyHorizontally(float distance)
@@ -155,7 +154,8 @@ namespace TransformersGame.Entities
                 return false;
             }
             float desired = Position.X + distance;
-            float x = physics.MoveHorizontally(Position, Width, Height, distance, 0, ScreenWidth - Width).X;
+            float x = collisionManager.MoveHorizontally(this, Position, Width, Height, distance,
+                0, ScreenWidth - Width).X;
             bool blocked = x != desired;
             Position = new Vector2(x, Position.Y);
             return blocked;
@@ -168,7 +168,8 @@ namespace TransformersGame.Entities
                 return false;
             }
             float desired = Position.Y + distance;
-            float y = physics.MoveVertically(Position, Width, Height, distance, 0, ScreenHeight - Height).Y;
+            float y = collisionManager.MoveVertically(this, Position, Width, Height, distance,
+                0, ScreenHeight - Height).Y;
             bool blocked = y != desired;
             Position = new Vector2(Position.X, y);
             return blocked;
@@ -183,29 +184,18 @@ namespace TransformersGame.Entities
 
         public bool HasGroundAhead(int direction, float distance)
         {
-            // the small probe below the leading foot keeps ground enemies on their platform
-            float probeX = direction > 0
-                ? Position.X + Width - LedgeInset + distance
-                : Position.X + LedgeInset - distance;
-            Rectangle probe = new Rectangle((int)probeX, (int)(Position.Y + Height) + 1, 1, 2);
-            foreach (IBlock block in blocks)
-            {
-                if (block.IsSolid && block.Bounds.Intersects(probe))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return collisionManager.HasGroundAhead(this, direction, distance, Position, Width, Height);
         }
 
         public void Jump(float speed)
         {
-            physics.Jump(speed);
+            collisionManager.TryJump(this, physics, speed);
         }
 
         public void ApplyGravity(GameTime gameTime)
         {
-            Position = physics.Apply(Position, Width, Height, gameTime);
+            Position = collisionManager.UpdateVerticalMovement(this, physics, Position,
+                Width, Height, gameTime);
         }
 
         public void TakeDamage(int amount)

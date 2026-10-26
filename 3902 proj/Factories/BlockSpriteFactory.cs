@@ -56,6 +56,13 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
+        public ISprite CreateSupplyCrateSprite(ItemKind kind)
+        {
+            Color tint = kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
+            Rectangle frame = new Rectangle(BlockSize, 0, BlockSize, BlockSize);
+            return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
+        }
+
         public ISprite CreateCrumblingSprite(CrumbleKind kind, bool warning, bool reforming)
         {
             Color tint;

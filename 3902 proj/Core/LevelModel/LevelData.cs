@@ -59,6 +59,8 @@ namespace TransformersGame.Core
 
         public IReadOnlyList<Placement<ItemKind>> Items { get; }
 
+        public IReadOnlyList<Placement<ItemKind>> CrateDrops { get; init; } = System.Array.Empty<Placement<ItemKind>>();
+
         public IReadOnlyList<Placement<EnemyKind>> Enemies { get; }
         public IReadOnlyList<Placement<int>> Doors { get; }
 

@@ -24,10 +24,18 @@ namespace TransformersGame.Core
             ['S'] = BlockKind.Stone,
             ['M'] = BlockKind.Metal,
             ['C'] = BlockKind.Crate,
+            ['H'] = BlockKind.Crate,
+            ['E'] = BlockKind.Crate,
             ['X'] = BlockKind.Hazard,
             ['W'] = BlockKind.Wood,
             ['Y'] = BlockKind.Caution,
             ['A'] = BlockKind.Alloy
+        };
+
+        private static readonly Dictionary<char, ItemKind> CrateSymbols = new Dictionary<char, ItemKind>
+        {
+            ['H'] = ItemKind.HealthCell,
+            ['E'] = ItemKind.Energon
         };
 
         private static readonly Dictionary<char, ItemKind> ItemSymbols = new Dictionary<char, ItemKind>
@@ -146,6 +154,7 @@ namespace TransformersGame.Core
 
             List<Placement<BlockKind>> blocks = new List<Placement<BlockKind>>();
             List<Placement<ItemKind>> items = new List<Placement<ItemKind>>();
+            List<Placement<ItemKind>> crateDrops = new List<Placement<ItemKind>>();
             List<Placement<EnemyKind>> enemies = new List<Placement<EnemyKind>>();
             List<Placement<int>> doors = new();
             List<Placement<ObjectKind>> objects = new();
@@ -186,6 +195,7 @@ namespace TransformersGame.Core
                     else if (BlockSymbols.TryGetValue(symbol, out BlockKind block))
                     {
                         blocks.Add(new Placement<BlockKind>(block, c, r));
+                        AddCrateDrop(symbol, c, r, crateDrops);
                     }
                     else if (ItemSymbols.TryGetValue(symbol, out ItemKind item))
                     {
@@ -238,9 +248,18 @@ namespace TransformersGame.Core
 
             LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors, gravity)
             {
-                Objects = objects
+                Objects = objects,
+                CrateDrops = crateDrops
             };
             return new LevelParseResult(data, errors, warnings);
+        }
+
+        private static void AddCrateDrop(char symbol, int column, int row, List<Placement<ItemKind>> drops)
+        {
+            if (CrateSymbols.TryGetValue(symbol, out ItemKind kind))
+            {
+                drops.Add(new Placement<ItemKind>(kind, column, row));
+            }
         }
 
         private static void ParseHeaderLine(string line, int lineNumber, ref string name, ref float gravity, List<string> warnings, List<string> errors)

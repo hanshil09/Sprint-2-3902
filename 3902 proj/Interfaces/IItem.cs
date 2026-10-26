@@ -2,11 +2,12 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface IItem : IGameObject
+    interface IItem : IGameObject
     {
         Rectangle Bounds { get; }
 
-        void Collect(IPlayer player);
+        // A rejected pickup stays in the room so the player can collect it later.
+        bool TryCollect(IPlayer player);
     }
 }
 

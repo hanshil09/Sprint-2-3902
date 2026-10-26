@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -32,9 +33,7 @@ namespace TransformersGame.Core
 
             foreach (Placement<BlockKind> placement in data.Blocks)
             {
-                ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
-                blocks.Add(new Block(CellPosition(placement.Column, placement.Row), sprite,
-                    placement.Kind != BlockKind.Hazard, placement.Kind));
+                blocks.Add(CreateBlock(placement));
             }
             if (random != null) CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random);
             LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
@@ -67,7 +66,8 @@ namespace TransformersGame.Core
         // The end-of-level beacon, or null when this room has none.
         public Goal Goal { get; }
 
-        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
+        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles,
+            CollisionManager collisionManager)
         {
             List<Rectangle> occupied = SolidBlockBounds();
             occupied.Add(playerSpawnBounds);
@@ -77,20 +77,26 @@ namespace TransformersGame.Core
                 Vector2 start = FindSafeSpawn(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
                     ? new Boss(start, player, projectiles)
-                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player, projectiles, Gravity);
+                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player,
+                        projectiles, Gravity, collisionManager);
                 cycler.Add(enemy);
                 occupied.Add(new Rectangle((int)start.X, (int)start.Y, size.X, size.Y));
             }
+
+        }
+
+        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
+        {
+            FillEnemyCycler(cycler, player, projectiles, null);
         }
 
         // Returns the items picked up this frame so power-ups can be applied by the game.
         public IReadOnlyList<IItem> CollectItems(IPlayer player)
         {
             Rectangle playerBounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
-            List<IItem> collected = items.FindAll(item => playerBounds.Intersects(item.Bounds));
+            List<IItem> collected = items.FindAll(item => playerBounds.Intersects(item.Bounds) && item.TryCollect(player));
             foreach (IItem item in collected)
             {
-                item.Collect(player);
                 items.Remove(item);
             }
             return collected;
@@ -99,6 +105,7 @@ namespace TransformersGame.Core
         public void Update(GameTime gameTime)
         {
             blocks.ForEach(block => block.Update(gameTime));
+            ReleaseCrateItems();
             items.ForEach(item => item.Update(gameTime));
             triggers.ForEach(trigger => trigger.Update(gameTime));
         }
@@ -119,6 +126,32 @@ namespace TransformersGame.Core
             objs.AddRange(doors);
             objs.AddRange(triggers);
             return objs.AsReadOnly();
+        }
+
+        private IBlock CreateBlock(Placement<BlockKind> placement)
+        {
+            Vector2 position = CellPosition(placement.Column, placement.Row);
+            foreach (Placement<ItemKind> drop in data.CrateDrops)
+            {
+                if (placement.Kind == BlockKind.Crate && drop.Column == placement.Column && drop.Row == placement.Row)
+                {
+                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(drop.Kind);
+                    return new SupplyCrate(position, crateSprite, drop.Kind);
+                }
+            }
+            ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
+            return new Block(position, sprite, placement.Kind != BlockKind.Hazard, placement.Kind);
+        }
+
+        private void ReleaseCrateItems()
+        {
+            foreach (IBlock block in blocks)
+            {
+                if (block is IItemDropBlock crate && crate.TryReleaseItem(out ItemKind kind))
+                {
+                    items.Add(EntityFactory.CreateItem(kind, block.Position));
+                }
+            }
         }
 
         private void PlacePlayerStart()

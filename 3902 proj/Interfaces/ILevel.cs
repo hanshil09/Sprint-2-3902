@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface ILevel
+    interface ILevel
     {
         IReadOnlyList<IBlock> Blocks { get; }
 

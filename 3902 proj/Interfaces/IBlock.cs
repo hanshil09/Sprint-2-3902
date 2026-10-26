@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface IBlock : IGameObject
+    interface IBlock : IGameObject
     {
         bool IsSolid { get; }
 

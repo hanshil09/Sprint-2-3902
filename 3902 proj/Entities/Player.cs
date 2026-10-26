@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Core;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -25,20 +26,21 @@ namespace TransformersGame.Entities
         public const float FootInset = 16f;
 
         private readonly Physics physics;
+        private readonly CollisionManager collisionManager;
         private readonly PlayerInventory inventory = new PlayerInventory();
-        private IReadOnlyList<IBlock> roomBlocks;
         private IPlayerState state;
         private ISprite sprite;
         private bool movedThisFrame;
-        private bool wasOnGround;
         private double shieldTimeRemaining;
 
-        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
+        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles,
+            float gravity = Physics.DefaultGravity, CollisionManager collisionManager = null)
         {
             Position = position;
-            physics = new Physics(blocks, gravity) { FootInset = FootInset };
-            roomBlocks = blocks;
-            Arsenal = new PlayerArsenal(this, projectiles);
+            physics = new Physics(gravity);
+            this.collisionManager = collisionManager ?? new CollisionManager(960, 540);
+            this.collisionManager.SetBlocks(this, blocks, CollisionManager.PlayerFootInset);
+            Arsenal = new PlayerArsenal(this, projectiles, this.collisionManager, blocks);
             Facing = Direction.Right;
             Health = StartingHealth;
             MaxHealth = StartingHealth;
@@ -65,6 +67,8 @@ namespace TransformersGame.Entities
         public float SpeedScale { get; set; }
         public bool IsOnGround => physics.IsOnGround;
 
+        public bool IsOnGround => collisionManager.IsOnGround(this);
+
         public int Width => sprite.Width;
         public int Height => sprite.Height;
 
@@ -83,9 +87,9 @@ namespace TransformersGame.Entities
             }
         }
 
-        public void Jump() => physics.Jump(JumpSpeed);
+        public void Jump() => collisionManager.TryJump(this, physics, JumpSpeed);
 
-        public void Bounce(float speed) => physics.Launch(speed);
+        public void Bounce(float speed) => collisionManager.Launch(this, physics, speed);
 
         public void Shoot(bool angled) => state.Shoot(angled);
 
@@ -100,30 +104,29 @@ namespace TransformersGame.Entities
                 return false;
             }
             Health = System.Math.Max(0, Health - DamageAmount);
-            physics.Jump(KnockbackSpeed);
+            collisionManager.TryJump(this, physics, KnockbackSpeed);
             return true;
         }
 
-        public void AddItem(ItemKind kind)
+        public bool TryAddItem(ItemKind kind)
         {
-            if (inventory.TryCollect(kind))
-            {
-                return;
-            }
             switch (kind)
             {
                 case ItemKind.HealthCell:
+                    if (Health == MaxHealth) return false;
                     Health = System.Math.Min(MaxHealth, Health + HealthCellAmount);
-                    break;
+                    return true;
                 case ItemKind.ShieldBattery:
+                    if (shieldTimeRemaining == MaximumShieldTime) return false;
                     shieldTimeRemaining = System.Math.Min(MaximumShieldTime, shieldTimeRemaining + ShieldDuration);
-                    break;
+                    return true;
                 case ItemKind.MaxHealthUp:
+                    if (MaxHealth == MaximumHealthCap && Health == MaxHealth) return false;
                     MaxHealth = System.Math.Min(MaximumHealthCap, MaxHealth + MaxHealthUpgrade);
                     Health = MaxHealth;
-                    break;
+                    return true;
                 default:
-                    throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "This item is not added to the player's inventory.");
+                    return inventory.TryCollect(kind);
             }
         }
 
@@ -149,17 +152,18 @@ namespace TransformersGame.Entities
 
         public void DropBomb()
         {
-            Arsenal.DropBomb(roomBlocks, physics.Gravity, BombLevel);
+            Arsenal.DropBomb(physics.Gravity, BombLevel);
         }
 
         public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)
         {
-            physics.SetBlocks(blocks, gravity);
-            roomBlocks = blocks;
-            Arsenal.EnterRoom(projectiles);
+            physics.SetGravity(gravity);
+            collisionManager.SetBlocks(this, blocks, CollisionManager.PlayerFootInset);
+            Arsenal.EnterRoom(projectiles, blocks);
             Position = position;
-            wasOnGround = false;
         }
+
+        internal void RefreshGroundState() => RefreshSprite();
 
         public void SetState(IPlayerState newState)
         {
@@ -188,6 +192,17 @@ namespace TransformersGame.Entities
                 standingBlock.OnStand();
             }
 
+            shieldTimeRemaining = System.Math.Max(0, shieldTimeRemaining - gameTime.ElapsedGameTime.TotalMilliseconds);
+            if (!movedThisFrame && IsMoving)
+            {
+                IsMoving = false;
+                RefreshSprite();
+            }
+            movedThisFrame = false;
+            float horizontalDistance = IsMoving
+                ? (FacingLeft ? -1 : 1) * state.Speed * SpeedScale * (float)gameTime.ElapsedGameTime.TotalSeconds
+                : 0;
+            collisionManager.UpdatePlayerMovement(this, physics, gameTime, horizontalDistance);
             state.Update(gameTime);
             sprite.Update(gameTime);
         }
