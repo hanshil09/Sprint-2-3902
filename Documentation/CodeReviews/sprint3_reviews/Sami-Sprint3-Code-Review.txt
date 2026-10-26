@@ -1,0 +1,42 @@
+READABILITY REVIEW
+
+Author of Review: Sami Mannan
+Date of Review: 10-26-2026
+Sprint Number: 3
+Files Being Reviewed: Player.cs, PlayerSpriteFactory.cs
+Author of File(s): Shreya Aradhya
+Time Elapsed: 15
+
+General Notes:
+Every variable is well named so that it's very clear as to what each one is 
+referring to. No variable goes unused either, so everything is relevant. Method 
+names are descriptive and provide clear context as to what the method needs as 
+well as the action it will perform. The main thing edited was Update() to 
+accomodate new sprites, and it was done so without impacting the overall method 
+greatly. Quite a few methods have been converted to lambda expressions.
+
+Improvements:
+Player could do with come cleaning up, as it states that it uses Factories when it 
+doesn't. We should make sure that the everything that's been converted to a lambda 
+expression makes sense, and shouldn't be a method instead. The item methods being in 
+Player doesn't make much sense, and creates too much coupling.
+
+CODE QUALITY REVIEW
+
+Author of Review: Sami Mannan
+Date of Review: 10-26-2026
+Sprint Number: 3
+Files Being Reviewed: Player.cs, PlayerSpriteFactory.cs
+Author of File(s): Shreya Aradhya
+
+Notes:
+Overall code quality is fairly good, with no excessive use of nested loops or logic 
+trees. There is a switch case used. Some ? notation appears, which we might need to 
+keep track of if complexity increases much further. The methods themselves have 
+little overlap, nor do any attempt to do too much at once.
+
+Hypothetical Change:
+It would probably be best to remove action methods from Player into a separate class. 
+Player can call some class that handles different items, and can determine the next 
+action as necessary, without every item we make taking up a large space in the 
+Player class. 
