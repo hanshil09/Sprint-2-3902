@@ -67,11 +67,8 @@ namespace TransformersGame.Entities
         }
 
         public Vector2 Position { get; set; }
-
         public Direction Facing { get; private set; }
-
         public bool FacingLeft => Facing == Direction.Left;
-
         public bool IsMoving { get; private set; }
 
         public PlayerArsenal Arsenal { get; }
@@ -83,21 +80,15 @@ namespace TransformersGame.Entities
         public int MedkitCount => inventory.MedkitCount;
 
         public int ShieldCount => inventory.ShieldCount;
-
         public int BombLevel => inventory.BombLevel;
-
         public int EnergonCount => inventory.EnergonCount;
-
         public bool IsShieldActive => shieldTimeRemaining > 0;
-
         public bool IsInvincible => false;
 
         public float SpeedScale { get; set; }
-
         public bool IsOnGround => collisionManager.IsOnGround(this);
 
         public int Width => sprite.Width;
-
         public int Height => sprite.Height;
 
         public Vector2 Center =>

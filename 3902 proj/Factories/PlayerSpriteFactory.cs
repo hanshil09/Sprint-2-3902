@@ -12,8 +12,8 @@ namespace TransformersGame.Factories
         private const int PlayerWidth = 68;
         private const int PlayerHeight = 80;
 
-        private const int BallWidth = 68;
-        private const int BallHeight = 68;
+        private const int BallWidth = 58;
+        private const int BallHeight = 58;
 
         private const double IdleFrameTime = 250;
         private const double RunFrameTime = 83;
