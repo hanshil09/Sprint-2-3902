@@ -7,11 +7,6 @@ namespace Collisions
 {
     public class CollisionHelper
     {
-        
-        public CollisionHelper()
-        {
-            
-        }
 
         public static bool TryGetBounds(IGameObject gameObject, out Rectangle bounds)
         {
