@@ -1,6 +1,6 @@
 # Sprint 3
 
-This Transformers-themed MonoGame platformer includes seven connected rooms,
+This Metroid-inspired MonoGame platformer includes seven connected rooms,
 two enemies per room, eight enemy kinds including a boss, nine pickup kinds,
 multiple weapons, and interactive platforms. Climb to each room's gold exit.
 In the final room, defeat the Decepticon Warlord and touch the unlocked beacon
@@ -17,10 +17,10 @@ Repository: [hanshil09/Sprint-2-3902](https://github.com/hanshil09/Sprint-2-3902
 | A/D or Left/Right | Move horizontally. |
 | W, Up, or J | Jump. |
 | S or Down | Face downward; this does not move the player down. |
-| Space | Switch between standing robot and smaller, faster morph-ball forms. |
-| Z or N | Fire a normal horizontal shot in robot form. |
-| K | Fire an angled shot in robot form. |
-| 1 | Fire an orb in robot form. |
+| Space | Switch between standing armadillo and smaller, faster ball form. |
+| Z or N | Fire a normal horizontal shot in standing form. |
+| K | Fire an angled shot in standing form. |
+| 1 | Fire an orb in standing form. |
 | 2 | Drop a bomb in either form. Bombs are unlimited. |
 | 3 | Use a stored Medkit to restore health to the current maximum. |
 | 4 | Use a stored Shield for five seconds of protection. |
@@ -38,7 +38,7 @@ Repository: [hanshil09/Sprint-2-3902](https://github.com/hanshil09/Sprint-2-3902
 | Q or Escape | Quit. |
 
 Numeric actions 1–7 also support the number pad. Weapons 1, 5, 6, and 7 require
-robot form. Medkits cannot be used at full health; stored Shields cannot be used
+standing form. Medkits cannot be used at full health; stored Shields cannot be used
 while a shield is already active. Object previews appear briefly when cycled
 and do not replace or spawn the room's gameplay objects.
 
