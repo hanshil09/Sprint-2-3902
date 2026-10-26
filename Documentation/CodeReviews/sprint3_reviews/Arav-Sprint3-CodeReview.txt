@@ -1,0 +1,34 @@
+Code Review - Player.cs
+Sprint 2 (3902)
+- Arav Bhagat
+
+Took a pass through Player.cs, overall looks pretty good. Few notes below.
+
+The good stuff:
+- state pattern is clean, like how the state-specific logic is delegated out instead of a giant switch. SetState handling the height adjustment is a nice touch, wouldve forgot that
+- constants at the top instead of magic numbers scattered everywhere, makes it way easier to tune later
+- physics/collision stuff is kept separate which is good, player class isnt doing too much
+- DI through the constructor makes this testable
+
+Stuff to fix / look at:
+
+1. shield durations dont match up. UseShield sets it to ShieldDuration (5000) but picking up shield batteries can stack to MaximumShieldTime (10000). is that intentional? feels like a bug or at least needs a comment
+
+2. no null check on projectiles in the constructor. collisionManager gets a fallback but projectiles doesnt, so if someone passes null Arsenal will blow up. just throw ArgumentNullException
+
+3. Shoot(bool angled) - boolean param is kinda confusing at the call site, Shoot(true) doesnt tell you much. maybe an enum? not a big deal though
+
+4. FootInset is defined here AND theres CollisionManager.PlayerFootInset. two sources of truth, pick one
+
+5. Health can hit 0 but theres no death handling in here. assuming the state machine deals with it but a comment wouldnt hurt
+
+6. no XML docs on the public methods. would be nice to have especially for the state transition stuff
+
+minor:
+- RefreshSprite makes a new sprite every movement change, probably fine but if CreateSprite is expensive it could add up. not worried about it for now
+
+testing - should def add tests for the shield stacking edge cases and the health/maxhealth item interactions, those are the spots most likely to break
+
+verdict: approve, just fix the shield thing and the null check. rest can wait
+
+4/5
