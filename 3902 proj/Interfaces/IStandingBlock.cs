@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface IStandingBlock : IBlock
+    interface IStandingBlock : IBlock
     {
         void OnStand();
 

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
 using TransformersGame.Core;
+using TransformersGame.Collisions;
 using System;
 using System.Collections.Generic;
 
@@ -17,16 +18,20 @@ namespace TransformersGame.Entities
         private double timer;
         private bool hasExploded;
         private readonly Physics physics;
+        private readonly CollisionManager collisionManager;
         private readonly Func<ISprite> createExplosion;
         private readonly System.Collections.Generic.HashSet<IEnemy> damagedEnemies = new();
 
         public Bomb(Vector2 position, ISprite sprite, IReadOnlyList<IBlock> blocks = null,
-            float gravity = Physics.DefaultGravity, Func<ISprite> createExplosion = null)
+            float gravity = Physics.DefaultGravity, Func<ISprite> createExplosion = null,
+            CollisionManager collisionManager = null)
         {
             Position = position;
             PreviousPosition = position;
             this.sprite = sprite;
-            physics = new Physics(blocks ?? Array.Empty<IBlock>(), gravity);
+            physics = new Physics(gravity);
+            this.collisionManager = collisionManager ?? new CollisionManager(960, 540);
+            this.collisionManager.SetBlocks(this, blocks ?? Array.Empty<IBlock>());
             this.createExplosion = createExplosion ?? (() => ProjectileSpriteFactory.Instance.CreateExplosionSprite());
             timer = FuseTime;
             hasExploded = false;
@@ -57,7 +62,8 @@ namespace TransformersGame.Entities
             PreviousPosition = Position;
             if (!hasExploded)
             {
-                Position = physics.Apply(Position, sprite.Width, sprite.Height, gameTime);
+                Position = collisionManager.UpdateVerticalMovement(this, physics, Position,
+                    sprite.Width, sprite.Height, gameTime);
             }
             timer -= gameTime.ElapsedGameTime.TotalMilliseconds;
             if (timer <= 0 && !hasExploded)

@@ -1,7 +1,7 @@
 namespace TransformersGame.Interfaces
 {
     
-    internal interface IPlayerWeapon : IProjectile
+    interface IPlayerWeapon : IProjectile
     {
         void HitEnemy(IEnemy enemy);
 

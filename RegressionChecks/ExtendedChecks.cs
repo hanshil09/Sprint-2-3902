@@ -41,9 +41,14 @@ internal static class ExtendedChecks
             Check("complete themed base floor " + path, baseFloor.Length == 30 && baseFloor.All(b => b.Kind == expectedFloor));
             var platforms = result.Data.Blocks.Where(b => b.Row < result.Data.Rows - 1 && b.Kind != BlockKind.Crate && b.Kind != BlockKind.Hazard).ToArray();
             Check("parkour blocks match base floor " + path, platforms.Length > 0 && platforms.All(b => b.Kind == expectedFloor));
-            var floorPhysics = new Physics(new[] { new Block(new Vector2(100, 508), new StubSprite(), true, expectedFloor) }, result.Data.Gravity);
+            var floorBlocks = new[] { new Block(new Vector2(100, 508), new StubSprite(), true, expectedFloor) };
+            var floorPhysics = new Physics(result.Data.Gravity);
+            Vector2 fallingPosition = new Vector2(100, 400);
+            Vector2 fallingDesired = floorPhysics.Apply(fallingPosition, Step(.5));
+            Vector2 fallingResolved = CollisionManager.ResolveVerticalMovement(fallingPosition, fallingDesired,
+                10, 10, floorPhysics.VerticalVelocity, floorBlocks, 0, out bool landed, out _);
             Check("themed floor supports falling objects " + path,
-                floorPhysics.Apply(new Vector2(100, 400), 10, 10, Step(.5)).Y == 498 && floorPhysics.IsOnGround);
+                fallingResolved.Y == 498 && landed);
             Check("exactly two enemies " + path, result.Data.Enemies.Count == 2);
             Check("one to three focused pickups " + path, result.Data.Items.Count is >= 1 and <= 3);
             bool hasForwardDoor = result.Data.Doors.Count(d => d.Kind == 1) == 1;
@@ -62,10 +67,16 @@ internal static class ExtendedChecks
         Check("reject missing spawn", !LevelParser.Parse(new[] { "[tiles]", "GGG" }).Success);
         Check("reject duplicate spawn", !LevelParser.Parse(new[] { "[tiles]", "PP" }).Success);
         var wall = new Block(new Vector2(100, 100), new StubSprite(), true);
-        var physics = new Physics(new[] { wall });
-        Check("horizontal wall crossing", physics.MoveHorizontally(new Vector2(70, 100), 10, 10, 100, 0, 960).X == 90);
-        Check("upward ceiling crossing", physics.MoveVertically(new Vector2(100, 130), 10, 10, -100, 0, 540).Y == 110);
-        Check("landing", physics.Apply(new Vector2(100, 80), 10, 10, Step(.2)).Y == 90 && physics.IsOnGround);
+        Check("horizontal wall crossing", CollisionManager.MoveHorizontally(new Vector2(70, 100), 10, 10,
+            100, 0, 960, new[] { wall }).X == 90);
+        Check("upward ceiling crossing", CollisionManager.MoveVertically(new Vector2(100, 130), 10, 10,
+            -100, 0, 540, new[] { wall }).Y == 110);
+        var landingPhysics = new Physics();
+        Vector2 landingStart = new Vector2(100, 80);
+        Vector2 landingDesired = landingPhysics.Apply(landingStart, Step(.2));
+        Vector2 landingPosition = CollisionManager.ResolveVerticalMovement(landingStart, landingDesired, 10, 10,
+            landingPhysics.VerticalVelocity, new[] { wall }, 0, out bool landedOnWall, out _);
+        Check("landing", landingPosition.Y == 90 && landedOnWall);
         var enemy = new StubEnemy { Position = new Vector2(100, 100) };
         var shot = new EnergyProjectile(new Vector2(0, 100), new Vector2(1000, 0), false, false, new StubSprite());
         shot.Update(Step(.2));
@@ -189,22 +200,31 @@ internal static class ExtendedChecks
         timedBomb.Update(Step(1));
         Check("inactive bomb does not move", timedBomb.Position == finishedPosition);
         var ledge = new Block(new Vector2(100, 200), new StubSprite(), true);
-        var edgePhysics = new Physics(new[] { ledge }) { FootInset = Player.FootInset };
-        Vector2 onlyEdgeOver = edgePhysics.Apply(new Vector2(100 - 68 + Player.FootInset - 2, 150), 68, 50, Step(.2));
-        Check("player falls when only the empty edge of its box is over a ledge", !edgePhysics.IsOnGround && onlyEdgeOver.Y > 150);
-        edgePhysics = new Physics(new[] { ledge }) { FootInset = Player.FootInset };
-        edgePhysics.Apply(new Vector2(100 - 68 + Player.FootInset + 2, 149.5f), 68, 50, Step(.2));
-        Check("player stands when its feet are over a ledge", edgePhysics.IsOnGround);
+        var edgePhysics = new Physics();
+        Vector2 edgeStart = new Vector2(100 - 68 + CollisionManager.PlayerFootInset - 2, 150);
+        Vector2 edgeDesired = edgePhysics.Apply(edgeStart, Step(.2));
+        Vector2 onlyEdgeOver = CollisionManager.ResolveVerticalMovement(edgeStart, edgeDesired, 68, 50,
+            edgePhysics.VerticalVelocity, new[] { ledge }, CollisionManager.PlayerFootInset, out bool edgeGrounded, out _);
+        Check("player falls when only the empty edge of its box is over a ledge", !edgeGrounded && onlyEdgeOver.Y > 150);
+        edgePhysics = new Physics();
+        edgeStart = new Vector2(100 - 68 + CollisionManager.PlayerFootInset + 2, 149.5f);
+        edgeDesired = edgePhysics.Apply(edgeStart, Step(.2));
+        CollisionManager.ResolveVerticalMovement(edgeStart, edgeDesired, 68, 50, edgePhysics.VerticalVelocity,
+            new[] { ledge }, CollisionManager.PlayerFootInset, out edgeGrounded, out _);
+        Check("player stands when its feet are over a ledge", edgeGrounded);
         var slider = new MovingPlatform(new Vector2(200, 400), 3, new Vector2(100, 0), 60f, new StubSprite());
         var pushedPlayer = new Player(new Vector2(225, 380), new IBlock[] { slider }, new ProjectileManager());
         slider.Update(Step(1.0 / 60));
         pushedPlayer.Update(Step(1.0 / 60));
         Check("moving platform pushes the player aside instead of overlapping", pushedPlayer.Position.X >= slider.Bounds.Right);
         var overhead = new MovingPlatform(new Vector2(200, 300), 3, new Vector2(100, 0), 60f, new StubSprite());
-        var jumper = new Physics(new IBlock[] { overhead });
-        jumper.Apply(new Vector2(205, 330), 10, 10, Step(1.0 / 60));
+        var jumper = new Physics();
+        Vector2 jumperStart = new Vector2(205, 330);
+        jumper.Apply(jumperStart, Step(1.0 / 60));
         jumper.Launch(600);
-        Vector2 jumped = jumper.Apply(new Vector2(205, 330), 10, 10, Step(.1));
+        Vector2 jumpedDesired = jumper.Apply(jumperStart, Step(.1));
+        Vector2 jumped = CollisionManager.ResolveVerticalMovement(jumperStart, jumpedDesired, 10, 10,
+            jumper.VerticalVelocity, new IBlock[] { overhead }, 0, out _, out _);
         Check("jumping into a moving platform from below is stopped by it", jumped.Y >= overhead.Bounds.Bottom);
         Console.WriteLine($"{passed} regression checks passed.");
     }

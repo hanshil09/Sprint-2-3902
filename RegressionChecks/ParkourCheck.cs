@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Interfaces;
@@ -20,11 +21,12 @@ internal static class ParkourCheck
             .Select(p => new Rectangle(p.Column * 32, (int)Cell(p.Column, p.Row).Y, 32, 32)).ToArray();
         var exitBounds = ExitBounds(data);
         Vector2 start = Cell(data.PlayerColumn, data.PlayerRow);
-        var initialPhysics = new Physics(solids, data.Gravity) { FootInset = Player.FootInset };
-        for (int frame = 0; frame < 120 && !initialPhysics.IsOnGround; frame++)
-            start = initialPhysics.Apply(start, Width, Height, Step);
+        var initialPhysics = new Physics(data.Gravity);
+        bool initialGrounded = false;
+        for (int frame = 0; frame < 120 && !initialGrounded; frame++)
+            start = ApplyVerticalMovement(start, initialPhysics, solids, out initialGrounded);
         // Stand in the middle of each tile, or at its very edge with only the feet still on it (where real jumps start).
-        float inset = Player.FootInset;
+        float inset = CollisionManager.PlayerFootInset;
         var candidates = solids.SelectMany(b => new[] { b.Bounds.Center.X - Width / 2f, b.Bounds.Right - inset - 1, b.Bounds.Left - Width + inset + 1 }
                 .Select(x => new Vector2(Math.Clamp(x, 0, 960 - Width), b.Bounds.Top - Height)))
             .Append(start).Distinct().Where(p => p.Y >= 0 && !solids.Any(b => Bounds(p).Intersects(b.Bounds))
@@ -50,18 +52,32 @@ internal static class ParkourCheck
 
     private static bool TryMove(Vector2 position, Vector2 target, bool jump, IBlock[] solids, Rectangle[] hazards, float gravity)
     {
-        var physics = new Physics(solids, gravity) { FootInset = Player.FootInset };
-        position = physics.Apply(position, Width, Height, Step);
-        if (jump) physics.Jump(650);
+        var physics = new Physics(gravity);
+        bool isOnGround = false;
+        position = ApplyVerticalMovement(position, physics, solids, out isOnGround);
+        if (jump && isOnGround) physics.Jump(650);
         for (int frame = 0; frame < 150; frame++)
         {
             float movement = Math.Clamp(target.X - position.X, -3, 3);
-            position = physics.MoveHorizontally(position, Width, Height, movement, 0, 960 - Width);
-            position = physics.Apply(position, Width, Height, Step);
+            position = CollisionManager.MoveHorizontally(position, Width, Height, movement,
+                0, 960 - Width, solids);
+            position = ApplyVerticalMovement(position, physics, solids, out isOnGround);
             if (hazards.Any(h => Bounds(position).Intersects(h)) || position.Y > 540) return false;
-            if (physics.IsOnGround && Vector2.DistanceSquared(position, target) < 1) return true;
+            if (isOnGround && Vector2.DistanceSquared(position, target) < 1) return true;
         }
         return false;
+    }
+
+    private static Vector2 ApplyVerticalMovement(Vector2 position, Physics physics, IBlock[] blocks, out bool isOnGround)
+    {
+        Vector2 desired = physics.Apply(position, Step);
+        Vector2 resolved = CollisionManager.ResolveVerticalMovement(position, desired, Width, Height,
+            physics.VerticalVelocity, blocks, CollisionManager.PlayerFootInset, out isOnGround, out _);
+        if (resolved.Y != desired.Y)
+        {
+            physics.VerticalVelocity = 0;
+        }
+        return resolved;
     }
 
     // The forward door, or the goal beacon in a room that ends the level.
