@@ -1,6 +1,6 @@
 namespace TransformersGame.Interfaces
 {
-    internal interface IController
+    interface IController
     {
         void Update();
     }

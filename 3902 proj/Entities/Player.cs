@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Core;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -19,26 +20,22 @@ namespace TransformersGame.Entities
         private const double MaximumShieldTime = 10000;
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
-        private const int ScreenWidth = 960;
-
-        // The robot art has transparent margins, so only the middle of the 68-pixel box counts as feet.
-        public const float FootInset = 16f;
-
         private readonly Physics physics;
+        private readonly CollisionManager collisionManager;
         private readonly PlayerInventory inventory = new PlayerInventory();
-        private IReadOnlyList<IBlock> roomBlocks;
         private IPlayerState state;
         private ISprite sprite;
         private bool movedThisFrame;
-        private bool wasOnGround;
         private double shieldTimeRemaining;
 
-        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, float gravity = Physics.DefaultGravity)
+        public Player(Vector2 position, IReadOnlyList<IBlock> blocks, IProjectileManager projectiles,
+            float gravity = Physics.DefaultGravity, CollisionManager collisionManager = null)
         {
             Position = position;
-            physics = new Physics(blocks, gravity) { FootInset = FootInset };
-            roomBlocks = blocks;
-            Arsenal = new PlayerArsenal(this, projectiles);
+            physics = new Physics(gravity);
+            this.collisionManager = collisionManager ?? new CollisionManager(960, 540);
+            this.collisionManager.SetBlocks(this, blocks, CollisionManager.PlayerFootInset);
+            Arsenal = new PlayerArsenal(this, projectiles, this.collisionManager, blocks);
             Facing = Direction.Right;
             Health = StartingHealth;
             MaxHealth = StartingHealth;
@@ -75,7 +72,7 @@ namespace TransformersGame.Entities
 
         public float SpeedScale { get; set; }
 
-        public bool IsOnGround => physics.IsOnGround;
+        public bool IsOnGround => collisionManager.IsOnGround(this);
 
         public int Width => sprite.Width;
 
@@ -100,9 +97,9 @@ namespace TransformersGame.Entities
             }
         }
 
-        public void Jump() => physics.Jump(JumpSpeed);
+        public void Jump() => collisionManager.TryJump(this, physics, JumpSpeed);
 
-        public void Bounce(float speed) => physics.Launch(speed);
+        public void Bounce(float speed) => collisionManager.Launch(this, physics, speed);
 
         public void Shoot(bool angled) => state.Shoot(angled);
 
@@ -117,7 +114,7 @@ namespace TransformersGame.Entities
                 return false;
             }
             Health = System.Math.Max(0, Health - DamageAmount);
-            physics.Jump(KnockbackSpeed);
+            collisionManager.TryJump(this, physics, KnockbackSpeed);
             return true;
         }
 
@@ -165,17 +162,18 @@ namespace TransformersGame.Entities
 
         public void DropBomb()
         {
-            Arsenal.DropBomb(roomBlocks, physics.Gravity, BombLevel);
+            Arsenal.DropBomb(physics.Gravity, BombLevel);
         }
 
         public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)
         {
-            physics.SetBlocks(blocks, gravity);
-            roomBlocks = blocks;
-            Arsenal.EnterRoom(projectiles);
+            physics.SetGravity(gravity);
+            collisionManager.SetBlocks(this, blocks, CollisionManager.PlayerFootInset);
+            Arsenal.EnterRoom(projectiles, blocks);
             Position = position;
-            wasOnGround = false;
         }
+
+        internal void RefreshGroundState() => RefreshSprite();
 
         public void SetState(IPlayerState newState)
         {
@@ -194,17 +192,10 @@ namespace TransformersGame.Entities
                 RefreshSprite();
             }
             movedThisFrame = false;
-            GetPushedByMovingBlocks();
-            RideMovingBlock();
-            MoveHorizontally(gameTime);
-            Position = physics.Apply(Position, Width, Height, gameTime);
-            UpdateStandingBlocks();
-            if (physics.SupportingBlock is IStandingBlock standingBlock) standingBlock.OnStand();
-            if (physics.IsOnGround != wasOnGround)
-            {
-                wasOnGround = physics.IsOnGround;
-                RefreshSprite();
-            }
+            float horizontalDistance = IsMoving
+                ? (FacingLeft ? -1 : 1) * state.Speed * SpeedScale * (float)gameTime.ElapsedGameTime.TotalSeconds
+                : 0;
+            collisionManager.UpdatePlayerMovement(this, physics, gameTime, horizontalDistance);
             state.Update(gameTime);
             sprite.Update(gameTime);
         }
@@ -212,51 +203,6 @@ namespace TransformersGame.Entities
         public void Draw(SpriteBatch spriteBatch)
         {
             sprite.Draw(spriteBatch, Position);
-        }
-
-        // A moving platform that slides into the player shoves them aside instead of overlapping them.
-        private void GetPushedByMovingBlocks()
-        {
-            Rectangle body = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
-            foreach (IBlock block in roomBlocks)
-            {
-                if (block is IMovingBlock platform && platform != physics.SupportingBlock
-                    && platform.Delta.X != 0 && platform.Bounds.Intersects(body))
-                {
-                    float targetX = platform.Delta.X > 0 ? platform.Bounds.Right : platform.Bounds.Left - Width;
-                    Position = physics.MoveHorizontally(Position, Width, Height, targetX - Position.X, 0, ScreenWidth - Width);
-                }
-            }
-        }
-
-        // A platform moved before the player updated, so carry the player by the same amount.
-        private void RideMovingBlock()
-        {
-            if (physics.SupportingBlock is not IMovingBlock platform || platform.Delta == Vector2.Zero)
-            {
-                return;
-            }
-            Position = physics.MoveHorizontally(Position, Width, Height, platform.Delta.X, 0, ScreenWidth - Width);
-            Position = new Vector2(Position.X, Position.Y + platform.Delta.Y);
-        }
-
-        private void UpdateStandingBlocks()
-        {
-            Rectangle bounds = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
-            foreach (IBlock block in roomBlocks)
-            {
-                if (block is IStandingBlock standingBlock) standingBlock.SetPlayerBounds(bounds);
-            }
-        }
-
-        private void MoveHorizontally(GameTime gameTime)
-        {
-            if (IsMoving)
-            {
-                float direction = FacingLeft ? -1 : 1;
-                float distance = direction * state.Speed * SpeedScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                Position = physics.MoveHorizontally(Position, Width, Height, distance, 0, ScreenWidth - Width);
-            }
         }
 
         private void RefreshSprite()

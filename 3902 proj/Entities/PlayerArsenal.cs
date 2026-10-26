@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using TransformersGame.Collisions;
 using TransformersGame.Core;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -19,18 +20,24 @@ namespace TransformersGame.Entities
         private const float MuzzleHeight = 0.3f;
 
         private readonly Player player;
+        private readonly CollisionManager collisionManager;
         private IProjectileManager projectiles;
+        private IReadOnlyList<IBlock> blocks;
         private BoomerangProjectile activeBoomerang;
 
-        public PlayerArsenal(Player player, IProjectileManager projectiles)
+        public PlayerArsenal(Player player, IProjectileManager projectiles, CollisionManager collisionManager,
+            IReadOnlyList<IBlock> blocks)
         {
             this.player = player;
             this.projectiles = projectiles;
+            this.collisionManager = collisionManager;
+            this.blocks = blocks;
         }
 
-        public void EnterRoom(IProjectileManager roomProjectiles)
+        public void EnterRoom(IProjectileManager roomProjectiles, IReadOnlyList<IBlock> roomBlocks)
         {
             projectiles = roomProjectiles;
+            blocks = roomBlocks;
             activeBoomerang = null;
         }
 
@@ -78,13 +85,13 @@ namespace TransformersGame.Entities
             projectiles.Add(activeBoomerang);
         }
 
-        public void DropBomb(IReadOnlyList<IBlock> blocks, float gravity, int blastLevel)
+        public void DropBomb(float gravity, int blastLevel)
         {
             ISprite bomb = ProjectileSpriteFactory.Instance.CreateBombSprite();
             float x = player.Position.X + (player.Width - bomb.Width) / 2f;
             float y = player.Position.Y + player.Height - bomb.Height;
             projectiles.Add(new Bomb(new Vector2(x, y), bomb, blocks, gravity,
-                () => ProjectileSpriteFactory.Instance.CreateExplosionSprite(blastLevel)));
+                () => ProjectileSpriteFactory.Instance.CreateExplosionSprite(blastLevel), collisionManager));
         }
 
         private float Direction => player.FacingLeft ? -1f : 1f;

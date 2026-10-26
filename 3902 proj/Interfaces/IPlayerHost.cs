@@ -2,7 +2,7 @@ using TransformersGame.Entities;
 
 namespace TransformersGame.Interfaces
 {
-     internal interface IPlayerHost
+    interface IPlayerHost
     {
         IPlayer Player { get; set; }
 

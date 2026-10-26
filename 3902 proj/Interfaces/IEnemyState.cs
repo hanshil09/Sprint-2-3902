@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface IEnemyState
+    interface IEnemyState
     {
         int Facing { get; }
 

@@ -1,4 +1,5 @@
 using System;
+using TransformersGame.Collisions;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
@@ -37,10 +38,11 @@ namespace TransformersGame.Core
             return new Level(loaded.Data, new Random(roomSeeds[roomIndex]));
         }
 
-        public static Room CreateRoom(Level level, IPlayer player, IProjectileManager projectiles)
+        public static Room CreateRoom(Level level, IPlayer player, IProjectileManager projectiles,
+            CollisionManager collisionManager = null)
         {
             GameObjectCycler enemies = new GameObjectCycler();
-            level.FillEnemyCycler(enemies, player, projectiles);
+            level.FillEnemyCycler(enemies, player, projectiles, collisionManager);
             return new Room(level, projectiles, enemies);
         }
     }

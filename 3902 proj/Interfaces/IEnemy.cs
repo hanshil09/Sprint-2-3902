@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface IEnemy : IGameObject
+    interface IEnemy : IGameObject
     {
         Rectangle Bounds { get; }
 

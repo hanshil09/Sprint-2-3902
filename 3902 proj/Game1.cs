@@ -182,12 +182,14 @@ namespace TransformersGame
             roomFactory.StartNewGame();
             Level initialLevel = roomFactory.LoadLevel(0);
             IProjectileManager initialProjectiles = new ProjectileManager();
-            player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles, initialLevel.Gravity);
-            Room initialRoom = RoomFactory.CreateRoom(initialLevel, player, initialProjectiles);
-            roomManager = new RoomManager(initialRoom, roomFactory.RoomCount, player,
-                index => RoomFactory.CreateRoom(roomFactory.LoadLevel(index), Player, new ProjectileManager()));
             collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer,
                 direction => pendingDoorDirection = direction);
+            player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles,
+                initialLevel.Gravity, collisionManager);
+            Room initialRoom = RoomFactory.CreateRoom(initialLevel, player, initialProjectiles, collisionManager);
+            roomManager = new RoomManager(initialRoom, roomFactory.RoomCount, player,
+                index => RoomFactory.CreateRoom(roomFactory.LoadLevel(index), Player,
+                    new ProjectileManager(), collisionManager));
             pendingDoorDirection = 0;
             menuController = ControllerFactory.CreateMenuController(this);
             RefreshGameplayController();

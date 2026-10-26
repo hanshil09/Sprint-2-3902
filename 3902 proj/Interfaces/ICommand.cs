@@ -1,6 +1,6 @@
 namespace TransformersGame.Interfaces
 {
-    internal interface ICommand
+    interface ICommand
     {
         void Execute();
     }

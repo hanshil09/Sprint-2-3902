@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace TransformersGame.Interfaces
 {
-     internal interface IMovingBlock : IBlock
+    interface IMovingBlock : IBlock
     {
         Vector2 Delta { get; }
     }

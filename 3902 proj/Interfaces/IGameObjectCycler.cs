@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
-    internal interface IGameObjectCycler
+    interface IGameObjectCycler
     {
         IReadOnlyList<IGameObject> Objects { get; }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Collisions;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
 using TransformersGame.Interfaces;
@@ -65,7 +66,8 @@ namespace TransformersGame.Core
         // The end-of-level beacon, or null when this room has none.
         public Goal Goal { get; }
 
-        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
+        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles,
+            CollisionManager collisionManager)
         {
             List<Rectangle> occupied = SolidBlockBounds();
             occupied.Add(playerSpawnBounds);
@@ -75,10 +77,17 @@ namespace TransformersGame.Core
                 Vector2 start = FindSafeSpawn(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
                     ? new Boss(start, player, projectiles)
-                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player, projectiles, Gravity);
+                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player,
+                        projectiles, Gravity, collisionManager);
                 cycler.Add(enemy);
                 occupied.Add(new Rectangle((int)start.X, (int)start.Y, size.X, size.Y));
             }
+
+        }
+
+        public void FillEnemyCycler(IGameObjectCycler cycler, IPlayer player, IProjectileManager projectiles)
+        {
+            FillEnemyCycler(cycler, player, projectiles, null);
         }
 
         // Returns the items picked up this frame so power-ups can be applied by the game.
