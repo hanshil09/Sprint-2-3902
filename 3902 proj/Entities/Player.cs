@@ -21,7 +21,7 @@ namespace TransformersGame.Entities
         private const float KnockbackSpeed = 300f;
         private const int ScreenWidth = 960;
 
-        // The robot art has transparent margins, so only the middle of the 68-pixel box counts as feet.
+        // The player art has transparent margins, so only the middle of the box counts as feet.
         public const float FootInset = 16f;
 
         private readonly Physics physics;
@@ -48,37 +48,24 @@ namespace TransformersGame.Entities
         }
 
         public Vector2 Position { get; set; }
-
         public Direction Facing { get; private set; }
-
-        public bool FacingLeft { get; private set; }
-
+        public bool FacingLeft => Facing == Direction.Left;
         public bool IsMoving { get; private set; }
-
         public PlayerArsenal Arsenal { get; }
-
         public int Health { get; private set; }
-
         public int MaxHealth { get; private set; }
 
         public int MedkitCount => inventory.MedkitCount;
-
         public int ShieldCount => inventory.ShieldCount;
-
         public int BombLevel => inventory.BombLevel;
-
         public int EnergonCount => inventory.EnergonCount;
-
         public bool IsShieldActive => shieldTimeRemaining > 0;
-
         public bool IsInvincible => false;
 
         public float SpeedScale { get; set; }
-
         public bool IsOnGround => physics.IsOnGround;
 
         public int Width => sprite.Width;
-
         public int Height => sprite.Height;
 
         public Vector2 Center => new Vector2(Position.X + Width / 2f, Position.Y + Height / 2f);
@@ -90,10 +77,6 @@ namespace TransformersGame.Entities
             movedThisFrame = true;
             Facing = direction;
             IsMoving = isHorizontal;
-            if (isHorizontal)
-            {
-                FacingLeft = direction == Direction.Left;
-            }
             if (hasChanged)
             {
                 RefreshSprite();
@@ -188,12 +171,35 @@ namespace TransformersGame.Entities
 
         public void Update(GameTime gameTime)
         {
-            shieldTimeRemaining = System.Math.Max(0, shieldTimeRemaining - gameTime.ElapsedGameTime.TotalMilliseconds);
+            UpdateShield(gameTime);
+            UpdateMovementState();
+
+            GetPushedByMovingBlocks();
+            RideMovingBlock();
+            MoveHorizontally(gameTime);
+
+            Position = physics.Apply(Position, Width, Height, gameTime);
+
+            UpdateGroundState();
+
+            state.Update(gameTime);
+            sprite.Update(gameTime);
+        }
+        private void UpdateShield(GameTime gameTime)
+        {
+            shieldTimeRemaining = System.Math.Max(
+                0,
+                shieldTimeRemaining -
+                gameTime.ElapsedGameTime.TotalMilliseconds);
+        }
+        private void UpdateMovementState()
+        {
             if (!movedThisFrame && IsMoving)
             {
                 IsMoving = false;
                 RefreshSprite();
             }
+
             movedThisFrame = false;
             GetPushedByMovingBlocks();
             RideMovingBlock();
@@ -201,13 +207,17 @@ namespace TransformersGame.Entities
             Position = physics.Apply(Position, Width, Height, gameTime);
             UpdateStandingBlocks();
             if (physics.SupportingBlock is IStandingBlock standingBlock) standingBlock.OnStand();
-            if (physics.IsOnGround != wasOnGround)
+            if (physics.IsOnGround != wasOnGround);
+        }
+        private void UpdateGroundState()
+        {
+            if (physics.IsOnGround == wasOnGround)
             {
-                wasOnGround = physics.IsOnGround;
-                RefreshSprite();
+                return;
             }
-            state.Update(gameTime);
-            sprite.Update(gameTime);
+
+            wasOnGround = physics.IsOnGround;
+            RefreshSprite();
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -215,7 +225,7 @@ namespace TransformersGame.Entities
             sprite.Draw(spriteBatch, Position);
         }
 
-        // A moving platform that slides into the player shoves them aside instead of overlapping them.
+        // Push the player away when a moving platform slides into them.
         private void GetPushedByMovingBlocks()
         {
             Rectangle body = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
@@ -230,7 +240,7 @@ namespace TransformersGame.Entities
             }
         }
 
-        // A platform moved before the player updated, so carry the player by the same amount.
+        // Carry the player along with the platform's movement.
         private void RideMovingBlock()
         {
             if (physics.SupportingBlock is not IMovingBlock platform || platform.Delta == Vector2.Zero)

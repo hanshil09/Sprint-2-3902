@@ -13,19 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Sprites/transformer-platformer-spritesheet-left.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/processorParam:Version=3.8.5.1
-/build:Sprites/transformer-platformer-spritesheet-left.png
-
 #begin Fonts/Controls.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -46,6 +33,19 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Sprites/blocks.png
+
+#begin Sprites/dilloSpriteTest2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Sprites/dilloSpriteTest2.png
 
 #begin Sprites/items.png
 /importer:TextureImporter
@@ -73,6 +73,19 @@
 /processorParam:Version=3.8.5.1
 /build:Sprites/metroidEnemyDemo.png
 
+#begin Sprites/sprint3-objects.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Sprites/sprint3-objects.png
+
 #begin Sprites/transformer-directional-combat-spritesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -85,6 +98,19 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Sprites/transformer-directional-combat-spritesheet.png
+
+#begin Sprites/transformer-platformer-spritesheet-left.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Sprites/transformer-platformer-spritesheet-left.png
 
 #begin Sprites/transformer-platformer-spritesheet.png
 /importer:TextureImporter
@@ -99,15 +125,3 @@
 /processorParam:Version=3.8.5.1
 /build:Sprites/transformer-platformer-spritesheet.png
 
-#begin Sprites/sprint3-objects.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=False
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/processorParam:Version=3.8.5.1
-/build:Sprites/sprint3-objects.png
