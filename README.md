@@ -1,4 +1,4 @@
-# Sprint 3 — Transformers Platformer
+# Sprint 3 — Armadillo Platformer
 
 A MonoGame platformer with seven rooms, a boss, multiple weapons and pickups,
 moving platforms, supply crates, and crumbling platforms. Reach each gold exit;
@@ -41,6 +41,8 @@ pickups, room details, limitations, and artwork credits.
 - Automated route checks model simplified static geometry, not full combat or
   every randomized crumbling-platform route. Manual gameplay and balance
   testing is still needed.
+- When Player is hit with a projectile while on a platform moving upwards,
+  they fall through the platform. This is a collision error.
 
 ## Tools and development process
 
