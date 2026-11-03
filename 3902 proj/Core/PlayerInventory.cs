@@ -17,6 +17,7 @@ namespace TransformersGame.Core
             {
                 [ItemKind.Medkit] = () => MedkitCount++,
                 [ItemKind.Shield] = () => ShieldCount++,
+                [ItemKind.ShieldBattery] = () => ShieldCount++,
                 [ItemKind.Energon] = () => EnergonCount++,
                 [ItemKind.BombPack] = () => BombLevel = Math.Min(MaximumBombLevel, BombLevel + 1)
             };

@@ -17,7 +17,6 @@ namespace TransformersGame.Entities
         private const int HealthCellAmount = 10;
         private const int DamageAmount = 3;
         private const double ShieldDuration = 5000;
-        private const double MaximumShieldTime = 10000;
         private const float JumpSpeed = 650f;
         private const float KnockbackSpeed = 300f;
 
@@ -167,18 +166,6 @@ namespace TransformersGame.Entities
                     Health = System.Math.Min(
                         MaxHealth,
                         Health + HealthCellAmount);
-
-                    return true;
-
-                case ItemKind.ShieldBattery:
-                    if (shieldTimeRemaining == MaximumShieldTime)
-                    {
-                        return false;
-                    }
-
-                    shieldTimeRemaining = System.Math.Min(
-                        MaximumShieldTime,
-                        shieldTimeRemaining + ShieldDuration);
 
                     return true;
 

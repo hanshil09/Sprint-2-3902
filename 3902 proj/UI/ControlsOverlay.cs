@@ -50,20 +50,15 @@ namespace TransformersGame.UI
             DrawKeyLine(spriteBatch, "3  /  4", "Use a stored medkit  /  shield", left + 30, top + 296);
             DrawKeyLine(spriteBatch, "SPACE", "Switch robot / vehicle form", left + 30, top + 324);
             DrawKeyLine(spriteBatch, "T/Y  U/I  O/P", "Preview every block, item and enemy", left + 30, top + 352);
-            DrawKeyLine(spriteBatch, "F1", "Show all controls during play", left + 30, top + 380);
+            DrawKeyLine(spriteBatch, "F1 / H", "Show all controls during play", left + 30, top + 380);
             DrawKeyLine(spriteBatch, "Q / ESC", "Quit game", left + 30, top + 416);
         }
 
-        public void DrawGameplay(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, string objective)
+        public void DrawGameplayHelp(SpriteBatch spriteBatch, IPlayer player, string objective)
         {
-            DrawPanel(spriteBatch, new Rectangle(12, 8, 936, 64));
-            string status = $"{roomStatus}  {roomName}   HP {player.Health}/{player.MaxHealth}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}";
-            DrawText(spriteBatch, status, 26, 14, HeadingColor, 0.58f);
-            DrawText(spriteBatch, PowerUpText(player), 700, 14, PowerColor, 0.58f);
-            DrawText(spriteBatch, objective, 26, 43, TextColor, 0.5f);
             if (showHelp)
             {
-                DrawHelp(spriteBatch, player);
+                DrawHelp(spriteBatch, player, objective);
             }
         }
 
@@ -105,27 +100,22 @@ namespace TransformersGame.UI
             };
         }
 
-        private static string PowerUpText(IPlayer player)
+        private void DrawHelp(SpriteBatch spriteBatch, IPlayer player, string objective)
         {
-            string text = player.IsInvincible ? "INVINCIBLE " : string.Empty;
-            text += player.SpeedScale > 1f ? "TURBO " : string.Empty;
-            return text + (player.IsShieldActive ? "SHIELD" : string.Empty);
-        }
-
-        private void DrawHelp(SpriteBatch spriteBatch, IPlayer player)
-        {
-            Rectangle panel = new Rectangle(16, 80, 580, 318);
+            Rectangle panel = new Rectangle(16, 104, 800, 336);
+            spriteBatch.Draw(pixel, panel, new Color(10, 12, 20, 245));
             DrawPanel(spriteBatch, panel);
-            DrawText(spriteBatch, "CONTROLS", 34, 94, HeadingColor, 0.9f);
-            DrawHelpLine(spriteBatch, "MOVE", "A / D or arrows     W / UP / J jump     S / DOWN face", 127);
-            DrawHelpLine(spriteBatch, "FIRE", "Z/N shot  K angled  1 orb  5 pierce  6 spread  7 boomerang", 155);
-            DrawHelpLine(spriteBatch, "ITEMS", "2 bomb     3 medkit (full heal)     4 shield (5 seconds)", 183);
-            DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.MedkitCount}   Shields {player.ShieldCount}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}", 211);
-            DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 239);
-            DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 267);
-            DrawHelpLine(spriteBatch, "SYSTEM", "E damage     R reset     Q / ESC quit", 295);
-            DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 323);
-            DrawHelpLine(spriteBatch, "CRATES", "Green: Health Cell (+10 HP)   Gold: Energon   Shoot or bomb", 351);
+            DrawText(spriteBatch, "HELP - F1 / H TO CLOSE", 34, 118, HeadingColor, 0.9f);
+            DrawHelpLine(spriteBatch, "MOVE", "A / D or arrows     W / UP / J jump     S / DOWN face", 151);
+            DrawHelpLine(spriteBatch, "FIRE", "Z/N shot  K angled  1 orb  5 pierce  6 spread  7 boomerang", 179);
+            DrawHelpLine(spriteBatch, "ITEMS", "2 bomb     3 medkit (full heal)     4 shield (5 seconds)", 207);
+            DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.MedkitCount}   Shields {player.ShieldCount}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}", 235);
+            DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 263);
+            DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 291);
+            DrawHelpLine(spriteBatch, "SYSTEM", "E damage     R reset     Q / ESC quit", 319);
+            DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 347);
+            DrawHelpLine(spriteBatch, "CRATES", "Green: Health Cell (+10 HP)   Gold: Energon   Shoot or bomb", 375);
+            DrawHelpLine(spriteBatch, "GOAL", objective, 403);
         }
 
         private void DrawHelpLine(SpriteBatch spriteBatch, string label, string text, int y)

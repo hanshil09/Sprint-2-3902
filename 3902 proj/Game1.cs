@@ -36,6 +36,7 @@ namespace TransformersGame
         private CollisionManager collisionManager;
         private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
+        private PlayerHud playerHud;
         private ObjectShowcase showcase;
         private IPlayer player;
         private int pendingDoorDirection;
@@ -114,7 +115,9 @@ namespace TransformersGame
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
-            controlsOverlay = new ControlsOverlay(Content.Load<SpriteFont>("Fonts/Controls"), GraphicsDevice);
+            SpriteFont uiFont = Content.Load<SpriteFont>("Fonts/Controls");
+            controlsOverlay = new ControlsOverlay(uiFont, GraphicsDevice);
+            playerHud = new PlayerHud(uiFont);
             showcase = new ObjectShowcase();
             InitializeGameObjects();
         }
@@ -171,8 +174,9 @@ namespace TransformersGame
             room.Draw(spriteBatch);
             Player.Draw(spriteBatch);
             string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
-            controlsOverlay.DrawGameplay(spriteBatch, Player, room.Level.Name, roomStatus, room.Objective);
+            playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
             showcase.Draw(spriteBatch, controlsOverlay);
+            controlsOverlay.DrawGameplayHelp(spriteBatch, Player, room.Objective);
         }
 
         private void InitializeGameObjects()

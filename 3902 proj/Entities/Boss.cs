@@ -22,7 +22,8 @@ namespace TransformersGame.Entities
         private const double HitCooldownSeconds = 0.08;
         private const double FlashSeconds = 0.12;
         private const float FireballSpeed = 260f;
-        private static readonly Rectangle HealthBarArea = new Rectangle(280, 512, 400, 22);
+        private const int HealthHeartCount = 10;
+        private static readonly Vector2 HealthHeartsPosition = new Vector2(318, 82);
 
         private readonly IProjectileManager projectiles;
         private ISprite sprite;
@@ -137,7 +138,7 @@ namespace TransformersGame.Entities
                 sprite.Draw(spriteBatch, Position);
             }
             Color fill = Phase == 3 ? Color.OrangeRed : Color.Gold;
-            HealthBar.Draw(spriteBatch, HealthBarArea, Health / (float)MaximumHealth, fill);
+            HeartMeter.Draw(spriteBatch, HealthHeartsPosition, Health, MaximumHealth, HealthHeartCount, fill);
         }
 
         private void FireInDirection(float radians)

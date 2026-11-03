@@ -55,15 +55,20 @@ internal static class PickupChecks
     {
         Level level = CreateLevel("$");
         Player player = CreatePlayer(level);
-        Check("first battery activates shield", player.TryAddItem(ItemKind.ShieldBattery) && player.IsShieldActive);
-        Check("second battery reaches time cap", player.TryAddItem(ItemKind.ShieldBattery));
-        Check("battery stays at shield time cap", level.CollectItems(player).Count == 0 && level.Items.Count == 1);
-        player.Update(Step(1));
-        Check("battery collects after shield time elapses", level.CollectItems(player).Count == 1 && level.Items.Count == 0);
-        player.Update(Step(9.9));
-        Check("battery refills remaining time", player.IsShieldActive);
-        player.Update(Step(0.1));
-        Check("battery does not exceed ten second cap", !player.IsShieldActive);
+        IItem pickup = level.Items[0];
+        Check("battery collects into inventory", level.CollectItems(player).Count == 1 && player.ShieldCount == 1);
+        Check("battery does not activate automatically", !player.IsShieldActive);
+        Check("collected battery cannot be counted twice", !pickup.TryCollect(player) && player.ShieldCount == 1);
+        Check("battery activates on manual use", player.UseShield() && player.IsShieldActive && player.ShieldCount == 0);
+        player.Update(Step(4));
+        Check("battery can be stored while shield is active", player.TryAddItem(ItemKind.ShieldBattery) && player.ShieldCount == 1);
+        Check("active shield cannot consume another charge", !player.UseShield() && player.ShieldCount == 1);
+        player.Update(Step(1.1));
+        Check("collecting battery does not extend active shield", !player.IsShieldActive);
+        Check("stored battery can activate after expiry", player.UseShield() && player.ShieldCount == 0 && player.IsShieldActive);
+        player.Update(Step(5.1));
+        Check("manual shield expires after five seconds", !player.IsShieldActive);
+        Check("empty inventory cannot activate shield", !player.UseShield());
     }
 
     private static void CheckBombPacks()
