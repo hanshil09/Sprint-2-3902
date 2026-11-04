@@ -10,7 +10,6 @@ namespace TransformersGame.Collisions
     {
         public static bool TryGetBounds(IGameObject gameObject, out Rectangle bounds)
         {
-            ArgumentNullException.ThrowIfNull(gameObject);
             if (gameObject is IBlock block)
             {
                 bounds = block.Bounds;
@@ -26,7 +25,6 @@ namespace TransformersGame.Collisions
         public static Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance,
             float minimumX, float maximumX, IReadOnlyList<IBlock> blocks)
         {
-            ArgumentNullException.ThrowIfNull(blocks);
             float startX = position.X;
             float desiredX = MathHelper.Clamp(startX + distance, minimumX, maximumX);
             float resolvedX = desiredX;
@@ -54,7 +52,6 @@ namespace TransformersGame.Collisions
         public static Vector2 MoveVertically(Vector2 position, int width, int height, float distance,
             float minimumY, float maximumY, IReadOnlyList<IBlock> blocks)
         {
-            ArgumentNullException.ThrowIfNull(blocks);
             float startY = position.Y;
             float desiredY = MathHelper.Clamp(startY + distance, minimumY, maximumY);
             float resolvedY = desiredY;
@@ -83,7 +80,6 @@ namespace TransformersGame.Collisions
             int width, int height, float verticalVelocity, IReadOnlyList<IBlock> blocks, float footInset,
             out bool isOnGround, out IBlock supportingBlock)
         {
-            ArgumentNullException.ThrowIfNull(blocks);
             float desiredY = desiredPosition.Y;
             isOnGround = false;
             supportingBlock = null;
@@ -119,7 +115,6 @@ namespace TransformersGame.Collisions
 
         public static bool IntersectsBlock(Rectangle bounds, IBlock block)
         {
-            ArgumentNullException.ThrowIfNull(block);
             return block.IsSolid && bounds.Intersects(block.Bounds);
         }
 

@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Collisions;
 using TransformersGame.Core;
-using TransformersGame.Factories;
 using TransformersGame.Interfaces;
 using TransformersGame.States;
 
@@ -19,7 +18,7 @@ namespace TransformersGame.Entities
         private const double ShieldDuration = 5000;
         private const double MaximumShieldTime = 10000;
         private const float JumpSpeed = 650f;
-        private const float KnockbackSpeed = 300f;
+        private const float KnockbackSpeed = 320f;
 
         public const float FootInset = 16f;
 

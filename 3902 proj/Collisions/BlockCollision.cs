@@ -15,12 +15,14 @@ namespace TransformersGame.Collisions
         public const int EnemyLedgeInset = 12;
 
         private readonly int worldWidth;
+        private readonly int worldHeight;
         private readonly ConditionalWeakTable<IGameObject, BlockCollisionState> states = new();
 
-        public BlockCollision(int worldWidth)
+        public BlockCollision(int worldWidth, int worldHeight)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(worldWidth);
             this.worldWidth = worldWidth;
+            this.worldHeight = worldHeight;
         }
 
         public void SetBlocks(IGameObject gameObject, IReadOnlyList<IBlock> blocks, float footInset = 0)
@@ -71,8 +73,7 @@ namespace TransformersGame.Collisions
             return position;
         }
 
-        public void UpdatePlayerMovement(Player player, Physics physics, GameTime gameTime, float horizontalDistance,
-            int worldHeight)
+        public void UpdatePlayerMovement(Player player, Physics physics, GameTime gameTime, float horizontalDistance)
         {
             BlockCollisionState state = GetState(player);
             bool wasOnGround = state.LastOnGround;
@@ -168,39 +169,41 @@ namespace TransformersGame.Collisions
             return true;
         }
 
-        private Vector2 ResolveMovingBlockMovement(Player player, BlockCollisionState state)
+        private Vector2 ResolveMovingBlockMovement(IPlayer player, BlockCollisionState state)
         {
             Rectangle body = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
             foreach (IBlock block in state.Blocks)
             {
                 if (block is IMovingBlock platform && platform != state.SupportingBlock
-                    && platform.Delta.X != 0 && BlockCollisionHelper.IntersectsBlock(body, platform))
+                    && platform.Delta.X != 0 && BlockCollisionHelper.IntersectsBlock(body, platform) && (player is IPlayer DamagedPlayer || player is IPlayer Player))
                 {
                     float targetX = platform.Delta.X > 0 ? platform.Bounds.Right : platform.Bounds.Left - player.Width;
+                    float targetY = platform.Delta.Y > 0 ? platform.Bounds.Top : platform.Bounds.Bottom - player.Height;
                     player.Position = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
                         targetX - player.Position.X, 0, worldWidth - player.Width, state.Blocks);
+                    player.Position = BlockCollisionHelper.MoveVertically(player.Position, player.Width, player.Height, 
+                        targetY - player.Position.Y, 0, worldHeight - player.Height, state.Blocks);
                     body = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
                 }
-            }
 
-            if (state.SupportingBlock is IMovingBlock supportingPlatform
-                && supportingPlatform.Delta != Vector2.Zero)
-            {
-                player.Position = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width,
-                    player.Height, supportingPlatform.Delta.X, 0, worldWidth - player.Width, state.Blocks);
-                float playerY = player.Position.Y;
-                if (supportingPlatform.Delta.Y != 0)
+                if (state.SupportingBlock is IMovingBlock supportingPlatform
+                    && supportingPlatform.Delta != Vector2.Zero)
                 {
-                    playerY = supportingPlatform.Bounds.Top - player.Height;
+                    player.Position = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width,
+                        player.Height, supportingPlatform.Delta.X, 0, worldWidth - player.Width, state.Blocks);
+                    float playerY = player.Position.Y;
+                    if (supportingPlatform.Delta.Y != 0)
+                    {
+                        playerY = supportingPlatform.Bounds.Top - player.Height;
+                    }
+                    player.Position = new Vector2(player.Position.X, playerY); 
                 }
-                player.Position = new Vector2(player.Position.X, playerY);
             }
             return player.Position;
-        }
+        } 
 
         private BlockCollisionState GetState(IGameObject gameObject)
         {
-            ArgumentNullException.ThrowIfNull(gameObject);
             if (!states.TryGetValue(gameObject, out BlockCollisionState state))
             {
                 throw new InvalidOperationException("Block collision has not been configured for this game object.");
