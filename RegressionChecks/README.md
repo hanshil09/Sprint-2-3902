@@ -1,5 +1,13 @@
 # Regression checks
 
+## Audio events
+
+`dotnet run --project RegressionChecks -c Strict -- --audio`
+
+Checks accepted vs. rejected shots, airborne jumps, transformations, bomb fuse
+timing, and inventory-use sounds without opening an audio device. Listening and
+music/mute controls still need manual gameplay verification.
+
 Run commands from the repository folder.
 
 ## Basic room checks (default)

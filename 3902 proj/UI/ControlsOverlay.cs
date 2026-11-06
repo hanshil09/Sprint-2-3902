@@ -50,7 +50,7 @@ namespace TransformersGame.UI
             DrawKeyLine(spriteBatch, "3  /  4", "Use a stored medkit  /  shield", left + 30, top + 296);
             DrawKeyLine(spriteBatch, "SPACE", "Switch robot / vehicle form", left + 30, top + 324);
             DrawKeyLine(spriteBatch, "T/Y  U/I  O/P", "Preview every block, item and enemy", left + 30, top + 352);
-            DrawKeyLine(spriteBatch, "F1 / H", "Show all controls during play", left + 30, top + 380);
+            DrawKeyLine(spriteBatch, "F1 / H   M", "Show controls / mute background music", left + 30, top + 380);
             DrawKeyLine(spriteBatch, "Q / ESC", "Quit game", left + 30, top + 416);
         }
 
@@ -112,7 +112,7 @@ namespace TransformersGame.UI
             DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.MedkitCount}   Shields {player.ShieldCount}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}", 235);
             DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 263);
             DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 291);
-            DrawHelpLine(spriteBatch, "SYSTEM", "E damage     R reset     Q / ESC quit", 319);
+            DrawHelpLine(spriteBatch, "SYSTEM", "M music mute     E damage     R reset     Q / ESC quit", 319);
             DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 347);
             DrawHelpLine(spriteBatch, "CRATES", "Green: Health Cell (+10 HP)   Gold: Energon   Shoot or bomb", 375);
             DrawHelpLine(spriteBatch, "GOAL", objective, 403);

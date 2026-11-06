@@ -25,6 +25,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | 3 / 4 | Use medkit / shield |
 | Left / right mouse click | Previous / next room (testing) |
 | F1 | Full controls |
+| M | Mute / unmute background music (sound effects stay on) |
 | R | Reset to menu |
 | Q / Escape | Quit |
 
@@ -75,6 +76,9 @@ see the [regression guide](RegressionChecks/README.md). Automated reachability
 checks use simplified geometry and do not replace manual playtesting.
 
 ## Credits
+
+- Original synthesized music and sound effects are included in `3902 proj/Content/Audio`.
+  No extra audio downloads are needed. See [audio notes](Documentation/Audio.md).
 
 - ChatGPT was used to help draft and organize the basic README documentation.
 - Artwork credits and source links are listed in the [gameplay guide](Documentation/GameplayGuide.md#credits).

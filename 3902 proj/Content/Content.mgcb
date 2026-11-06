@@ -13,6 +13,56 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Audio/Background.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Background.wav
+
+#begin Audio/Jump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Jump.wav
+
+#begin Audio/Shoot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Shoot.wav
+
+#begin Audio/Transform.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Transform.wav
+
+#begin Audio/Pickup.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Pickup.wav
+
+#begin Audio/Hurt.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Hurt.wav
+
+#begin Audio/Explosion.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Explosion.wav
+
+#begin Audio/Item.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Item.wav
+
+#begin Audio/Victory.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Victory.wav
+
+#begin Audio/Defeat.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/Defeat.wav
+
 #begin Fonts/Controls.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

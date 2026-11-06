@@ -117,8 +117,15 @@ namespace TransformersGame.Entities
 
         public void Jump()
         {
-            collisionManager.TryJump(this, physics, JumpSpeed);
+            if (collisionManager.TryJump(this, physics, JumpSpeed))
+            {
+                PlaySound(GameSound.Jump);
+            }
         }
+
+        public event System.Action<GameSound> SoundRequested;
+
+        internal void PlaySound(GameSound sound) => SoundRequested?.Invoke(sound);
 
         public void Bounce(float speed)
         {
@@ -137,7 +144,9 @@ namespace TransformersGame.Entities
 
         public void Transform()
         {
+            IPlayerState previous = state;
             state.Transform();
+            if (state != previous) PlaySound(GameSound.Transform);
         }
 
         public bool TakeDamage()
@@ -197,6 +206,7 @@ namespace TransformersGame.Entities
             }
 
             Health = MaxHealth;
+            PlaySound(GameSound.Item);
             return true;
         }
 
@@ -208,6 +218,7 @@ namespace TransformersGame.Entities
             }
 
             shieldTimeRemaining = ShieldDuration;
+            PlaySound(GameSound.Item);
             return true;
         }
 
