@@ -13,6 +13,11 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Audio/CrateBreak.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Audio/CrateBreak.wav
+
 #begin Audio/Background.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

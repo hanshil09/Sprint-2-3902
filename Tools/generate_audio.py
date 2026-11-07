@@ -50,6 +50,7 @@ def main():
         'Pickup': melody([660, 880, 1320], 0.08),
         'Hurt': tone(0.22, 180, 55, noise=0.4),
         'Explosion': tone(0.65, 100, 25, noise=0.75),
+        'CrateBreak': tone(0.23, 390, 68, volume=0.7, noise=0.65),
         'Item': melody([440, 660, 880], 0.12),
         'Victory': melody([523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5], 0.18),
         'Defeat': melody([440, 349.23, 293.66, 220], 0.25),

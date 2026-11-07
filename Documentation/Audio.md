@@ -1,8 +1,8 @@
 # Sprint 4 audio
 
-The game includes an original 16-second looping sci-fi track and nine synthesized
+The game includes an original 16-second looping sci-fi track and ten synthesized
 effects: jump, weapon fire, transformation, pickup, damage, bomb explosion,
-medkit/shield use, victory, and defeat. The WAV files are original project assets
+medkit/shield use, victory, defeat, and reinforced crate break. The WAV files are original project assets
 generated with assistance from Codex, rather than copied game recordings.
 
 Music starts when Enter starts gameplay, continues across rooms, and stops on
