@@ -9,10 +9,20 @@ namespace TransformersGame.Entities
         private readonly ItemKind itemKind;
         private bool released;
 
-        public SupplyCrate(Vector2 position, ISprite sprite, ItemKind itemKind)
-            : base(position, sprite, true, BlockKind.Crate)
+        public SupplyCrate(Vector2 position, ISprite sprite, ItemKind itemKind, bool reinforced = false)
+            : base(position, sprite, true, reinforced ? BlockKind.ReinforcedCrate : BlockKind.Crate)
         {
             this.itemKind = itemKind;
+        }
+
+        public bool TryBreakFromRoll()
+        {
+            if (Kind != BlockKind.ReinforcedCrate || IsDestroyed)
+            {
+                return false;
+            }
+            Break();
+            return true;
         }
 
         public bool TryReleaseItem(out ItemKind kind)

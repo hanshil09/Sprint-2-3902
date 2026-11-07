@@ -24,9 +24,14 @@ namespace TransformersGame.Entities
         {
             if (Kind == BlockKind.Crate)
             {
-                IsDestroyed = true;
-                IsSolid = false;
+                Break();
             }
+        }
+
+        protected void Break()
+        {
+            IsDestroyed = true;
+            IsSolid = false;
         }
 
         public Vector2 Position { get; set; }

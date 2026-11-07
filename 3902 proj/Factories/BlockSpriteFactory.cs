@@ -18,6 +18,8 @@ namespace TransformersGame.Factories
 
         private Texture2D blockSpriteSheet;
         private Texture2D objectSpriteSheet;
+        private Texture2D reinforcedHealth;
+        private Texture2D reinforcedEnergon;
 
         private BlockSpriteFactory()
         {
@@ -35,10 +37,16 @@ namespace TransformersGame.Factories
         {
             blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
+            reinforcedHealth = content.Load<Texture2D>("Sprites/reinforced-health");
+            reinforcedEnergon = content.Load<Texture2D>("Sprites/reinforced-energon");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)
         {
+            if (kind == BlockKind.ReinforcedCrate)
+            {
+                return CreateSupplyCrateSprite(ItemKind.Energon, true);
+            }
             if (kind == BlockKind.Alloy)
             {
                 return new TextureRegionSprite(objectSpriteSheet, SpriteAtlas.AlloyBlock, BlockSize, BlockSize, Color.White);
@@ -51,13 +59,24 @@ namespace TransformersGame.Factories
                 BlockKind.Caution => 5,
                 _ => (int)kind
             };
-            Color tint = kind == BlockKind.Crate ? Color.Orange : kind == BlockKind.Hazard ? Color.Red : Color.White;
+            Color tint = kind switch
+            {
+                BlockKind.Crate => Color.Orange,
+                BlockKind.Hazard => Color.Red,
+                _ => Color.White
+            };
             Rectangle frame = new Rectangle(index * BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
-        public ISprite CreateSupplyCrateSprite(ItemKind kind)
+        public ISprite CreateSupplyCrateSprite(ItemKind kind, bool reinforced = false)
         {
+            if (reinforced)
+            {
+                Texture2D texture = kind == ItemKind.HealthCell ? reinforcedHealth : reinforcedEnergon;
+                return new TextureRegionSprite(texture, new Rectangle(0, 0, BlockSize, BlockSize),
+                    BlockSize, BlockSize, Color.White);
+            }
             Color tint = kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
             Rectangle frame = new Rectangle(BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
