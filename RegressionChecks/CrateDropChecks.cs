@@ -21,6 +21,8 @@ internal static class CrateDropChecks
         CheckShotDrop(parsed.Data, 1, ItemKind.Energon);
         CheckBombDrop(parsed.Data);
         CheckOrdinaryBlocks(parsed.Data);
+        CheckReinforcedCrates();
+        CheckReinforcedLayout();
         Console.WriteLine($"{passed} crate-drop checks passed.");
     }
 
@@ -89,5 +91,123 @@ internal static class CrateDropChecks
         Check("workshop contains both designated drop types", workshop.Success
             && workshop.Data.CrateDrops.Any(d => d.Kind == ItemKind.HealthCell)
             && workshop.Data.CrateDrops.Any(d => d.Kind == ItemKind.Energon));
+    }
+
+    private static void CheckReinforcedCrates()
+    {
+        LevelData data = LevelParser.Parse(new[] { "name: Roll test", "[tiles]", "P...R.....", "GGGGGGGGGG" }).Data;
+        var level = new Level(data);
+        SupplyCrate crate = level.Blocks.OfType<SupplyCrate>().Single();
+        var collisions = new CollisionManager(960, 540);
+        var shot = new EnergyProjectile(crate.Position - new Vector2(48, 0), new Vector2(520, 0), false, false, new StubSprite());
+        shot.Update(Step(0.2));
+        collisions.BuildTree(new List<IGameObject> { crate, shot });
+        collisions.DetectCollision();
+        Check("reinforced crate stops a shot without breaking", crate.IsSolid && !shot.IsActive);
+        level = new Level(data);
+        crate = level.Blocks.OfType<SupplyCrate>().Single();
+        var bomb = new Bomb(crate.Position, new StubSprite(), gravity: 0, createExplosion: () => new StubSprite());
+        bomb.Update(Step(1.2));
+        collisions.BuildTree(new List<IGameObject> { crate, bomb });
+        collisions.DetectCollision();
+        Check("reinforced crate survives a bomb explosion", crate.IsSolid);
+
+        level = new Level(data);
+        crate = level.Blocks.OfType<SupplyCrate>().Single();
+        var player = new Player(Vector2.Zero, level.Blocks, new ProjectileManager());
+        var sounds = new List<GameSound>();
+        player.SoundRequested += sounds.Add;
+        player.Position = new Vector2(crate.Bounds.Left - player.Width - 1, crate.Bounds.Bottom - player.Height);
+        player.Move(Direction.Right);
+        player.Update(Step(1.0 / 60));
+        Check("robot movement stops at the reinforced crate", crate.IsSolid
+            && player.Position.X + player.Width == crate.Bounds.Left);
+        level = new Level(data);
+        crate = level.Blocks.OfType<SupplyCrate>().Single();
+        player = new Player(Vector2.Zero, level.Blocks, new ProjectileManager());
+        player.Transform();
+        player.Position = new Vector2(crate.Bounds.Left - player.Width, crate.Bounds.Bottom - player.Height);
+        player.Update(Step(1.0 / 60));
+        Check("stationary ball contact does not break the crate", crate.IsSolid);
+        level = new Level(data);
+        crate = level.Blocks.OfType<SupplyCrate>().Single();
+        player = new Player(Vector2.Zero, level.Blocks, new ProjectileManager());
+        sounds = new List<GameSound>();
+        player.SoundRequested += sounds.Add;
+        player.Transform();
+        player.Position = new Vector2(crate.Bounds.Left - player.Width, crate.Bounds.Bottom - player.Height);
+        player.Move(Direction.Right);
+        player.Update(Step(1.0 / 60));
+        Check("moving ball breaks the crate and moves through it", crate.IsDestroyed && !crate.IsSolid
+            && player.Position.X + player.Width > crate.Bounds.Left);
+        level.Update(Step(0.01));
+        level.Update(Step(0.01));
+        Check("reinforced crate makes one crunch and releases one pickup", level.Items.Count == 1
+            && sounds.Count(sound => sound == GameSound.CrateBreak) == 1);
+        player.Position = crate.Position;
+        level.CollectItems(player);
+        Check("fixed crate rewards one Energon", player.EnergonCount == 1);
+
+        level = new Level(data);
+        crate = level.Blocks.OfType<SupplyCrate>().Single();
+        var wall = new Block(crate.Position - new Vector2(32, 0), new StubSprite(), true);
+        var blockedPlayer = new Player(Vector2.Zero, new IBlock[] { crate, wall }, new ProjectileManager(), gravity: 0);
+        blockedPlayer.Transform();
+        blockedPlayer.Position = new Vector2(wall.Bounds.Left - blockedPlayer.Width, crate.Position.Y);
+        blockedPlayer.Move(Direction.Right);
+        blockedPlayer.Update(Step(0.25));
+        Check("closer solid block shields the reinforced crate", crate.IsSolid
+            && blockedPlayer.Position.X + blockedPlayer.Width == wall.Bounds.Left);
+    }
+
+    private static void CheckReinforcedLayout()
+    {
+        LevelData first = LevelParser.Parse(File.ReadAllLines("3902 proj/Content/Levels/desert-01.room")).Data;
+        var level = new Level(first, new Random(0));
+        var player = new Player(level.PlayerStart, level.Blocks, new ProjectileManager(), level.Gravity);
+        for (int frame = 0; frame < 30; frame++) player.Update(Step(1.0 / 60));
+        player.Transform();
+        for (int frame = 0; frame < 30; frame++)
+        {
+            player.Move(Direction.Right);
+            player.Update(Step(1.0 / 60));
+        }
+        Check("the fixed Level 1 crate can be broken by rolling right from spawn", !level.HasIntactReinforcedCrate
+            && level.Blocks.OfType<SupplyCrate>().Count(crate => crate.IsDestroyed) == 1);
+
+        level = new Level(first, new Random(0));
+        player = new Player(level.PlayerStart, level.Blocks, new ProjectileManager(), level.Gravity);
+        for (int frame = 0; frame < 30; frame++) player.Update(Step(1.0 / 60));
+        player.Transform();
+        for (int frame = 0; frame < 16; frame++)
+        {
+            player.Move(Direction.Right);
+            player.Update(Step(1.0 / 60));
+        }
+        var originalPosition = player.Position;
+        player.Transform();
+        Check("low ceiling prevents transformation without changing position", player.IsInBallForm
+            && player.Position == originalPosition);
+        player.Position = new Vector2(100, player.Position.Y);
+        player.Transform();
+        Check("robot transformation succeeds again in a clear area", !player.IsInBallForm);
+
+        LevelData workshop = LevelParser.Parse(File.ReadAllLines("3902 proj/Content/Levels/crates-05.room")).Data;
+        static Vector2 ReinforcedPosition(Level level) =>
+            level.Blocks.OfType<SupplyCrate>().Single(crate => crate.Kind == BlockKind.ReinforcedCrate).Position;
+        var selections = new HashSet<Vector2>();
+        for (int seed = 0; seed < 8; seed++)
+        {
+            var seededLevel = new Level(workshop, new Random(seed));
+            Vector2 cratePosition = ReinforcedPosition(seededLevel);
+            selections.Add(cratePosition);
+            Rectangle supportProbe = new Rectangle((int)cratePosition.X, (int)cratePosition.Y + 32, 32, 1);
+            Check("reinforced crate has permanent support for seed " + seed,
+                seededLevel.Blocks.Any(block => block.IsSolid && block is not CrumblingPlatform
+                    && block.Bounds.Intersects(supportProbe)));
+        }
+        Check("workshop randomizes between two existing supported crate spots", selections.Count == 2);
+        Check("same room seed picks the same reinforced crate on revisit",
+            ReinforcedPosition(new Level(workshop, new Random(42))) == ReinforcedPosition(new Level(workshop, new Random(42))));
     }
 }

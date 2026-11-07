@@ -69,6 +69,7 @@ namespace TransformersGame.Entities
         public Direction Facing { get; private set; }
         public bool FacingLeft => Facing == Direction.Left;
         public bool IsMoving { get; private set; }
+        public bool IsInBallForm => state is VehicleState;
 
         public PlayerArsenal Arsenal { get; }
 
@@ -253,7 +254,13 @@ namespace TransformersGame.Entities
         public void SetState(IPlayerState newState)
         {
             int oldHeight = Height;
-
+            if (state is VehicleState && newState is RobotState)
+            {
+                ISprite robotSprite = newState.CreateSprite();
+                Rectangle robotBounds = new Rectangle((int)Position.X, (int)(Position.Y + oldHeight - robotSprite.Height),
+                    robotSprite.Width, robotSprite.Height);
+                if (!collisionManager.IsSpaceAvailable(this, robotBounds)) return;
+            }
             state = newState;
             RefreshSprite();
 

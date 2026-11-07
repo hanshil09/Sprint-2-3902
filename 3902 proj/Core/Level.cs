@@ -21,6 +21,7 @@ namespace TransformersGame.Core
         private readonly List<IItem> items;
         private readonly List<Door> doors = new();
         private readonly List<IPlayerTrigger> triggers;
+        private readonly Placement<ItemKind> reinforcedSupply;
         private Rectangle playerSpawnBounds;
 
         public Level(LevelData data, Random random = null)
@@ -30,12 +31,13 @@ namespace TransformersGame.Core
             objs = new List<IGameObject>();
             blocks = new List<IBlock>();
             items = new List<IItem>();
+            reinforcedSupply = SelectReinforcedSupply(data, random);
 
             foreach (Placement<BlockKind> placement in data.Blocks)
             {
                 blocks.Add(CreateBlock(placement));
             }
-            if (random != null) CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random);
+            if (random != null) CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random, reinforcedSupply);
             LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
             blocks.AddRange(levelObjects.Platforms);
             triggers = levelObjects.Triggers;
@@ -62,6 +64,9 @@ namespace TransformersGame.Core
         public string Name => data.Name;
 
         public float Gravity => data.Gravity;
+
+        public bool HasIntactReinforcedCrate =>
+            blocks.Exists(block => block is SupplyCrate { Kind: BlockKind.ReinforcedCrate, IsDestroyed: false });
 
         // The end-of-level beacon, or null when this room has none.
         public Goal Goal { get; }
@@ -133,14 +138,38 @@ namespace TransformersGame.Core
             Vector2 position = CellPosition(placement.Column, placement.Row);
             foreach (Placement<ItemKind> drop in data.CrateDrops)
             {
-                if (placement.Kind == BlockKind.Crate && drop.Column == placement.Column && drop.Row == placement.Row)
+                if (drop.Column == placement.Column && drop.Row == placement.Row)
                 {
-                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(drop.Kind);
-                    return new SupplyCrate(position, crateSprite, drop.Kind);
+                    bool reinforced = placement.Kind == BlockKind.ReinforcedCrate || drop == reinforcedSupply;
+                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(drop.Kind, reinforced);
+                    return new SupplyCrate(position, crateSprite, drop.Kind, reinforced);
                 }
             }
             ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
             return new Block(position, sprite, placement.Kind != BlockKind.Hazard, placement.Kind);
+        }
+
+        private static Placement<ItemKind> SelectReinforcedSupply(LevelData data, Random random)
+        {
+            if (random == null)
+            {
+                return null;
+            }
+            List<Placement<ItemKind>> candidates = new();
+            foreach (Placement<ItemKind> drop in data.CrateDrops)
+            {
+                foreach (Placement<BlockKind> block in data.Blocks)
+                {
+                    if (block.Column == drop.Column && block.Row == drop.Row + 1
+                        && block.Kind is not (BlockKind.Crate or BlockKind.ReinforcedCrate or BlockKind.Hazard))
+                    {
+                        candidates.Add(drop);
+                        break;
+                    }
+                }
+            }
+            // Keep the authored tutorial crate fixed and reserve randomization for rooms with a choice.
+            return candidates.Count > 1 ? candidates[random.Next(candidates.Count)] : null;
         }
 
         private void ReleaseCrateItems()

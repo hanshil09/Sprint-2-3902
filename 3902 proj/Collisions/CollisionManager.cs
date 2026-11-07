@@ -34,6 +34,9 @@ namespace TransformersGame.Collisions
 
         public bool IsOnGround(IGameObject gameObject) => blockCollision.IsOnGround(gameObject);
 
+        public bool IsSpaceAvailable(IGameObject gameObject, Rectangle bounds) =>
+            worldBounds.Contains(bounds) && blockCollision.IsSpaceAvailable(gameObject, bounds);
+
         public bool TryJump(IGameObject gameObject, Physics physics, float speed) =>
             blockCollision.TryJump(gameObject, physics, speed);
 

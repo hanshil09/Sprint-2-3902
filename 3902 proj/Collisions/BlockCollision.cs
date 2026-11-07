@@ -33,6 +33,15 @@ namespace TransformersGame.Collisions
 
         public bool IsOnGround(IGameObject gameObject) => GetState(gameObject).IsOnGround;
 
+        public bool IsSpaceAvailable(IGameObject gameObject, Rectangle bounds)
+        {
+            foreach (IBlock block in GetState(gameObject).Blocks)
+            {
+                if (BlockCollisionHelper.IntersectsBlock(bounds, block)) return false;
+            }
+            return true;
+        }
+
         public bool TryJump(IGameObject gameObject, Physics physics, float speed)
         {
             BlockCollisionState state = GetState(gameObject);
@@ -78,8 +87,7 @@ namespace TransformersGame.Collisions
             bool wasOnGround = state.LastOnGround;
             player.Position = ResolveMovingBlockMovement(player, state);
 
-            player.Position = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height, horizontalDistance,
-                0, worldWidth - player.Width, state.Blocks);
+            player.Position = MovePlayerHorizontally(player, horizontalDistance, state.Blocks);
             Vector2 previousPosition = player.Position;
             Vector2 desiredPosition = physics.Apply(player.Position, gameTime);
             player.Position = BlockCollisionHelper.ResolveVerticalMovement(previousPosition, desiredPosition, player.Width, player.Height,
@@ -108,6 +116,21 @@ namespace TransformersGame.Collisions
             {
                 player.RefreshGroundState();
             }
+        }
+
+        private Vector2 MovePlayerHorizontally(Player player, float distance, IReadOnlyList<IBlock> blocks)
+        {
+            float maximumX = worldWidth - player.Width;
+            Vector2 resolved = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
+                distance, 0, maximumX, blocks, out IBlock hitBlock);
+            if (player.IsInBallForm && hitBlock is SupplyCrate crate && crate.TryBreakFromRoll())
+            {
+                player.PlaySound(GameSound.CrateBreak);
+                // Finish the movement against the remaining solid blocks.
+                resolved = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
+                    distance, 0, maximumX, blocks);
+            }
+            return resolved;
         }
 
         public Vector2 MoveHorizontally(IGameObject gameObject, Vector2 position, int width, int height,

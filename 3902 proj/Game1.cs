@@ -185,6 +185,11 @@ namespace TransformersGame
             playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
             controlsOverlay.DrawSmallText(spriteBatch,
                 audio.MusicMuted ? "M: Music OFF" : "M: Music ON", 820, 86, false);
+            if (roomManager.ActiveRoomIndex == 0 && room.Level.HasIntactReinforcedCrate)
+            {
+                controlsOverlay.DrawSmallText(spriteBatch,
+                    "SPACE to transform. Roll into the blue crate.", 26, 98, false);
+            }
             showcase.Draw(spriteBatch, controlsOverlay);
             controlsOverlay.DrawGameplayHelp(spriteBatch, Player, room.Objective);
         }

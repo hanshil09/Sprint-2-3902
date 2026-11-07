@@ -19,7 +19,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | Enter | Start |
 | A/D or arrows | Move |
 | W / Up / J | Jump |
-| Space | Transform |
+| Space | Transform; roll into blue crates to break them |
 | Z / N | Shoot |
 | 2 | Drop bomb |
 | 3 / 4 | Use medkit / shield |
@@ -76,6 +76,8 @@ see the [regression guide](RegressionChecks/README.md). Automated reachability
 checks use simplified geometry and do not replace manual playtesting.
 
 ## Credits
+
+- The reinforced crate sprites were generated with OpenAI ImageGen and adapted to 32 × 32 tiles.
 
 - Original synthesized music and sound effects are included in `3902 proj/Content/Audio`.
   No extra audio downloads are needed. See [audio notes](Documentation/Audio.md).

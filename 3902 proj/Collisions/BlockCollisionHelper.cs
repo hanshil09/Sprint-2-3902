@@ -24,12 +24,17 @@ namespace TransformersGame.Collisions
             target is IBlock { IsSolid: true } && projectile is not Bomb;
 
         public static Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance,
-            float minimumX, float maximumX, IReadOnlyList<IBlock> blocks)
+            float minimumX, float maximumX, IReadOnlyList<IBlock> blocks) =>
+            MoveHorizontally(position, width, height, distance, minimumX, maximumX, blocks, out _);
+
+        public static Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance,
+            float minimumX, float maximumX, IReadOnlyList<IBlock> blocks, out IBlock hitBlock)
         {
             ArgumentNullException.ThrowIfNull(blocks);
             float startX = position.X;
             float desiredX = MathHelper.Clamp(startX + distance, minimumX, maximumX);
             float resolvedX = desiredX;
+            hitBlock = null;
             foreach (IBlock block in blocks)
             {
                 Rectangle bounds = block.Bounds;
@@ -38,13 +43,15 @@ namespace TransformersGame.Collisions
                     continue;
                 }
 
-                if (distance > 0 && startX + width <= bounds.Left && desiredX + width > bounds.Left)
+                if (distance > 0 && startX + width <= bounds.Left && resolvedX + width > bounds.Left)
                 {
-                    resolvedX = Math.Min(resolvedX, bounds.Left - width);
+                    resolvedX = bounds.Left - width;
+                    hitBlock = block;
                 }
-                else if (distance < 0 && startX >= bounds.Right && desiredX < bounds.Right)
+                else if (distance < 0 && startX >= bounds.Right && resolvedX < bounds.Right)
                 {
-                    resolvedX = Math.Max(resolvedX, bounds.Right);
+                    resolvedX = bounds.Right;
+                    hitBlock = block;
                 }
             }
             position.X = MathHelper.Clamp(resolvedX, minimumX, maximumX);
