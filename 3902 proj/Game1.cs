@@ -41,6 +41,7 @@ namespace TransformersGame
         private IPlayer player;
         private int pendingDoorDirection;
         private readonly GameAudio audio = new GameAudio();
+        private Texture2D playerPortrait;
 
         public Game1()
         {
@@ -123,8 +124,13 @@ namespace TransformersGame
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
             SpriteFont uiFont = Content.Load<SpriteFont>("Fonts/Controls");
+
             controlsOverlay = new ControlsOverlay(uiFont, GraphicsDevice);
-            playerHud = new PlayerHud(uiFont);
+
+            playerPortrait = Content.Load<Texture2D>(
+                "Sprites/dilloSpriteTest2");
+
+            playerHud = new PlayerHud(uiFont, playerPortrait);
             showcase = new ObjectShowcase();
             InitializeGameObjects();
         }
