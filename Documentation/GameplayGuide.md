@@ -115,6 +115,11 @@ empty. Room files use `H` for Health Cell crates, `E` for Energon crates, `Q`
 for a Morph Ball-only Bomb Pack crate, and `C` for empty crates. See
 [supply crates](SupplyCrates.md).
 
+Blue and purple reinforced crates resist shots and bombs. Press Space to transform, then
+roll into one from either side. Level 1 has a fixed tutorial crate (`R`) that
+drops Energon. Crate Workshop reinforces one of its existing supported supply
+crates per new game; it keeps its original pickup and the same spot on revisits.
+
 ## Crumbling platforms
 
 Each new game, including an R reset, selects 2–3 existing elevated platform

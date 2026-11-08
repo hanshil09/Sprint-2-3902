@@ -69,6 +69,7 @@ namespace TransformersGame.Entities
         public Direction Facing { get; private set; }
         public bool FacingLeft => Facing == Direction.Left;
         public bool IsMoving { get; private set; }
+        public bool IsInBallForm => state is VehicleState;
 
         public PlayerArsenal Arsenal { get; }
 
@@ -118,8 +119,15 @@ namespace TransformersGame.Entities
 
         public void Jump()
         {
-            collisionManager.TryJump(this, physics, JumpSpeed);
+            if (collisionManager.TryJump(this, physics, JumpSpeed))
+            {
+                PlaySound(GameSound.Jump);
+            }
         }
+
+        public event System.Action<GameSound> SoundRequested;
+
+        internal void PlaySound(GameSound sound) => SoundRequested?.Invoke(sound);
 
         public void Bounce(float speed)
         {
@@ -138,7 +146,9 @@ namespace TransformersGame.Entities
 
         public void Transform()
         {
+            IPlayerState previous = state;
             state.Transform();
+            if (state != previous) PlaySound(GameSound.Transform);
         }
 
         public bool TakeDamage()
@@ -198,6 +208,7 @@ namespace TransformersGame.Entities
             }
 
             Health = MaxHealth;
+            PlaySound(GameSound.Item);
             return true;
         }
 
@@ -209,6 +220,7 @@ namespace TransformersGame.Entities
             }
 
             shieldTimeRemaining = ShieldDuration;
+            PlaySound(GameSound.Item);
             return true;
         }
 
@@ -243,7 +255,13 @@ namespace TransformersGame.Entities
         public void SetState(IPlayerState newState)
         {
             int oldHeight = Height;
-
+            if (state is VehicleState && newState is RobotState)
+            {
+                ISprite robotSprite = newState.CreateSprite();
+                Rectangle robotBounds = new Rectangle((int)Position.X, (int)(Position.Y + oldHeight - robotSprite.Height),
+                    robotSprite.Width, robotSprite.Height);
+                if (!collisionManager.IsSpaceAvailable(this, robotBounds)) return;
+            }
             state = newState;
             RefreshSprite();
 

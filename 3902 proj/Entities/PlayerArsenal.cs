@@ -43,6 +43,7 @@ namespace TransformersGame.Entities
 
         public void FireShot(bool angled)
         {
+            player.PlaySound(GameSound.Shoot);
             ISprite shot = ProjectileSpriteFactory.Instance.CreateShotSprite(player.FacingLeft);
             projectiles.Add(new EnergyProjectile(MuzzlePosition(shot), Forward(ShotSpeed), angled, player.FacingLeft, shot));
             // Recoil always pushes the player in the direction opposite of the shot.
@@ -52,18 +53,21 @@ namespace TransformersGame.Entities
 
         public void FireOrb()
         {
+            player.PlaySound(GameSound.Shoot);
             ISprite orb = ProjectileSpriteFactory.Instance.CreateOrbSprite(player.FacingLeft);
             projectiles.Add(new EnergyProjectile(MuzzlePosition(orb), Forward(OrbSpeed), false, player.FacingLeft, orb));
         }
 
         public void FirePiercing()
         {
+            player.PlaySound(GameSound.Shoot);
             ISprite orb = ProjectileSpriteFactory.Instance.CreateOrbSprite(player.FacingLeft);
             projectiles.Add(new PiercingProjectile(MuzzlePosition(orb), Forward(PiercingSpeed), orb));
         }
 
         public void FireSpread()
         {
+            player.PlaySound(GameSound.Shoot);
             foreach (float degrees in new[] { -SpreadAngleDegrees, 0f, SpreadAngleDegrees })
             {
                 ISprite pellet = ProjectileSpriteFactory.Instance.CreateSpreadPelletSprite();
@@ -81,6 +85,7 @@ namespace TransformersGame.Entities
                 return;
             }
             ISprite sprite = ProjectileSpriteFactory.Instance.CreateBoomerangSprite();
+            player.PlaySound(GameSound.Shoot);
             activeBoomerang = new BoomerangProjectile(MuzzlePosition(sprite), (int)Direction, () => player.Center, sprite);
             projectiles.Add(activeBoomerang);
         }
@@ -93,6 +98,7 @@ namespace TransformersGame.Entities
             projectiles.Add(new Bomb(new Vector2(x, y), bomb, blocks, gravity,
                 () => ProjectileSpriteFactory.Instance.CreateExplosionSprite(blastLevel), collisionManager,
                 player.IsMorphBall));
+                () => player.PlaySound(GameSound.Explosion)));
         }
 
         private float Direction => player.FacingLeft ? -1f : 1f;

@@ -9,9 +9,15 @@ namespace TransformersGame.Core
 {
     internal static class CrumblingPlatformLayout
     {
-        public static void Apply(List<IBlock> blocks, LevelData data, Func<int, int, Vector2> cellPosition, Random random)
+        public static void Apply(List<IBlock> blocks, LevelData data, Func<int, int, Vector2> cellPosition, Random random,
+            Placement<ItemKind> protectedCrate = null)
         {
             List<Site> sites = FindSites(data);
+            if (protectedCrate != null)
+            {
+                sites.RemoveAll(site => site.Row == protectedCrate.Row + 1
+                    && protectedCrate.Column >= site.Column && protectedCrate.Column < site.Column + site.Length);
+            }
             int count = Math.Min(sites.Count, random.Next(2, 4));
             int firstKind = random.Next(3);
             for (int i = 0; i < count; i++)
@@ -38,8 +44,7 @@ namespace TransformersGame.Core
                 Placement<BlockKind> first = tiles[index];
                 int length = RunLength(tiles, index);
                 if (length >= 2 && first.Row < data.Rows - 1
-                    && first.Kind != BlockKind.Hazard && first.Kind != BlockKind.Crate
-                    && first.Kind != BlockKind.MorphBallCrate)
+                    && first.Kind is not (BlockKind.Hazard or BlockKind.Crate or BlockKind.ReinforcedCrate or BlockKind.MorphBallCrate))
                 {
                     sites.Add(new Site(first.Column, first.Row, length));
                 }

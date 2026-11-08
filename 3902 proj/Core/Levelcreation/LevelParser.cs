@@ -27,6 +27,7 @@ namespace TransformersGame.Core
             ['H'] = BlockKind.Crate,
             ['E'] = BlockKind.Crate,
             ['Q'] = BlockKind.MorphBallCrate,
+            ['R'] = BlockKind.ReinforcedCrate,
             ['X'] = BlockKind.Hazard,
             ['W'] = BlockKind.Wood,
             ['Y'] = BlockKind.Caution,
@@ -38,6 +39,7 @@ namespace TransformersGame.Core
             ['H'] = ItemKind.HealthCell,
             ['E'] = ItemKind.Energon,
             ['Q'] = ItemKind.BombPack
+            ['R'] = ItemKind.Energon
         };
 
         private static readonly Dictionary<char, ItemKind> ItemSymbols = new Dictionary<char, ItemKind>

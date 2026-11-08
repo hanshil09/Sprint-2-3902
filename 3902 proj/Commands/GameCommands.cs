@@ -2,6 +2,13 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Commands
 {
+    internal sealed class ToggleMusicCommand : ICommand
+    {
+        private readonly Game1 game;
+        public ToggleMusicCommand(Game1 game) => this.game = game;
+        public void Execute() => game.ToggleMusic();
+    }
+
     internal sealed class ToggleHelpCommand : ICommand
     {
         private readonly Game1 game;

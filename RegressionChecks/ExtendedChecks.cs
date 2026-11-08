@@ -39,9 +39,10 @@ internal static class ExtendedChecks
             };
             var baseFloor = result.Data.Blocks.Where(b => b.Row == result.Data.Rows - 1).ToArray();
             Check("complete themed base floor " + path, baseFloor.Length == 30 && baseFloor.All(b => b.Kind == expectedFloor));
+            
             var platforms = result.Data.Blocks.Where(b => b.Row < result.Data.Rows - 1
-                && b.Kind != BlockKind.Crate && b.Kind != BlockKind.MorphBallCrate
-                && b.Kind != BlockKind.Hazard).ToArray();
+                && b.Kind is not (BlockKind.Crate or BlockKind.MorphBallCrate or BlockKind.ReinforcedCrate or BlockKind.Hazard)).ToArray();
+
             Check("parkour blocks match base floor " + path, platforms.Length > 0 && platforms.All(b => b.Kind == expectedFloor));
             var floorPhysics = new Physics(result.Data.Gravity);
             Check("themed floor supports falling objects " + path,

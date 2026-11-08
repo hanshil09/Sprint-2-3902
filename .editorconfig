@@ -4,6 +4,6 @@
 # implementations can be replaced without changing the game loop.
 dotnet_diagnostic.CA1859.severity = none
 
-[3902 proj/Core/{RoomFactory,CrumblingPlatformLayout}.cs]
+[3902 proj/Core/{RoomFactory,CrumblingPlatformLayout,Level}.cs]
 # Random controls reproducible gameplay layouts, not passwords or other security data.
 dotnet_diagnostic.CA5394.severity = none

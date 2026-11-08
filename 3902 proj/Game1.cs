@@ -40,6 +40,7 @@ namespace TransformersGame
         private ObjectShowcase showcase;
         private IPlayer player;
         private int pendingDoorDirection;
+        private readonly GameAudio audio = new GameAudio();
 
         public Game1()
         {
@@ -66,14 +67,18 @@ namespace TransformersGame
 
         public void ToggleHelp() => controlsOverlay.ToggleHelp();
 
+        public void ToggleMusic() => audio.ToggleMusic(gameState == GameState.Gameplay);
+
         public void StartGame()
         {
             gameState = GameState.Gameplay;
+            audio.StartMusic();
             Window.Title = GameplayTitle;
         }
 
         public void ResetGame()
         {
+            audio.StopMusic();
             InitializeGameObjects();
             gameState = GameState.StartMenu;
             Window.Title = MenuTitle;
@@ -90,6 +95,7 @@ namespace TransformersGame
                 return;
             }
             Player = new DamagedPlayer(Player, this);
+            audio.Play(GameSound.Hurt);
         }
 
         public void RemovePlayerDecorator(PlayerDecorator decorator)
@@ -109,6 +115,7 @@ namespace TransformersGame
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            audio.Load(Content);
             SpriteAtlas.LoadAllTextures(Content);
             PlayerSpriteFactory.Instance.LoadAllTextures(Content);
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
@@ -141,6 +148,7 @@ namespace TransformersGame
             if (disposing)
             {
                 roomManager?.Unload();
+                audio.Dispose();
                 controlsOverlay?.Dispose();
                 controlsOverlay = null;
                 spriteBatch?.Dispose();
@@ -175,6 +183,13 @@ namespace TransformersGame
             Player.Draw(spriteBatch);
             string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
             playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
+            controlsOverlay.DrawSmallText(spriteBatch,
+                audio.MusicMuted ? "M: Music OFF" : "M: Music ON", 820, 86, false);
+            if (roomManager.ActiveRoomIndex == 0 && room.Level.HasIntactReinforcedCrate)
+            {
+                controlsOverlay.DrawSmallText(spriteBatch,
+                    "SPACE to transform. Roll into the blue crate.", 26, 98, false);
+            }
             showcase.Draw(spriteBatch, controlsOverlay);
             controlsOverlay.DrawGameplayHelp(spriteBatch, Player, room.Objective);
         }
@@ -190,6 +205,7 @@ namespace TransformersGame
                 direction => pendingDoorDirection = direction);
             player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles,
                 initialLevel.Gravity, collisionManager);
+            ((Player)player).SoundRequested += audio.Play;
             Room initialRoom = RoomFactory.CreateRoom(initialLevel, player, initialProjectiles, collisionManager);
             roomManager = new RoomManager(initialRoom, roomFactory.RoomCount, player,
                 index => RoomFactory.CreateRoom(roomFactory.LoadLevel(index), Player,
@@ -220,6 +236,7 @@ namespace TransformersGame
 
         private void ApplyPowerUps(IReadOnlyList<IItem> collected)
         {
+            if (collected.Count > 0) audio.Play(GameSound.Pickup);
             foreach (IItem item in collected)
             {
                 if (item is IPowerUp powerUp)
@@ -243,6 +260,8 @@ namespace TransformersGame
 
         private void EndGame(GameState endState, string title)
         {
+            audio.StopMusic();
+            audio.Play(endState == GameState.Victory ? GameSound.Victory : GameSound.Defeat);
             gameState = endState;
             Window.Title = title;
             menuController = ControllerFactory.CreateEndScreenController(this);

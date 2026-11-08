@@ -18,6 +18,8 @@ namespace TransformersGame.Factories
 
         private Texture2D blockSpriteSheet;
         private Texture2D objectSpriteSheet;
+        private Texture2D reinforcedHealth;
+        private Texture2D reinforcedEnergon;
 
         private BlockSpriteFactory()
         {
@@ -35,10 +37,16 @@ namespace TransformersGame.Factories
         {
             blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
+            reinforcedHealth = content.Load<Texture2D>("Sprites/reinforced-health");
+            reinforcedEnergon = content.Load<Texture2D>("Sprites/reinforced-energon");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)
         {
+            if (kind == BlockKind.ReinforcedCrate)
+            {
+                return CreateSupplyCrateSprite(ItemKind.Energon, true);
+            }
             if (kind == BlockKind.Alloy)
             {
                 return new TextureRegionSprite(objectSpriteSheet, SpriteAtlas.AlloyBlock, BlockSize, BlockSize, Color.White);
@@ -63,6 +71,16 @@ namespace TransformersGame.Factories
         {
             Color tint = requiresMorphBall ? Color.OrangeRed
                 : kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
+
+       public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false, bool reinforced = false)
+        {
+            if (reinforced)
+            {
+                Texture2D texture = kind == ItemKind.HealthCell ? reinforcedHealth : reinforcedEnergon;
+                return new TextureRegionSprite(texture, new Rectangle(0, 0, BlockSize, BlockSize),
+                    BlockSize, BlockSize, Color.White);
+            }
+            Color tint = requiresMorphBall ? Color.OrangeRed : kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
             Rectangle frame = new Rectangle(BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }

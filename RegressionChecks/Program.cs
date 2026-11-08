@@ -1,5 +1,11 @@
 using TransformersGame.Core;
 
+if (args.Contains("--audio"))
+{
+    AudioChecks.Run();
+    return;
+}
+
 if (args.Contains("--pickups"))
 {
     PickupChecks.Run();
