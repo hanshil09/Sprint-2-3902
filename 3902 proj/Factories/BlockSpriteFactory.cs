@@ -46,19 +46,23 @@ namespace TransformersGame.Factories
             int index = kind switch
             {
                 BlockKind.Crate => 1,
+                BlockKind.MorphBallCrate => 1,
                 BlockKind.Hazard => 3,
                 BlockKind.Wood => 4,
                 BlockKind.Caution => 5,
                 _ => (int)kind
             };
-            Color tint = kind == BlockKind.Crate ? Color.Orange : kind == BlockKind.Hazard ? Color.Red : Color.White;
+            Color tint = kind == BlockKind.Crate ? Color.Orange
+                : kind == BlockKind.MorphBallCrate ? Color.OrangeRed
+                : kind == BlockKind.Hazard ? Color.Red : Color.White;
             Rectangle frame = new Rectangle(index * BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
-        public ISprite CreateSupplyCrateSprite(ItemKind kind)
+        public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false)
         {
-            Color tint = kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
+            Color tint = requiresMorphBall ? Color.OrangeRed
+                : kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
             Rectangle frame = new Rectangle(BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }

@@ -24,7 +24,7 @@ namespace TransformersGame.Entities
 
         public Bomb(Vector2 position, ISprite sprite, IReadOnlyList<IBlock> blocks = null,
             float gravity = Physics.DefaultGravity, Func<ISprite> createExplosion = null,
-            CollisionManager collisionManager = null)
+            CollisionManager collisionManager = null, bool canDestroyMorphBallCrates = false)
         {
             Position = position;
             PreviousPosition = position;
@@ -33,6 +33,7 @@ namespace TransformersGame.Entities
             this.collisionManager = collisionManager ?? new CollisionManager(960, 540);
             this.collisionManager.SetBlocks(this, blocks ?? Array.Empty<IBlock>());
             this.createExplosion = createExplosion ?? (() => ProjectileSpriteFactory.Instance.CreateExplosionSprite());
+            CanDestroyMorphBallCrates = canDestroyMorphBallCrates;
             timer = FuseTime;
             hasExploded = false;
             IsActive = true;
@@ -47,6 +48,8 @@ namespace TransformersGame.Entities
         public bool IsActive { get; private set; }
 
         public bool IsExploding => IsActive && hasExploded;
+
+        public bool CanDestroyMorphBallCrates { get; }
 
         public void DamageEnemy(IEnemy enemy)
         {

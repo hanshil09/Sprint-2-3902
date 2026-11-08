@@ -10,6 +10,7 @@ namespace TransformersGame.Core
         private readonly string[] roomPaths;
         private readonly Random random = new Random();
         private readonly int[] roomSeeds;
+        private RoomProgress[] roomProgress;
 
         public RoomFactory(params string[] roomPaths)
         {
@@ -22,9 +23,11 @@ namespace TransformersGame.Core
 
         public void StartNewGame()
         {
+            roomProgress = new RoomProgress[roomPaths.Length];
             for (int i = 0; i < roomSeeds.Length; i++)
             {
                 roomSeeds[i] = random.Next();
+                roomProgress[i] = new RoomProgress();
             }
         }
 
@@ -35,7 +38,7 @@ namespace TransformersGame.Core
             {
                 Console.WriteLine(message);
             }
-            return new Level(loaded.Data, new Random(roomSeeds[roomIndex]));
+            return new Level(loaded.Data, new Random(roomSeeds[roomIndex]), roomProgress[roomIndex]);
         }
 
         public static Room CreateRoom(Level level, IPlayer player, IProjectileManager projectiles,

@@ -83,6 +83,7 @@ namespace TransformersGame.Entities
         public int EnergonCount => inventory.EnergonCount;
         public bool IsShieldActive => shieldTimeRemaining > 0;
         public bool IsInvincible => false;
+        internal bool IsMorphBall => state is VehicleState;
 
         public float SpeedScale { get; set; }
         public bool IsOnGround => collisionManager.IsOnGround(this);

@@ -91,7 +91,8 @@ namespace TransformersGame.Entities
             float x = player.Position.X + (player.Width - bomb.Width) / 2f;
             float y = player.Position.Y + player.Height - bomb.Height;
             projectiles.Add(new Bomb(new Vector2(x, y), bomb, blocks, gravity,
-                () => ProjectileSpriteFactory.Instance.CreateExplosionSprite(blastLevel), collisionManager));
+                () => ProjectileSpriteFactory.Instance.CreateExplosionSprite(blastLevel), collisionManager,
+                player.IsMorphBall));
         }
 
         private float Direction => player.FacingLeft ? -1f : 1f;

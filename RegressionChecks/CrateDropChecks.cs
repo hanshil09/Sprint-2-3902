@@ -11,15 +11,19 @@ internal static class CrateDropChecks
 
     public static void Run()
     {
-        LevelParseResult parsed = LevelParser.Parse(new[] { "name: Supply test", "[tiles]", "P.HEC", "GGGGG" });
+        LevelParseResult parsed = LevelParser.Parse(new[] { "name: Supply test", "[tiles]", "P.HECQ", "GGGGGG" });
         Check("supply symbols parse without warnings", parsed.Success && parsed.Warnings.Count == 0);
-        Check("both supply symbols remain crate blocks", parsed.Data.Blocks.Count(b => b.Kind == BlockKind.Crate) == 3);
-        Check("crate contents are separate from loose pickups", parsed.Data.CrateDrops.Count == 2 && parsed.Data.Items.Count == 0);
+        Check("H/E/C remain regular crate blocks", parsed.Data.Blocks.Count(b => b.Kind == BlockKind.Crate) == 3);
+        Check("crate contents are separate from loose pickups", parsed.Data.CrateDrops.Count == 3 && parsed.Data.Items.Count == 0);
         Check("H contains Health Cell and E contains Energon", parsed.Data.CrateDrops[0].Kind == ItemKind.HealthCell
             && parsed.Data.CrateDrops[1].Kind == ItemKind.Energon);
+        Check("Q contains a Bomb Pack in a separate Morph Ball crate",
+            parsed.Data.CrateDrops[2].Kind == ItemKind.BombPack
+            && parsed.Data.Blocks[3].Kind == BlockKind.MorphBallCrate);
         CheckShotDrop(parsed.Data, 0, ItemKind.HealthCell);
         CheckShotDrop(parsed.Data, 1, ItemKind.Energon);
         CheckBombDrop(parsed.Data);
+        CheckMorphBallCrate();
         CheckOrdinaryBlocks(parsed.Data);
         Console.WriteLine($"{passed} crate-drop checks passed.");
     }
@@ -89,5 +93,54 @@ internal static class CrateDropChecks
         Check("workshop contains both designated drop types", workshop.Success
             && workshop.Data.CrateDrops.Any(d => d.Kind == ItemKind.HealthCell)
             && workshop.Data.CrateDrops.Any(d => d.Kind == ItemKind.Energon));
+    }
+
+    private static void CheckMorphBallCrate()
+    {
+        LevelParseResult parsed = LevelParser.Parse(new[] { "[tiles]", "P...Q", "GGGGG" });
+        Check("Q parses as a Morph Ball crate with a Bomb Pack",
+            parsed.Success
+            && parsed.Data.Blocks.Any(block => block.Kind == BlockKind.MorphBallCrate)
+            && parsed.Data.CrateDrops.Any(drop => drop.Kind == ItemKind.BombPack));
+        if (!parsed.Success) return;
+
+        Level level = new Level(parsed.Data);
+        SupplyCrate crate = level.Blocks.OfType<SupplyCrate>().Single();
+        Check("Morph Ball crate hides its Bomb Pack before destruction", level.Items.Count == 0 && crate.IsSolid);
+
+        Player player = new Player(crate.Position, level.Blocks, new ProjectileManager(), gravity: 0);
+        Check("player can identify Morph Ball form", !player.IsMorphBall);
+        player.Transform();
+        Check("transforming switches to Morph Ball form", player.IsMorphBall);
+        var contacts = new CollisionManager(960, 540);
+        contacts.BuildTree(new List<IGameObject> { player, crate });
+        contacts.DetectCollision();
+        Check("touching a Morph Ball crate does not destroy it", crate.IsSolid && !crate.IsDestroyed);
+
+        EnergyProjectile shot = new EnergyProjectile(crate.Position - new Vector2(48, 0),
+            new Vector2(520, 0), false, false, new StubSprite());
+        shot.Update(Step(0.2));
+        contacts.BuildTree(new List<IGameObject> { crate, shot });
+        contacts.DetectCollision();
+        Check("normal shot cannot destroy a Morph Ball crate", crate.IsSolid && !shot.IsActive);
+
+        var robotBomb = new Bomb(crate.Position, new StubSprite(), gravity: 0,
+            createExplosion: () => new StubSprite());
+        robotBomb.Update(Step(1.2));
+        contacts.BuildTree(new List<IGameObject> { crate, robotBomb });
+        contacts.DetectCollision();
+        Check("bomb dropped in robot form cannot destroy a Morph Ball crate", crate.IsSolid);
+
+        var morphBomb = new Bomb(crate.Position, new StubSprite(), gravity: 0,
+            createExplosion: () => new StubSprite(), canDestroyMorphBallCrates: true);
+        morphBomb.Update(Step(1.2));
+        contacts.BuildTree(new List<IGameObject> { crate, morphBomb });
+        contacts.DetectCollision();
+        level.Update(Step(0.01));
+        Check("Morph Ball bomb destroys crate and releases one Bomb Pack",
+            crate.IsDestroyed && level.Items.Count == 1 && crate.ItemKind == ItemKind.BombPack);
+        level.CollectItems(player);
+        Check("released Bomb Pack is collected and upgrades bomb blast",
+            level.Items.Count == 0 && player.BombLevel == 1);
     }
 }

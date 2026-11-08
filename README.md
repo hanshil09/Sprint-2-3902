@@ -36,8 +36,9 @@ pickups, room details, limitations, and artwork credits.
 - Normal-shot recoil changes position directly without wall collision
   resolution; firing beside a wall can cause overlap.
 - Facing down does not aim normal shots downward; use K for angled shots.
-- Revisiting a room resets enemies, pickups, crates, and platform phases,
-  allowing pickups to be collected again. Player inventory/upgrades persist.
+- Revisiting a room respawns regular enemies, but collected pickups and opened
+  crates stay cleared. Uncollected crate drops and defeated-boss progress persist;
+  moving and crumbling platform phases reset. Player inventory/upgrades persist.
 - Automated route checks model simplified static geometry, not full combat or
   every randomized crumbling-platform route. Manual gameplay and balance
   testing is still needed.
@@ -56,6 +57,11 @@ pickups, room details, limitations, and artwork credits.
   comparison of production source-file and line counts. These measure project
   size, not complexity or proof of quality; no continuous complexity history
   is claimed.
+
+## Sprint 5 planning
+
+- **Feature ideas and research:** [Sprint 5 ideas](Documentation/Sprint5-FeatureIdeas.md).
+- **Room revisit behavior:** [Room respawn decision](Documentation/RoomRespawnDecision.md).
 
 ## Sprint 3 code quality and reviews
 

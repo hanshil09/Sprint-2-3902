@@ -38,7 +38,8 @@ namespace TransformersGame.Core
                 Placement<BlockKind> first = tiles[index];
                 int length = RunLength(tiles, index);
                 if (length >= 2 && first.Row < data.Rows - 1
-                    && first.Kind != BlockKind.Hazard && first.Kind != BlockKind.Crate)
+                    && first.Kind != BlockKind.Hazard && first.Kind != BlockKind.Crate
+                    && first.Kind != BlockKind.MorphBallCrate)
                 {
                     sites.Add(new Site(first.Column, first.Row, length));
                 }

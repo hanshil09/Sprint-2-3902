@@ -22,7 +22,7 @@ namespace TransformersGame.Entities
         public bool IsHazard => Kind == BlockKind.Hazard;
         public void Destroy()
         {
-            if (Kind == BlockKind.Crate)
+            if (Kind == BlockKind.Crate || Kind == BlockKind.MorphBallCrate)
             {
                 IsDestroyed = true;
                 IsSolid = false;

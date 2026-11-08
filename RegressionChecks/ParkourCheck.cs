@@ -48,7 +48,8 @@ internal static class ParkourCheck
         public bool Run()
         {
             // Breakable crates are assumed cleared first; hazards remain forbidden.
-            IBlock[] solids = data.Blocks.Where(p => p.Kind != BlockKind.Hazard && p.Kind != BlockKind.Crate)
+            IBlock[] solids = data.Blocks.Where(p => p.Kind != BlockKind.Hazard
+                    && p.Kind != BlockKind.Crate && p.Kind != BlockKind.MorphBallCrate)
                 .Select(p => (IBlock)new Block(Cell(p.Column, p.Row, data.Rows), new TileSprite(), true)).ToArray();
             Rectangle[] hazards = data.Blocks.Where(p => p.Kind == BlockKind.Hazard)
                 .Select(p => new Rectangle((int)Cell(p.Column, p.Row, data.Rows).X,

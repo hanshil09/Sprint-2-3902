@@ -114,7 +114,7 @@ namespace TransformersGame.UI
             DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 291);
             DrawHelpLine(spriteBatch, "SYSTEM", "E damage     R reset     Q / ESC quit", 319);
             DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 347);
-            DrawHelpLine(spriteBatch, "CRATES", "Green: Health Cell (+10 HP)   Gold: Energon   Shoot or bomb", 375);
+            DrawHelpLine(spriteBatch, "CRATES", "Green: Health   Gold: Energon   Orange-red: Morph Ball bomb", 375);
             DrawHelpLine(spriteBatch, "GOAL", objective, 403);
         }
 

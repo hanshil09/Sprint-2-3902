@@ -46,9 +46,13 @@ namespace TransformersGame.Core
                 {
                     enemy.Update(gameTime);
                 }
+                if (enemy is Boss boss && boss.IsDefeated)
+                {
+                    Level.Progress.RecordBossDefeated();
+                }
             }
             Projectiles.Update(gameTime);
-            Level.Goal?.SetUnlocked(!HasLiveBoss());
+            Level.Goal?.SetUnlocked(Level.Progress.BossDefeated || !HasLiveBoss());
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -88,6 +92,14 @@ namespace TransformersGame.Core
 
         public void Unload()
         {
+            Level.RecordPendingCrateDrops();
+            foreach (IGameObject enemy in Enemies.Objects)
+            {
+                if (enemy is Boss boss && boss.IsDefeated)
+                {
+                    Level.Progress.RecordBossDefeated();
+                }
+            }
             Projectiles.Clear();
         }
 
