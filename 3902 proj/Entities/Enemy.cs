@@ -220,6 +220,7 @@ namespace TransformersGame.Entities
 
         public void Update(GameTime gameTime)
         {
+            /*
             float horizontalDistance =
                     Facing *
                     Stats.MovementSpeed *
@@ -233,6 +234,7 @@ namespace TransformersGame.Entities
                 gameTime, 
                 horizontalDistance
             );
+            */
             State.Update(gameTime);
             Sprite.Update(gameTime);
         }
