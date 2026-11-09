@@ -61,18 +61,25 @@ namespace TransformersGame.Entities
             player.Position = new Vector2(player.Position.X + recoil, player.Position.Y);
         }
 
-        public void FireOrb()
+        public void FireOrb(bool angled = false)
         {
             player.PlaySound(GameSound.Shoot);
             ISprite orb = ProjectileSpriteFactory.Instance.CreateOrbSprite(player.FacingLeft);
-            projectiles.Add(new EnergyProjectile(MuzzlePosition(orb), Forward(OrbSpeed), false, player.FacingLeft, orb));
+            projectiles.Add(new EnergyProjectile(MuzzlePosition(orb), Forward(OrbSpeed), angled, player.FacingLeft, orb));
         }
 
-        public void FirePiercing()
+        public void FirePiercing(bool angled = false)
         {
             player.PlaySound(GameSound.Shoot);
             ISprite orb = ProjectileSpriteFactory.Instance.CreateOrbSprite(player.FacingLeft);
-            projectiles.Add(new PiercingProjectile(MuzzlePosition(orb), Forward(PiercingSpeed), orb));
+            projectiles.Add(new PiercingProjectile(MuzzlePosition(orb), Forward(PiercingSpeed), orb, angled));
+        }
+
+        public void FireIce(bool angled)
+        {
+            player.PlaySound(GameSound.Shoot);
+            ISprite ice = ProjectileSpriteFactory.Instance.CreateIceSprite(player.FacingLeft);
+            projectiles.Add(new IceProjectile(MuzzlePosition(ice), Forward(OrbSpeed), angled, player.FacingLeft, ice));
         }
 
         public void FireSpread()

@@ -133,6 +133,13 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(sheet, frame, OrbSize, OrbSize, Color.LightGreen);
         }
 
+        public ISprite CreateIceSprite(bool facingLeft)
+        {
+            Texture2D sheet = facingLeft ? leftSpriteSheet : rightSpriteSheet;
+            Rectangle frame = facingLeft ? LeftOrbFrame : RightOrbFrame;
+            return new TextureRegionSprite(sheet, frame, OrbSize, OrbSize, Color.DeepSkyBlue);
+        }
+
         public ISprite CreateBombSprite()
         {
             return new TextureRegionSprite(

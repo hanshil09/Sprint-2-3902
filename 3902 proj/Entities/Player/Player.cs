@@ -107,7 +107,7 @@ internal class Player : IPlayer
 
     public void Shoot(bool angled) => form.Shoot(angled);
 
-    public void UseItem(int itemNumber) => form.UseItem(itemNumber);
+    public void UseItem(int itemNumber, bool angled = false) => form.UseItem(itemNumber, angled);
 
     public void Transform()
     {

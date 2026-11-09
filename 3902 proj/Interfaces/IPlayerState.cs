@@ -10,7 +10,7 @@ namespace TransformersGame.Interfaces
 
         void Shoot(bool angled);
 
-        void UseItem(int itemNumber);
+        void UseItem(int itemNumber, bool angled = false);
 
         void Update(GameTime gameTime);
 

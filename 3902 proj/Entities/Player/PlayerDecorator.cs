@@ -42,7 +42,7 @@ namespace TransformersGame.Entities
         public virtual void Jump() => Inner.Jump();
         public virtual void Bounce(float speed) => Inner.Bounce(speed);
         public virtual void Shoot(bool angled) => Inner.Shoot(angled);
-        public virtual void UseItem(int itemNumber) => Inner.UseItem(itemNumber);
+        public virtual void UseItem(int itemNumber, bool angled = false) => Inner.UseItem(itemNumber, angled);
         public virtual void Transform() => Inner.Transform();
         public virtual bool TakeDamage() => Inner.TakeDamage();
         public virtual bool TryAddItem(ItemKind kind) => Inner.TryAddItem(kind);

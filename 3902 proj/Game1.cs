@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using TransformersGame.Collisions;
 using TransformersGame.Controllers;
 using TransformersGame.Core;
@@ -17,7 +18,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, K Angle, 1/5/6/7 Weapons, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W Jump, X Fire, Tab Map / Fireball, 7 Boomerang, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
@@ -37,6 +38,7 @@ namespace TransformersGame
         private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
         private PlayerHud playerHud;
+        private readonly FireballSelection fireballs = new FireballSelection();
         private RoomMapScreen roomMapScreen;
         private IController mapController;
         private ObjectShowcase showcase;
@@ -85,6 +87,16 @@ namespace TransformersGame
         {
             gameState = GameState.Gameplay;
             RefreshGameplayController();
+        }
+
+        public void FireSelectedShot()
+        {
+            if (gameState == GameState.Gameplay)
+            {
+                KeyboardState keyboard = Keyboard.GetState();
+                bool angled = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
+                fireballs.Fire(Player, angled);
+            }
         }
 
         public void StartGame()
@@ -138,6 +150,7 @@ namespace TransformersGame
             PlayerSpriteFactory.Instance.LoadAllTextures(Content);
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
+            fireballs.LoadPreviews();
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
             SpriteFont uiFont = Content.Load<SpriteFont>("Fonts/Controls");
@@ -148,7 +161,7 @@ namespace TransformersGame
                 "Sprites/dilloSpriteTest2");
 
             playerHud = new PlayerHud(uiFont, playerPortrait);
-            roomMapScreen = new RoomMapScreen(uiFont);
+            roomMapScreen = new RoomMapScreen(uiFont, fireballs);
             showcase = new ObjectShowcase();
             InitializeGameObjects();
         }
@@ -225,7 +238,7 @@ namespace TransformersGame
             room.Draw(spriteBatch);
             Player.Draw(spriteBatch);
             string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
-            playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
+            playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus, fireballs);
             controlsOverlay.DrawSmallText(spriteBatch,
                 audio.MusicMuted ? "M: Music OFF" : "M: Music ON", 820, 86, false);
             if (roomManager.ActiveRoomIndex == 0 && room.Level.HasIntactReinforcedCrate)
@@ -242,6 +255,7 @@ namespace TransformersGame
             roomManager?.Unload();
             roomManager = null;
             roomFactory.StartNewGame();
+            fireballs.Select(0);
             Level initialLevel = roomFactory.LoadLevel(0);
             IProjectileManager initialProjectiles = new ProjectileManager();
             collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer,

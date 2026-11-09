@@ -44,8 +44,8 @@ namespace TransformersGame.UI
             DrawKeyLine(spriteBatch, ended ? "R" : "ENTER", ended ? "Reset to start menu" : "Start game", left + 30, top + 124);
             DrawKeyLine(spriteBatch, "A / D or arrows", "Move left / right", left + 30, top + 156);
             DrawKeyLine(spriteBatch, "W / UP / J", "Jump between platforms", left + 30, top + 184);
-            DrawKeyLine(spriteBatch, "Z / N   K", "Shoot   /   angled shot", left + 30, top + 212);
-            DrawKeyLine(spriteBatch, "1  5  6  7", "Orb, piercing shot, spread shot, boomerang", left + 30, top + 240);
+            DrawKeyLine(spriteBatch, "X / TAB", "Fire selected shot / choose fireball and view map", left + 30, top + 212);
+            DrawKeyLine(spriteBatch, "7", "Throw boomerang", left + 30, top + 240);
             DrawKeyLine(spriteBatch, "2", "Drop a bomb (unlimited; Bomb Packs make the blast bigger)", left + 30, top + 268);
             DrawKeyLine(spriteBatch, "3  /  4", "Use a stored medkit  /  shield", left + 30, top + 296);
             DrawKeyLine(spriteBatch, "SPACE", "Switch robot / vehicle form", left + 30, top + 324);
@@ -107,7 +107,7 @@ namespace TransformersGame.UI
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "HELP - F1 / H TO CLOSE", 34, 118, HeadingColor, 0.9f);
             DrawHelpLine(spriteBatch, "MOVE", "A / D or arrows     W / UP / J jump     S / DOWN face", 151);
-            DrawHelpLine(spriteBatch, "FIRE", "Z/N shot  K angled  1 orb  5 pierce  6 spread  7 boomerang", 179);
+            DrawHelpLine(spriteBatch, "FIRE", "X fire   Shift+X aim up   TAB choose shot   7 boomerang", 179);
             DrawHelpLine(spriteBatch, "ITEMS", "2 bomb     3 medkit (full heal)     4 shield (5 seconds)", 207);
             DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.MedkitCount}   Shields {player.ShieldCount}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}", 235);
             DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 263);

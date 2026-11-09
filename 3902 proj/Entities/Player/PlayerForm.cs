@@ -53,7 +53,7 @@ internal sealed class PlayerForm
     }
 
     public void Shoot(bool angled) => state.Shoot(angled);
-    public void UseItem(int itemNumber) => state.UseItem(itemNumber);
+    public void UseItem(int itemNumber, bool angled = false) => state.UseItem(itemNumber, angled);
     public void RefreshSprite() => sprite = state.CreateSprite();
 
     public void Update(GameTime gameTime)

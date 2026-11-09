@@ -238,7 +238,7 @@ sealed class StubPlayer : IPlayer
     public void Move(Direction direction) { }
     public void Jump() { }
     public void Shoot(bool angled) { }
-    public void UseItem(int itemNumber) { }
+    public void UseItem(int itemNumber, bool angled = false) { }
     public void Transform() { }
     public void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity) => Position = position;
     public void Update(GameTime gameTime) { }

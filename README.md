@@ -20,14 +20,20 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | A/D or arrows | Move |
 | W / Up / J | Jump |
 | Space | Transform; roll into blue crates to break them |
-| Z / N | Shoot |
+| Tab | Pause and open the room preview. Click a fireball to equip it or use the arrows to browse rooms. Press Tab or Esc to resume. |
+| X | Fire the equipped fireball in robot form |
+| Shift + X | Aim Standard, Orb, Piercing, or Ice diagonally upward. Spread keeps its usual pattern. |
 | 2 | Drop bomb |
 | 3 / 4 | Use medkit / shield |
-| Left / right mouse click | Previous / next room (testing) |
-| F1 | Full controls |
+| 7 | Throw boomerang in robot form |
+| Left / right mouse click or Page Up / Page Down | Previous / next room during gameplay (testing) |
+| F1 / H | Full controls |
 | M | Mute / unmute background music (sound effects stay on) |
 | R | Reset to menu |
-| Q / Escape | Quit |
+| Q / Escape | Quit outside the room preview |
+
+Ice freezes regular enemies and the boss for five seconds. The blue bar
+shows how much time is left, and follow-up attacks deal normal damage.
 
 See the [gameplay guide](Documentation/GameplayGuide.md) for all weapons,
 pickups, room details, limitations, and artwork credits.
@@ -36,7 +42,7 @@ pickups, room details, limitations, and artwork credits.
 
 - Normal-shot recoil changes position directly without wall collision
   resolution; firing beside a wall can cause overlap.
-- Facing down does not aim normal shots downward; use K for angled shots.
+- Facing down does not aim normal shots downward; hold Shift and press X to aim upward.
 - Revisiting a room resets enemies, pickups, crates, and platform phases,
   allowing pickups to be collected again. Player inventory/upgrades persist.
 - Automated route checks model simplified static geometry, not full combat or

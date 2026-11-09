@@ -2,16 +2,23 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TransformersGame.Core;
+using TransformersGame.Entities;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.UI;
 
 internal sealed class RoomMapScreen
 {
-    private const float PreviewScale = 0.8f;
-    private const int PreviewLeft = 96;
+    private const float PreviewScale = 0.72f;
+    private const int PreviewLeft = 134;
     private const int PreviewTop = 54;
     private const int HeaderY = 13;
+    private const int ShotButtonsY = 451;
+    private const int ShotButtonWidth = 130;
+    private const int ShotButtonHeight = 36;
+    private const int ShotButtonGap = 10;
+    private const int ShotIconGap = 4;
+    private const float ShotLabelScale = 0.65f;
     private const int FooterY = 497;
     private static readonly Color Accent = new Color(255, 207, 113);
 
@@ -20,12 +27,17 @@ internal sealed class RoomMapScreen
     private static readonly Color ButtonColor = new Color(77, 58, 41);
 
     private readonly SpriteFont font;
+    private readonly FireballSelection fireballs;
     private int activeRoomIndex;
     private int previewIndex;
     private Level previewLevel;
     private ButtonState previousLeftButton;
 
-    public RoomMapScreen(SpriteFont font) => this.font = font;
+    public RoomMapScreen(SpriteFont font, FireballSelection fireballs)
+    {
+        this.font = font;
+        this.fireballs = fireballs;
+    }
 
     public void Open(int roomIndex)
     {
@@ -47,6 +59,10 @@ internal sealed class RoomMapScreen
             else if (NextButton.Contains(mouse.Position) && previewIndex < factory.RoomCount - 1)
             {
                 ShowRoom(factory, previewIndex + 1);
+            }
+            else
+            {
+                SelectFireball(mouse.Position);
             }
         }
 
@@ -77,7 +93,8 @@ internal sealed class RoomMapScreen
         DrawArrow(batch, PreviousButton, "<", previewIndex > 0);
         DrawArrow(batch, NextButton, ">", previewIndex < rooms.RoomCount - 1);
         batch.DrawString(font, title, new Vector2(PreviewLeft, HeaderY), Accent);
-        batch.DrawString(font, "TAB / ESC  Back to game", new Vector2(PreviewLeft, FooterY), Color.White);
+        DrawFireballButtons(batch);
+        batch.DrawString(font, "Click to equip  |  TAB resumes  |  Shift+X aims up", new Vector2(PreviewLeft, FooterY), Color.White);
         batch.End();
 
         Matrix transform = Matrix.CreateScale(PreviewScale, PreviewScale, 1f) *
@@ -94,6 +111,45 @@ internal sealed class RoomMapScreen
         }
         batch.End();
     }
+    private void SelectFireball(Point mousePosition)
+    {
+        for (int i = 0; i < FireballSelection.Count; i++)
+        {
+            if (FireballButton(i).Contains(mousePosition))
+            {
+                fireballs.Select(i);
+                return;
+            }
+        }
+    }
+
+    private void DrawFireballButtons(SpriteBatch batch)
+    {
+        for (int i = 0; i < FireballSelection.Count; i++)
+        {
+            Rectangle bounds = FireballButton(i);
+            Color background = ButtonColor;
+            Color textColor = Color.White;
+            if (i == fireballs.SelectedIndex)
+            {
+                background = Accent;
+                textColor = Color.Black;
+            }
+
+            HudFrame.Fill(batch, bounds, background);
+            string name = FireballSelection.NameAt(i);
+            ISprite preview = fireballs.PreviewAt(i);
+            Vector2 textSize = font.MeasureString(name) * ShotLabelScale;
+            float left = bounds.Center.X - (preview.Width + ShotIconGap + textSize.X) / 2f;
+            preview.Draw(batch, new Vector2(left, bounds.Center.Y - preview.Height / 2f));
+            Vector2 position = new Vector2(left + preview.Width + ShotIconGap, bounds.Center.Y - textSize.Y / 2f);
+            batch.DrawString(font, name, position, textColor, 0f, Vector2.Zero, ShotLabelScale, SpriteEffects.None, 0f);
+        }
+    }
+
+    private static Rectangle FireballButton(int index) =>
+        new Rectangle(PreviewLeft + index * (ShotButtonWidth + ShotButtonGap), ShotButtonsY, ShotButtonWidth, ShotButtonHeight);
+
     private void DrawArrow(SpriteBatch batch, Rectangle bounds, string arrow, bool enabled)
     {
         if (enabled)

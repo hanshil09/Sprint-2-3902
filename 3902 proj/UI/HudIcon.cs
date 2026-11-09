@@ -59,18 +59,6 @@ namespace TransformersGame.UI
             "...XX..."
         };
 
-        public static readonly string[] FireballIcon =
-        {
-            "...XX...",
-            "..XXXX..",
-            ".XXXXXX.",
-            ".XXXXXX.",
-            "..XXXXX.",
-            "...XXXX.",
-            "....XX..",
-            "........"
-        };
-
         public static Point Size(string[] shape) =>
             new Point(shape[0].Length * IconPixelSize, shape.Length * IconPixelSize);
 

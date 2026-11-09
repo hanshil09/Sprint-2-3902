@@ -18,6 +18,7 @@ namespace TransformersGame.Entities
         private readonly Physics physics;
         private readonly IProjectileManager projectiles;
         private int health;
+        private readonly EnemyFreeze freeze = new EnemyFreeze();
 
         public Enemy(Vector2 position, IReadOnlyList<IBlock> blocks, EnemyConfiguration configuration, IPlayer target,
             IProjectileManager projectiles, float gravity = Physics.DefaultGravity, CollisionManager collisionManager = null)
@@ -218,8 +219,21 @@ namespace TransformersGame.Entities
             projectiles.Add(new EnemyProjectile(center, TargetCenter, sprite));
         }
 
+        public void Freeze()
+        {
+            if (!IsDestroyed)
+            {
+                freeze.Start();
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
+            if (!IsDestroyed && freeze.Update(gameTime))
+            {
+                return;
+            }
+
             State.Update(gameTime);
             Sprite.Update(gameTime);
         }
@@ -227,6 +241,10 @@ namespace TransformersGame.Entities
         public void Draw(SpriteBatch spriteBatch)
         {
             Sprite.Draw(spriteBatch, Position);
+            if (!IsDestroyed)
+            {
+                freeze.Draw(spriteBatch, Bounds);
+            }
         }
     }
 }

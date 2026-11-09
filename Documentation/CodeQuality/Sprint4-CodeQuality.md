@@ -17,3 +17,6 @@
 | `3902 proj/Core/Levels/Level.cs`, `Core/Rooms/Room.cs`, and `Interfaces/ILevel.cs` | Renames the level object list method to show that the room uses it for collision checks. |
 | `3902 proj/Core/` | Groups room, level, enemy, and audio files so related code is easier to find. |
 | `3902 proj/UI/PlayerHud.cs` and `3902 proj/Game1.cs` | Names the HUD counter positions, shows current and maximum health beside the hearts, and keeps the portrait texture variable where the HUD is created. |
+| `3902 proj/Entities/Player/FireballSelection.cs` | Keeps each shot name and attack together. The map and HUD share the selected shot, and firing uses the existing player attacks. |
+| `3902 proj/Entities/Projectiles/IceProjectile.cs` | Reuses normal projectile movement and collision. It adds only the special effect when Ice hits an enemy. |
+| `3902 proj/Entities/Enemies/Enemy.cs` | Keeps the freeze timer with the enemy it affects. Existing attacks still use the same damage rules. |

@@ -3,6 +3,7 @@ using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Core;
+using TransformersGame.Entities;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.UI;
@@ -13,32 +14,25 @@ internal sealed class PlayerHud
     private const int PanelTop = 8;
     private const int PanelWidth = 936;
     private const int PanelHeight = 52;
-
     private const int HealthHeartCount = 5;
-
     private const int ContentLeft = 80;
     private const int LabelY = 13;
     private const int ValueY = 33;
-    private const int HeartsY = 33;
     private const int MedkitsLeft = 260;
     private const int ShieldsLeft = 390;
     private const int GemsLeft = 520;
     private const int BombPacksLeft = 650;
-    private const int AmmoLeft = 790;
-
+    private const int FireballLeft = 790;
+    private const int PreviewAlignmentHeight = 16;
     private const int RoomStatusY = 66;
     private const int HelpStatusLeft = 440;
     private const int PowerStatusLeft = 790;
-
     private const int IconTextSpacing = 6;
     private const int DividerOffset = 15;
     private const int DividerInset = 7;
-
     private const float LabelScale = 0.52f;
     private const float CountScale = 0.65f;
     private const float RoomStatusScale = 0.42f;
-
-    // Warm brown and brass palette.
     private static readonly Color HeadingColor = new Color(255, 225, 177);
 
     private static readonly Color TextColor = new Color(226, 201, 164);
@@ -48,7 +42,6 @@ internal sealed class PlayerHud
     private static readonly Color AccentColor = new Color(169, 115, 57);
 
     private static readonly Color DividerColor = new Color(210, 160, 100, 75);
-
     private static readonly Color ShieldColor = Color.Cyan;
     private static readonly Color GemColor = Color.HotPink;
 
@@ -61,19 +54,19 @@ internal sealed class PlayerHud
         this.portraitTexture = portraitTexture;
     }
 
-    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus)
+    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, FireballSelection fireballs)
     {
         Rectangle panel = new Rectangle(PanelLeft, PanelTop, PanelWidth, PanelHeight);
         HudFrame.Draw(spriteBatch, panel, portraitTexture, AccentColor);
         DrawHealth(spriteBatch, player);
-        DrawInventory(spriteBatch, player);
+        DrawInventory(spriteBatch, player, fireballs);
         DrawRoomStatus(spriteBatch, player, roomName, roomStatus);
     }
 
     private void DrawHealth(SpriteBatch spriteBatch, IPlayer player)
     {
         DrawText(spriteBatch, $"HEALTH {player.Health}/{player.MaxHealth}", ContentLeft, LabelY, HeadingColor, LabelScale);
-        HeartMeter.Draw(spriteBatch, new Vector2(ContentLeft, HeartsY), player.Health,
+        HeartMeter.Draw(spriteBatch, new Vector2(ContentLeft, ValueY), player.Health,
             player.MaxHealth, HealthHeartCount, Color.Crimson);
     }
 
@@ -83,9 +76,8 @@ internal sealed class PlayerHud
     private static readonly CounterStyle Shields = new("SHIELDS", ShieldsLeft, ShieldColor, ShieldColor, HudIcon.ShieldIcon);
     private static readonly CounterStyle Gems = new("PINK GEMS", GemsLeft, GemColor, GemColor, HudIcon.GemIcon);
     private static readonly CounterStyle BombPacks = new("BOMB PACKS", BombPacksLeft, PowerColor, PowerColor, HudIcon.BombIcon);
-    private static readonly CounterStyle Ammo = new("FIREBALL AMMO", AmmoLeft, PowerColor, PowerColor, HudIcon.FireballIcon);
 
-    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player)
+    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, FireballSelection fireballs)
     {
         DrawCounter(spriteBatch, Medkits, player.MedkitCount.ToString(CultureInfo.InvariantCulture));
         string shieldStatus = player.ShieldCount.ToString(CultureInfo.InvariantCulture);
@@ -99,13 +91,17 @@ internal sealed class PlayerHud
         DrawCounter(spriteBatch, Shields, shieldStatus, shieldStatusColor);
         DrawCounter(spriteBatch, Gems, player.EnergonCount.ToString(CultureInfo.InvariantCulture));
         DrawCounter(spriteBatch, BombPacks, $"{player.BombLevel}/{PlayerInventory.MaximumBombLevel}");
-        DrawCounter(spriteBatch, Ammo, "Unlimited");
+        DrawDivider(spriteBatch, FireballLeft);
+        DrawText(spriteBatch, "FIREBALL", FireballLeft, LabelY, PowerColor, LabelScale);
+        ISprite preview = fireballs.SelectedPreview;
+        preview.Draw(spriteBatch, new Vector2(FireballLeft, ValueY - (preview.Height - PreviewAlignmentHeight) / 2));
+        DrawText(spriteBatch, fireballs.SelectedName, FireballLeft + preview.Width + IconTextSpacing,
+            ValueY, TextColor, CountScale);
     }
 
     private void DrawCounter(SpriteBatch spriteBatch, CounterStyle style, string value, Color? valueColor = null)
     {
-        HudFrame.Fill(spriteBatch, new Rectangle(style.Left - DividerOffset, PanelTop + DividerInset,
-            1, PanelHeight - 2 * DividerInset), DividerColor);
+        DrawDivider(spriteBatch, style.Left);
         DrawText(spriteBatch, style.Label, style.Left, LabelY, style.LabelColor, LabelScale);
         HudIcon.Draw(spriteBatch, style.Icon, new Point(style.Left, ValueY + 1), style.IconColor);
 
@@ -116,10 +112,14 @@ internal sealed class PlayerHud
             valueColor ?? TextColor, CountScale);
     }
 
+    private static void DrawDivider(SpriteBatch batch, int left) =>
+        HudFrame.Fill(batch, new Rectangle(left - DividerOffset, PanelTop + DividerInset,
+            1, PanelHeight - 2 * DividerInset), DividerColor);
+
     private void DrawRoomStatus(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus)
     {
         DrawText(spriteBatch, $"{roomStatus}  {roomName}", ContentLeft, RoomStatusY, TextColor, RoomStatusScale);
-        DrawText(spriteBatch, "TAB MAP  |  F1 / H HELP", HelpStatusLeft, RoomStatusY, AccentColor, RoomStatusScale);
+        DrawText(spriteBatch, "TAB MAP / FIREBALL  |  F1 / H HELP", HelpStatusLeft, RoomStatusY, AccentColor, RoomStatusScale);
 
         string powerStatus = string.Empty;
         if (player.IsInvincible)

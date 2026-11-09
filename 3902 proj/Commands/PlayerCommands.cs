@@ -35,40 +35,6 @@ namespace TransformersGame.Commands
         }
     }
 
-    internal class ShootPlayerCommand : ICommand
-    {
-        private IPlayer player;
-        private bool angled;
-
-        public ShootPlayerCommand(IPlayer player)
-        {
-            this.player = player;
-            angled = false;
-        }
-
-        public void Execute()
-        {
-            player.Shoot(angled);
-        }
-    }
-
-    internal class AngledShootPlayerCommand : ICommand
-    {
-        private IPlayer player;
-        private bool angled;
-
-        public AngledShootPlayerCommand(IPlayer player)
-        {
-            this.player = player;
-            angled = true;
-        }
-
-        public void Execute()
-        {
-            player.Shoot(angled);
-        }
-    }
-
     internal class UseItemCommand : ICommand
     {
         private IPlayer player;

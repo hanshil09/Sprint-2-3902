@@ -121,11 +121,26 @@ namespace TransformersGame.Entities
 
         public void Finish() => IsDestroyed = true;
 
+        private readonly EnemyFreeze freeze = new EnemyFreeze();
+
+        public void Freeze()
+        {
+            if (!IsDefeated)
+            {
+                freeze.Start();
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
             double elapsed = gameTime.ElapsedGameTime.TotalSeconds;
             hitCooldown -= elapsed;
             flashTimer -= elapsed;
+            if (!IsDefeated && freeze.Update(gameTime))
+            {
+                return;
+            }
+
             State.Update(gameTime);
             sprite.Update(gameTime);
         }
@@ -138,6 +153,11 @@ namespace TransformersGame.Entities
                 sprite.Draw(spriteBatch, Position);
             }
             Color fill = Phase == 3 ? Color.OrangeRed : Color.Gold;
+            if (!IsDefeated)
+            {
+                freeze.Draw(spriteBatch, Bounds);
+            }
+
             HeartMeter.Draw(spriteBatch, HealthHeartsPosition, Health, MaximumHealth, HealthHeartCount, fill);
         }
 
