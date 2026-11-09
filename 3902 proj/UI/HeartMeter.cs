@@ -1,8 +1,9 @@
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using TransformersGame.Sprites;
+
+namespace TransformersGame.UI;
 
 // A fixed number of hearts represents the current fraction of maximum health.
 internal static class HeartMeter
@@ -14,8 +15,7 @@ internal static class HeartMeter
 
     private static readonly Color EmptyColor = new Color(75, 55, 30);
     private static readonly Color OutlineColor = new Color(105, 69, 39);
-    private static readonly Color FillColor = new Color(235, 180, 55);
-    private static readonly Color HighlightColor = new Color(255, 220, 115);
+    private const float HighlightBlend = 0.3f;
 
     private static readonly string[] Shape =
     {
@@ -42,6 +42,7 @@ internal static class HeartMeter
             : 0f;
 
         float filledHearts = fraction * heartCount;
+        Color highlightColor = Color.Lerp(fillColor, Color.White, HighlightBlend);
 
         for (int heart = 0; heart < heartCount; heart++)
         {
@@ -104,8 +105,8 @@ internal static class HeartMeter
                         pixel.Width = fillWidth;
 
                         Color currentFill = row == 1 && column < filledColumns
-                            ? HighlightColor
-                            : FillColor;
+                            ? highlightColor
+                            : fillColor;
 
                         spriteBatch.Draw(
                             SpriteAtlas.Texture,

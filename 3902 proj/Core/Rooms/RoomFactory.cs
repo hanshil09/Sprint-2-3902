@@ -24,7 +24,9 @@ namespace TransformersGame.Core
         {
             for (int i = 0; i < roomSeeds.Length; i++)
             {
+#pragma warning disable CA5394 // Gameplay layouts use repeatable seeds and have no security purpose.
                 roomSeeds[i] = random.Next();
+#pragma warning restore CA5394
             }
         }
 

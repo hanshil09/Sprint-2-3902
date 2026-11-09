@@ -71,7 +71,7 @@ namespace TransformersGame.Core
 
         public IReadOnlyList<IGameObject> GetCollisionObjects(IPlayer player)
         {
-            List<IGameObject> objects = new List<IGameObject>(Level.GetOnScreenObjects())
+            List<IGameObject> objects = new List<IGameObject>(Level.GetCollisionObjects())
             {
                 player
             };

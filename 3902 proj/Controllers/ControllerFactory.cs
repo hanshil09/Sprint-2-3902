@@ -28,9 +28,19 @@ namespace TransformersGame.Controllers
             return keyboardController;
         }
 
+        public static IController CreateMapController(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.Tab, new MapCommand(game.CloseMap));
+            keyboard.RegisterSinglePressCommand(Keys.Escape, new MapCommand(game.CloseMap));
+            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            return keyboard;
+        }
+
         public static IController CreateGameplayController(Game1 game, IPlayer player, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
             KeyboardController keyboardController = new KeyboardController();
+            keyboardController.RegisterSinglePressCommand(Keys.Tab, new MapCommand(game.OpenMap));
             RegisterMovementCommands(keyboardController, player);
             keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
             RegisterActionCommands(keyboardController, player);

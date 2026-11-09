@@ -12,8 +12,7 @@ namespace TransformersGame.Factories
         private const int PlayerWidth = 68;
         private const int PlayerHeight = 80;
 
-        private const int BallWidth = 58;
-        private const int BallHeight = 58;
+        private const int BallSize = 36;
 
         private const double IdleFrameTime = 250;
         private const double RunFrameTime = 83;
@@ -43,11 +42,11 @@ namespace TransformersGame.Factories
         private static readonly Rectangle JumpFrame =
             new Rectangle(562, 58, 82, 100);
 
-        // Ball: 2 frames
+        // Crop each ball frame to its visible pixels so collision matches the sprite.
         private static readonly Rectangle[] BallFrames =
         {
-            new Rectangle(646, 78, 76, 80),
-            new Rectangle(724, 78, 76, 80)
+            new Rectangle(662, 116, 42, 42),
+            new Rectangle(738, 116, 42, 42)
         };
 
         private static readonly PlayerSpriteFactory instance =
@@ -125,8 +124,8 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(
                 dilloSpriteSheet,
                 BallFrames[0],
-                BallWidth,
-                BallHeight,
+                BallSize,
+                BallSize,
                 Color.White,
                 GetFlipEffect(facingLeft));
         }
@@ -136,8 +135,8 @@ namespace TransformersGame.Factories
             return new AnimatedSprite(
                 dilloSpriteSheet,
                 BallFrames,
-                BallWidth,
-                BallHeight,
+                BallSize,
+                BallSize,
                 Color.White,
                 RollFrameTime,
                 GetFlipEffect(facingLeft));

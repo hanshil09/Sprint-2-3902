@@ -18,6 +18,6 @@ namespace TransformersGame.Interfaces
 
         void Draw(SpriteBatch spriteBatch);
 
-        IReadOnlyList<IGameObject> GetOnScreenObjects();
+        IReadOnlyList<IGameObject> GetCollisionObjects();
     }
 }

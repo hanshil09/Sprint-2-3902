@@ -18,11 +18,17 @@ namespace TransformersGame.Core
                 sites.RemoveAll(site => site.Row == protectedCrate.Row + 1
                     && protectedCrate.Column >= site.Column && protectedCrate.Column < site.Column + site.Length);
             }
+#pragma warning disable CA5394 // Gameplay layouts use repeatable seeds and have no security purpose.
             int count = Math.Min(sites.Count, random.Next(2, 4));
+#pragma warning restore CA5394
+#pragma warning disable CA5394 // Gameplay layouts use repeatable seeds and have no security purpose.
             int firstKind = random.Next(3);
+#pragma warning restore CA5394
             for (int i = 0; i < count; i++)
             {
+#pragma warning disable CA5394 // Gameplay layouts use repeatable seeds and have no security purpose.
                 int index = random.Next(sites.Count);
+#pragma warning restore CA5394
                 Site site = sites[index];
                 sites.RemoveAt(index);
                 Vector2 position = cellPosition(site.Column, site.Row);

@@ -37,11 +37,12 @@ namespace TransformersGame
         private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
         private PlayerHud playerHud;
+        private RoomMapScreen roomMapScreen;
+        private IController mapController;
         private ObjectShowcase showcase;
         private IPlayer player;
         private int pendingDoorDirection;
         private readonly GameAudio audio = new GameAudio();
-        private Texture2D playerPortrait;
 
         public Game1()
         {
@@ -68,7 +69,23 @@ namespace TransformersGame
 
         public void ToggleHelp() => controlsOverlay.ToggleHelp();
 
-        public void ToggleMusic() => audio.ToggleMusic(gameState == GameState.Gameplay);
+        public void ToggleMusic() => audio.ToggleMusic(gameState is GameState.Gameplay or GameState.RoomMap);
+
+        public void OpenMap()
+        {
+            if (gameState == GameState.Gameplay)
+            {
+                roomMapScreen.Open(roomManager.ActiveRoomIndex);
+                mapController = ControllerFactory.CreateMapController(this);
+                gameState = GameState.RoomMap;
+            }
+        }
+
+        public void CloseMap()
+        {
+            gameState = GameState.Gameplay;
+            RefreshGameplayController();
+        }
 
         public void StartGame()
         {
@@ -127,24 +144,36 @@ namespace TransformersGame
 
             controlsOverlay = new ControlsOverlay(uiFont, GraphicsDevice);
 
-            playerPortrait = Content.Load<Texture2D>(
+            Texture2D playerPortrait = Content.Load<Texture2D>(
                 "Sprites/dilloSpriteTest2");
 
             playerHud = new PlayerHud(uiFont, playerPortrait);
+            roomMapScreen = new RoomMapScreen(uiFont);
             showcase = new ObjectShowcase();
             InitializeGameObjects();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (gameState != GameState.Gameplay)
+            switch (gameState)
             {
-                menuController.Update();
-            }
-            else
-            {
-                gameplayController.Update();
-                UpdateGameplay(gameTime);
+                case GameState.Gameplay:
+                    gameplayController.Update();
+                    if (State == GameState.Gameplay)
+                    {
+                        UpdateGameplay(gameTime);
+                    }
+                    break;
+                case GameState.RoomMap:
+                    mapController.Update();
+                    if (State == GameState.RoomMap)
+                    {
+                        roomMapScreen.UpdateNavigation(roomFactory);
+                    }
+                    break;
+                default:
+                    menuController.Update();
+                    break;
             }
             base.Update(gameTime);
         }
@@ -167,18 +196,26 @@ namespace TransformersGame
 
         protected override void Draw(GameTime gameTime)
         {
-            bool playing = gameState == GameState.Gameplay;
-            GraphicsDevice.Clear(playing ? GameplayColor : MenuColor);
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            if (playing)
+            if (gameState == GameState.RoomMap)
             {
-                DrawGameplay();
+                GraphicsDevice.Clear(MenuColor);
+                roomMapScreen.Draw(spriteBatch, roomManager, Player, GameplayColor);
             }
             else
             {
-                controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport, gameState, Player);
+                bool playing = gameState == GameState.Gameplay;
+                GraphicsDevice.Clear(playing ? GameplayColor : MenuColor);
+                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+                if (playing)
+                {
+                    DrawGameplay();
+                }
+                else
+                {
+                    controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport, gameState, Player);
+                }
+                spriteBatch.End();
             }
-            spriteBatch.End();
             base.Draw(gameTime);
         }
 
