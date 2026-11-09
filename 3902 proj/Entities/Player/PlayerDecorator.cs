@@ -34,6 +34,7 @@ namespace TransformersGame.Entities
         public virtual int ShieldCount => Inner.ShieldCount;
         public virtual int BombLevel => Inner.BombLevel;
         public virtual int EnergonCount => Inner.EnergonCount;
+        public virtual int KeyCount => Inner.KeyCount;
         public virtual bool IsShieldActive => Inner.IsShieldActive;
         public virtual bool IsInvincible => Inner.IsInvincible;
         public virtual float SpeedScale { get => Inner.SpeedScale; set => Inner.SpeedScale = value; }
@@ -48,6 +49,7 @@ namespace TransformersGame.Entities
         public virtual bool TryAddItem(ItemKind kind) => Inner.TryAddItem(kind);
         public virtual bool UseMedkit() => Inner.UseMedkit();
         public virtual bool UseShield() => Inner.UseShield();
+        public virtual bool TryUseKey() => Inner.TryUseKey();
         public virtual void Draw(SpriteBatch spriteBatch) => Inner.Draw(spriteBatch);
 
         public virtual void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)

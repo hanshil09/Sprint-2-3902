@@ -69,6 +69,7 @@ internal class Player : IPlayer
     public int ShieldCount => inventory.ShieldCount;
     public int BombLevel => inventory.BombLevel;
     public int EnergonCount => inventory.EnergonCount;
+    public int KeyCount => inventory.KeyCount;
     public bool IsShieldActive => shield.IsActive;
     public bool IsInvincible => false;
 
@@ -165,6 +166,8 @@ internal class Player : IPlayer
         PlaySound(GameSound.Item);
         return true;
     }
+
+    public bool TryUseKey() => inventory.TryUseKey();
 
     public void DropBomb() => Arsenal.DropBomb(movement.Gravity, BombLevel);
 

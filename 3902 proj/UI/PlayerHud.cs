@@ -118,7 +118,12 @@ internal sealed class PlayerHud
 
     private void DrawRoomStatus(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus)
     {
-        DrawText(spriteBatch, $"{roomStatus}  {roomName}", ContentLeft, RoomStatusY, TextColor, RoomStatusScale);
+        string status = $"{roomStatus}  {roomName}";
+        if (player.KeyCount > 0)
+        {
+            status += $"  |  KEYS {player.KeyCount}";
+        }
+        DrawText(spriteBatch, status, ContentLeft, RoomStatusY, TextColor, RoomStatusScale);
         DrawText(spriteBatch, "TAB MAP / FIREBALL  |  F1 / H HELP", HelpStatusLeft, RoomStatusY, AccentColor, RoomStatusScale);
 
         string powerStatus = string.Empty;

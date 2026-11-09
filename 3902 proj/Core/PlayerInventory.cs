@@ -19,6 +19,7 @@ namespace TransformersGame.Core
                 [ItemKind.Shield] = () => ShieldCount++,
                 [ItemKind.ShieldBattery] = () => ShieldCount++,
                 [ItemKind.Energon] = () => EnergonCount++,
+                [ItemKind.Key] = () => KeyCount++,
                 [ItemKind.BombPack] = () => BombLevel = Math.Min(MaximumBombLevel, BombLevel + 1)
             };
         }
@@ -30,6 +31,8 @@ namespace TransformersGame.Core
         public int BombLevel { get; private set; }
 
         public int EnergonCount { get; private set; }
+
+        public int KeyCount { get; private set; }
 
         // Returns false for unsupported items or an upgrade already at its cap.
         public bool TryCollect(ItemKind kind)
@@ -49,6 +52,9 @@ namespace TransformersGame.Core
         public bool TryUseMedkit() => TryUse(MedkitCount, () => MedkitCount--);
 
         public bool TryUseShield() => TryUse(ShieldCount, () => ShieldCount--);
+
+        // Consumes one key to open a locked door; returns false when the player has none.
+        public bool TryUseKey() => TryUse(KeyCount, () => KeyCount--);
 
 
         private static bool TryUse(int count, Action consume)

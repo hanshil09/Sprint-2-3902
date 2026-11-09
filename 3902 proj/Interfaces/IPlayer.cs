@@ -25,6 +25,9 @@ namespace TransformersGame.Interfaces
 
         int EnergonCount { get; }
 
+        // Keys collected; used to open locked doors. Persists across rooms.
+        int KeyCount { get; }
+
         bool IsShieldActive { get; }
 
         // True while a power-up makes the player immune to damage; contact then damages enemies instead.
@@ -53,6 +56,9 @@ namespace TransformersGame.Interfaces
         bool UseMedkit();
 
         bool UseShield();
+
+        // Spends one key to open a locked door; returns false when the player has none.
+        bool TryUseKey();
 
         void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity);
     }

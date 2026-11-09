@@ -229,6 +229,7 @@ sealed class StubPlayer : IPlayer
     public bool IsShieldActive => false;
     public int BombLevel => 0;
     public int EnergonCount => 0;
+    public int KeyCount => 0;
     public bool IsInvincible { get; set; }
     public float SpeedScale { get; set; } = 1f;
     public float LastBounce { get; private set; }
@@ -239,6 +240,7 @@ sealed class StubPlayer : IPlayer
     public bool TryAddItem(ItemKind kind) { ItemsAdded++; return true; }
     public bool UseMedkit() => false;
     public bool UseShield() => false;
+    public bool TryUseKey() => false;
     public void Move(Direction direction) { }
     public void Jump() { }
     public void Shoot(bool angled) { }

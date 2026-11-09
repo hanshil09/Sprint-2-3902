@@ -50,7 +50,8 @@ namespace TransformersGame.Core
             ['~'] = ItemKind.TurboBoost,
             ['@'] = ItemKind.Energon,
             ['%'] = ItemKind.BombPack,
-            ['?'] = ItemKind.MaxHealthUp
+            ['?'] = ItemKind.MaxHealthUp,
+            ['K'] = ItemKind.Key
         };
 
         private static readonly Dictionary<char, EnemyKind> EnemySymbols = new Dictionary<char, EnemyKind>
