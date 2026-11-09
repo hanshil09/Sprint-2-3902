@@ -69,7 +69,7 @@ namespace TransformersGame
 
         public void ToggleHelp() => controlsOverlay.ToggleHelp();
 
-        public void ToggleMusic() => audio.ToggleMusic(gameState is GameState.Gameplay or GameState.RoomMap);
+        public void ToggleMute() => audio.ToggleMute();
 
         public void OpenMap()
         {
@@ -227,7 +227,7 @@ namespace TransformersGame
             string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
             playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
             controlsOverlay.DrawSmallText(spriteBatch,
-                audio.MusicMuted ? "M: Music OFF" : "M: Music ON", 820, 86, false);
+                audio.IsMuted ? "M: Audio OFF" : "M: Audio ON", 820, 86, false);
             if (roomManager.ActiveRoomIndex == 0 && room.Level.HasIntactReinforcedCrate)
             {
                 controlsOverlay.DrawSmallText(spriteBatch,

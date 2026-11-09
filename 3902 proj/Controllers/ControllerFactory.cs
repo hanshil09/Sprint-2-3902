@@ -11,7 +11,7 @@ namespace TransformersGame.Controllers
         {
             KeyboardController keyboardController = new KeyboardController();
             keyboardController.RegisterSinglePressCommand(Keys.Enter, new StartGameCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
             return keyboardController;
@@ -21,7 +21,7 @@ namespace TransformersGame.Controllers
         public static IController CreateEndScreenController(Game1 game)
         {
             KeyboardController keyboardController = new KeyboardController();
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
@@ -33,7 +33,7 @@ namespace TransformersGame.Controllers
             KeyboardController keyboard = new KeyboardController();
             keyboard.RegisterSinglePressCommand(Keys.Tab, new MapCommand(game.CloseMap));
             keyboard.RegisterSinglePressCommand(Keys.Escape, new MapCommand(game.CloseMap));
-            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             return keyboard;
         }
 
@@ -42,7 +42,7 @@ namespace TransformersGame.Controllers
             KeyboardController keyboardController = new KeyboardController();
             keyboardController.RegisterSinglePressCommand(Keys.Tab, new MapCommand(game.OpenMap));
             RegisterMovementCommands(keyboardController, player);
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             RegisterActionCommands(keyboardController, player);
             RegisterCycleCommands(keyboardController, blocks, items, enemies);
             keyboardController.RegisterSinglePressCommand(Keys.F1, new ToggleHelpCommand(game));
