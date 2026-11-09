@@ -26,7 +26,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | 3 / 4 | Use medkit / shield |
 | Left / right mouse click | Previous / next room (testing) |
 | F1 | Full controls |
-| M | Mute / unmute background music (sound effects stay on) |
+| M | Mute / unmute all game audio (music and sound effects) |
 | R | Reset to menu |
 | Q / Escape | Quit |
 

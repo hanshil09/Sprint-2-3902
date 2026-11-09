@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.Commands
@@ -10,11 +11,11 @@ namespace TransformersGame.Commands
         public void Execute() => action();
     }
 
-    internal sealed class ToggleMusicCommand : ICommand
+    internal sealed class ToggleMuteCommand : ICommand
     {
         private readonly Game1 game;
-        public ToggleMusicCommand(Game1 game) => this.game = game;
-        public void Execute() => game.ToggleMusic();
+        public ToggleMuteCommand(Game1 game) => this.game = game;
+        public void Execute() => game.ToggleMute();
     }
 
     internal sealed class ToggleHelpCommand : ICommand
