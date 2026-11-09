@@ -108,6 +108,7 @@ namespace TransformersGame
 
         public void DamagePlayer()
         {
+            
             if (Player is DamagedPlayer || !Player.TakeDamage())
             {
                 return;
