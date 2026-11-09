@@ -7,6 +7,22 @@ namespace TransformersGame.Controllers
 {
     internal static class ControllerFactory
     {
+        public static IController CreateSelfieShortcut(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.F2, new GameActionCommand(game.OpenSelfie));
+            return keyboard;
+        }
+
+        public static IController CreateSelfieController(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseSelfie));
+            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
+            keyboard.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
+            return keyboard;
+        }
+
         public static IController CreateMenuController(Game1 game)
         {
             KeyboardController keyboardController = new KeyboardController();

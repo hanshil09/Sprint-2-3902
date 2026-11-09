@@ -9,6 +9,7 @@ namespace TransformersGame.Interfaces
         int Width { get; }
 
         int Height { get; }
+        bool IsInBallForm { get; }
 
         Direction Facing { get; }
 

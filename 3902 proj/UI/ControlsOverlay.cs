@@ -112,7 +112,7 @@ namespace TransformersGame.UI
             DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.MedkitCount}   Shields {player.ShieldCount}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}", 235);
             DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 263);
             DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 291);
-            DrawHelpLine(spriteBatch, "SYSTEM", "M mute all audio     E damage     R reset     Q / ESC quit", 319);
+            DrawHelpLine(spriteBatch, "SYSTEM", "F2 selfie   M mute   E damage   R reset   Q / ESC quit", 319);
             DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 347);
             DrawHelpLine(spriteBatch, "CRATES", "Metal cases: roll into them   Green / gold: shoot or bomb", 375);
             DrawHelpLine(spriteBatch, "GOAL", objective, 403);

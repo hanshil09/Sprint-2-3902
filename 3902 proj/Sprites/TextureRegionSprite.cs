@@ -29,10 +29,12 @@ namespace TransformersGame.Sprites
         {
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 location)
+        public void Draw(SpriteBatch spriteBatch, Vector2 location) => Draw(spriteBatch, location, 1f);
+
+        public void Draw(SpriteBatch spriteBatch, Vector2 location, float opacity)
         {
             Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, Width, Height);
-            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, tint, 0f, Vector2.Zero, effects, 0f);
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, tint * opacity, 0f, Vector2.Zero, effects, 0f);
         }
     }
 }

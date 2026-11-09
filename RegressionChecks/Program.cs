@@ -1,5 +1,11 @@
 using TransformersGame.Core;
 
+if (args.Contains("--selfie"))
+{
+    SelfieChecks.Run();
+    return;
+}
+
 if (args.Contains("--audio"))
 {
     AudioChecks.Run();

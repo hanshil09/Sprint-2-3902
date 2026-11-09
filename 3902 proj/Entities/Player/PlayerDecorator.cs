@@ -27,6 +27,7 @@ namespace TransformersGame.Entities
         public virtual Vector2 Position { get => Inner.Position; set => Inner.Position = value; }
         public virtual int Width => Inner.Width;
         public virtual int Height => Inner.Height;
+        public virtual bool IsInBallForm => Inner.IsInBallForm;
         public virtual Direction Facing => Inner.Facing;
         public virtual int Health => Inner.Health;
         public virtual int MaxHealth => Inner.MaxHealth;
