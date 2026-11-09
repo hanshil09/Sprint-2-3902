@@ -20,6 +20,7 @@ namespace TransformersGame.Factories
         private Texture2D objectSpriteSheet;
         private Texture2D reinforcedHealth;
         private Texture2D reinforcedEnergon;
+        private Texture2D additionalItemSprites;
 
         private BlockSpriteFactory()
         {
@@ -39,6 +40,7 @@ namespace TransformersGame.Factories
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             reinforcedHealth = content.Load<Texture2D>("Sprites/reinforced-health");
             reinforcedEnergon = content.Load<Texture2D>("Sprites/reinforced-energon");
+            additionalItemSprites = content.Load<Texture2D>("Sprites/additionalItemSprites");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)
@@ -99,9 +101,14 @@ namespace TransformersGame.Factories
 
         public ISprite CreateDoorSprite(int direction)
         {
-            Rectangle frame = new Rectangle(3 * BlockSize, 0, BlockSize, BlockSize);
-            return new TextureRegionSprite(blockSpriteSheet, frame, 48, 64,
-                direction > 0 ? Color.Gold : Color.Cyan);
+            Rectangle frame = new Rectangle(130, 4, 22, 28);
+
+            return new TextureRegionSprite(
+                additionalItemSprites,
+                frame,
+                48,
+                64,
+                Color.White);
         }
 
         public ISprite CreatePlatformTileSprite(bool elevator)
