@@ -20,15 +20,21 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | A/D or arrows | Move |
 | W / Up / J | Jump |
 | Space | Transform; roll into blue crates to break them |
-| Z / N | Shoot |
+| Tab | Pause and open the room preview. Click a fireball to equip it or use the arrows to browse rooms. Press Tab or Esc to resume. |
+| X | Fire the equipped fireball in robot form |
+| Shift + X | Aim Standard, Orb, Piercing, or Ice diagonally upward. Spread keeps its usual pattern. |
 | 2 | Drop bomb |
 | B | Activate Barrel Storm (14-second cooldown) |
 | 3 / 4 | Use medkit / shield |
-| Left / right mouse click | Previous / next room (testing) |
-| F1 | Full controls |
-| M | Mute / unmute background music (sound effects stay on) |
+| 7 | Throw boomerang in robot form |
+| Left / right mouse click or Page Up / Page Down | Previous / next room during gameplay (testing) |
+| F1 / H | Full controls |
+| M | Mute / unmute all game audio (music and sound effects) |
 | R | Reset to menu |
-| Q / Escape | Quit |
+| Q / Escape | Quit outside the room preview |
+
+Ice freezes regular enemies and the boss for five seconds. The blue bar
+shows how much time is left, and follow-up attacks deal normal damage.
 
 See the [gameplay guide](Documentation/GameplayGuide.md) for all weapons,
 pickups, room details, limitations, and artwork credits.
@@ -37,7 +43,8 @@ pickups, room details, limitations, and artwork credits.
 
 - Normal-shot recoil changes position directly without wall collision
   resolution; firing beside a wall can cause overlap.
-- Facing down does not aim normal shots downward; use K for angled shots.
+- Normal shots do not aim downward; use Shift + X to aim compatible weapons
+  diagonally upward.
 - Revisiting a room respawns regular enemies, but collected pickups and opened
   crates stay cleared. Uncollected crate drops and defeated-boss progress persist;
   moving and crumbling platform phases reset. Player inventory/upgrades persist.

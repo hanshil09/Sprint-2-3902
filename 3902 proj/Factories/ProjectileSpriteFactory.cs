@@ -1,3 +1,4 @@
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,10 +11,9 @@ namespace TransformersGame.Factories
     {
         private const double ShotFrameTime = 60;
         private const double ExplosionFrameTime = 80;
-        private const int ShotWidth = 36;
-        private const int ShotHeight = 26;
+        private const int ShotSize = 30;
         private const int OrbSize = 28;
-        private const int BombSize = 20;
+        private const int BombSize = 40;
         private const int ExplosionSize = 44;
         private const int BlastGrowthPerLevel = 18;
         private const int PelletSize = 16;
@@ -23,28 +23,65 @@ namespace TransformersGame.Factories
         private const double BoomerangFrameTime = 50;
         private const double FireballFrameTime = 90;
 
-        private static readonly Rectangle[] RightShotFrames = new Rectangle[]
+        // Horizontal fireball animations.
+        private static readonly Rectangle[] RightShotFrames =
         {
-            new Rectangle(800, 640, 90, 64),
-            new Rectangle(906, 640, 90, 64)
+            new Rectangle(0, 0, 48, 48),
+            new Rectangle(48, 0, 48, 48),
+            new Rectangle(96, 0, 48, 48),
+            new Rectangle(144, 0, 48, 48)
         };
+
+        private static readonly Rectangle[] LeftShotFrames =
+        {
+            new Rectangle(0, 192, 48, 48),
+            new Rectangle(48, 192, 48, 48),
+            new Rectangle(96, 192, 48, 48),
+            new Rectangle(144, 192, 48, 48)
+        };
+
+        // Upward diagonal fireball animations.
+        private static readonly Rectangle[] UpRightShotFrames =
+        {
+            new Rectangle(0, 336, 48, 48),
+            new Rectangle(48, 336, 48, 48),
+            new Rectangle(96, 336, 48, 48),
+            new Rectangle(144, 336, 48, 48)
+        };
+
+        private static readonly Rectangle[] UpLeftShotFrames =
+        {
+            new Rectangle(0, 240, 48, 48),
+            new Rectangle(48, 240, 48, 48),
+            new Rectangle(96, 240, 48, 48),
+            new Rectangle(144, 240, 48, 48)
+        };
+
+        // Bomb and explosion sprites.
+        private static readonly Rectangle BombFrame =
+            new Rectangle(0, 0, 48, 48);
+
+        private static readonly Rectangle[] ExplosionFrames =
+        {
+            new Rectangle(48, 0, 48, 48),
+            new Rectangle(96, 0, 48, 48),
+            new Rectangle(144, 0, 48, 48),
+            new Rectangle(192, 0, 48, 48),
+            new Rectangle(240, 0, 48, 48),
+            new Rectangle(288, 0, 48, 48),
+            new Rectangle(336, 0, 48, 48)
+        };
+
         private static readonly Rectangle RightOrbFrame = new Rectangle(704, 638, 70, 70);
         private static readonly Rectangle LeftOrbFrame = new Rectangle(686, 631, 70, 70);
-        private static readonly Rectangle BombFrame = new Rectangle(1016, 1014, 50, 50);
-        private static readonly Rectangle[] ExplosionFrames = new Rectangle[]
-        {
-            new Rectangle(1040, 612, 110, 110),
-            new Rectangle(1152, 614, 110, 110),
-            new Rectangle(1268, 614, 110, 110),
-            new Rectangle(1387, 612, 110, 110)
-        };
 
         private static ProjectileSpriteFactory instance = new ProjectileSpriteFactory();
 
         private Texture2D rightSpriteSheet;
         private Texture2D leftSpriteSheet;
-        private Texture2D bombSpriteSheet;
         private Texture2D objectSpriteSheet;
+        private Texture2D directionalFireballSheet;
+        private Texture2D explosionSpriteSheet;
 
         private ProjectileSpriteFactory()
         {
@@ -62,16 +99,31 @@ namespace TransformersGame.Factories
         {
             rightSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
             leftSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
-            bombSpriteSheet = content.Load<Texture2D>("Sprites/transformer-directional-combat-spritesheet");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
+            directionalFireballSheet = content.Load<Texture2D>("Sprites/fireballDirectional");
+            explosionSpriteSheet = content.Load<Texture2D>("Sprites/explosionSprites");
         }
 
-        public ISprite CreateShotSprite(bool facingLeft)
+        public ISprite CreateShotSprite(bool facingLeft, bool aimingUp = false)
         {
-            SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Rectangle[] frames;
+
+            if (aimingUp)
+            {
+                frames = facingLeft ? UpLeftShotFrames : UpRightShotFrames;
+            }
+            else
+            {
+                frames = facingLeft ? LeftShotFrames : RightShotFrames;
+            }
+
             return new AnimatedSprite(
-                rightSpriteSheet, RightShotFrames,
-                ShotWidth, ShotHeight, Color.White, ShotFrameTime, effects);
+                directionalFireballSheet,
+                frames,
+                ShotSize,
+                ShotSize,
+                Color.White,
+                ShotFrameTime);
         }
 
         public ISprite CreateOrbSprite(bool facingLeft)
@@ -81,15 +133,34 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(sheet, frame, OrbSize, OrbSize, Color.LightGreen);
         }
 
+        public ISprite CreateIceSprite(bool facingLeft)
+        {
+            Texture2D sheet = facingLeft ? leftSpriteSheet : rightSpriteSheet;
+            Rectangle frame = facingLeft ? LeftOrbFrame : RightOrbFrame;
+            return new TextureRegionSprite(sheet, frame, OrbSize, OrbSize, Color.DeepSkyBlue);
+        }
+
         public ISprite CreateBombSprite()
         {
-            return new TextureRegionSprite(bombSpriteSheet, BombFrame, BombSize, BombSize, Color.White);
+            return new TextureRegionSprite(
+                explosionSpriteSheet,
+                BombFrame,
+                BombSize,
+                BombSize,
+                Color.White);
         }
 
         public ISprite CreateExplosionSprite(int blastLevel = 0)
         {
             int size = ExplosionSize + blastLevel * BlastGrowthPerLevel;
-            return new AnimatedSprite(rightSpriteSheet, ExplosionFrames, size, size, Color.White, ExplosionFrameTime);
+
+            return new AnimatedSprite(
+                explosionSpriteSheet,
+                ExplosionFrames,
+                size,
+                size,
+                Color.White,
+                ExplosionFrameTime);
         }
 
         public ISprite CreateSpreadPelletSprite()

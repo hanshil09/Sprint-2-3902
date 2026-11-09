@@ -13,7 +13,6 @@ namespace TransformersGame.Core
     internal class Level : ILevel
     {
         private const int ScreenHeight = 540;
-        private const int ScreenWidth = 960;
         private const int TileSize = BlockSpriteFactory.BlockSize;
 
         private readonly LevelData data;
@@ -23,7 +22,6 @@ namespace TransformersGame.Core
         private readonly Dictionary<IItem, string> itemProgressIds = new();
         private readonly List<Door> doors = new();
         private readonly List<IPlayerTrigger> triggers;
-        private readonly Placement<ItemKind> reinforcedSupply;
         private Rectangle playerSpawnBounds;
 
         public Level(LevelData data, Random random = null, RoomProgress roomProgress = null)
@@ -34,13 +32,16 @@ namespace TransformersGame.Core
             objs = new List<IGameObject>();
             blocks = new List<IBlock>();
             items = new List<IItem>();
-            reinforcedSupply = SelectReinforcedSupply(data, random);
+            LevelBlockFactory blockFactory = new LevelBlockFactory(data, random, Progress);
 
             foreach (Placement<BlockKind> placement in data.Blocks)
             {
-                blocks.Add(CreateBlock(placement));
+                blocks.Add(blockFactory.Create(placement, CellPosition(placement.Column, placement.Row)));
             }
-            if (random != null) CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random, reinforcedSupply);
+            if (random != null)
+            {
+                CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random, blockFactory.ReinforcedSupply);
+            }
             LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
             blocks.AddRange(levelObjects.Platforms);
             triggers = levelObjects.Triggers;
@@ -78,6 +79,12 @@ namespace TransformersGame.Core
         public float Gravity => data.Gravity;
 
         internal RoomProgress Progress { get; }
+
+        // World-space pixel bounds of the whole room. The grid is anchored to the bottom of a
+        // 540px screen, so rooms taller than one screen extend upward into negative Y.
+        public Rectangle WorldBounds =>
+            new Rectangle(0, ScreenHeight - data.Rows * TileSize, data.Columns * TileSize, data.Rows * TileSize);
+
         public bool HasIntactReinforcedCrate =>
             blocks.Exists(block => block is SupplyCrate { Kind: BlockKind.ReinforcedCrate, IsDestroyed: false });
 
@@ -96,7 +103,7 @@ namespace TransformersGame.Core
                     continue;
                 }
                 Point size = EntityFactory.SpawnSize(placement.Kind);
-                Vector2 start = FindSafeSpawn(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
+                Vector2 start = LevelSpawnSearch.Find(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
                     ? new Boss(start, player, projectiles)
                     : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player,
@@ -171,7 +178,7 @@ namespace TransformersGame.Core
             doors.ForEach(door => door.Draw(spriteBatch));
         }
 
-        public IReadOnlyList<IGameObject> GetOnScreenObjects()
+        public IReadOnlyList<IGameObject> GetCollisionObjects()
         {
             objs.Clear();
             objs.AddRange(blocks);
@@ -179,48 +186,6 @@ namespace TransformersGame.Core
             objs.AddRange(doors);
             objs.AddRange(triggers);
             return objs.AsReadOnly();
-        }
-
-        private IBlock CreateBlock(Placement<BlockKind> placement)
-        {
-            Vector2 position = CellPosition(placement.Column, placement.Row);
-            foreach (Placement<ItemKind> drop in data.CrateDrops)
-            {
-                if ((placement.Kind == BlockKind.Crate || placement.Kind == BlockKind.MorphBallCrate)
-                    && drop.Column == placement.Column && drop.Row == placement.Row)
-                {
-                    string crateId = CrateId(placement.Column, placement.Row);
-                    bool requiresMorphBall = placement.Kind == BlockKind.MorphBallCrate;
-                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(drop.Kind, requiresMorphBall);
-                    return new SupplyCrate(position, crateSprite, drop.Kind, crateId, requiresMorphBall,
-                        Progress.IsCrateOpened(crateId));
-                }
-            }
-            ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
-            return new Block(position, sprite, placement.Kind != BlockKind.Hazard, placement.Kind);
-        }
-
-        private static Placement<ItemKind> SelectReinforcedSupply(LevelData data, Random random)
-        {
-            if (random == null)
-            {
-                return null;
-            }
-            List<Placement<ItemKind>> candidates = new();
-            foreach (Placement<ItemKind> drop in data.CrateDrops)
-            {
-                foreach (Placement<BlockKind> block in data.Blocks)
-                {
-                    if (block.Column == drop.Column && block.Row == drop.Row + 1
-                        && block.Kind is not (BlockKind.Crate or BlockKind.ReinforcedCrate or BlockKind.Hazard))
-                    {
-                        candidates.Add(drop);
-                        break;
-                    }
-                }
-            }
-            // Keep the authored tutorial crate fixed and reserve randomization for rooms with a choice.
-            return candidates.Count > 1 ? candidates[random.Next(candidates.Count)] : null;
         }
 
         private void ReleaseCrateItems()
@@ -256,7 +221,7 @@ namespace TransformersGame.Core
         private void PlacePlayerStart()
         {
             ISprite playerSprite = PlayerSpriteFactory.Instance.CreateStandingRobotSprite(Direction.Right);
-            PlayerStart = FindSafeSpawn(CellPosition(data.PlayerColumn, data.PlayerRow),
+            PlayerStart = LevelSpawnSearch.Find(CellPosition(data.PlayerColumn, data.PlayerRow),
                 playerSprite.Width, playerSprite.Height, SolidBlockBounds());
             playerSpawnBounds = new Rectangle((int)PlayerStart.X, (int)PlayerStart.Y, playerSprite.Width, playerSprite.Height);
         }
@@ -269,28 +234,6 @@ namespace TransformersGame.Core
         private List<Rectangle> SolidBlockBounds()
         {
             return blocks.FindAll(block => block.IsSolid).ConvertAll(block => block.Bounds);
-        }
-
-        // Nearest free position to the requested one, searched on a 16-pixel grid.
-        private static Vector2 FindSafeSpawn(Vector2 requested, int width, int height, List<Rectangle> occupied)
-        {
-            const int searchStep = 16;
-            float bestDistance = float.MaxValue;
-            Vector2? best = null;
-            for (int y = 0; y <= ScreenHeight - height; y += searchStep)
-            {
-                for (int x = 0; x <= ScreenWidth - width; x += searchStep)
-                {
-                    Rectangle candidate = new Rectangle(x, y, width, height);
-                    float distance = Vector2.DistanceSquared(new Vector2(x, y), requested);
-                    if (distance < bestDistance && !occupied.Exists(bounds => candidate.Intersects(bounds)))
-                    {
-                        bestDistance = distance;
-                        best = new Vector2(x, y);
-                    }
-                }
-            }
-            return best ?? throw new InvalidOperationException("The level has no non-overlapping spawn position for an entity.");
         }
     }
 }

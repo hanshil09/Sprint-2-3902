@@ -41,9 +41,14 @@ internal static class ParkourCheck
             initialPosition = position;
         }
         private const float JumpSpeed = 650;
-        private const int ScreenWidth = 960;
-        private const int ScreenHeight = 540;
         private static readonly GameTime Step = new(TimeSpan.Zero, TimeSpan.FromSeconds(1.0 / 60));
+
+        // World bounds in pixels, derived from the room size so the search works for
+        // rooms larger than a single 960x540 screen (the camera scrolls to follow the player).
+        private int WorldWidth => data.Columns * BlockSpriteFactory.BlockSize;
+        private int WorldHeight => ScreenHeight; // grid is bottom-anchored to a 540px baseline
+        private int WorldTop => ScreenHeight - data.Rows * BlockSpriteFactory.BlockSize;
+        private const int ScreenHeight = 540;
 
         public bool Run()
         {
@@ -66,8 +71,8 @@ internal static class ParkourCheck
             float inset = CollisionManager.PlayerFootInset;
             Vector2[] candidates = solids.SelectMany(b => new[]
                 { b.Bounds.Center.X - Width / 2f, b.Bounds.Right - inset - 1, b.Bounds.Left - Width + inset + 1 }
-                .Select(x => new Vector2(Math.Clamp(x, 0, ScreenWidth - Width), b.Bounds.Top - Height)))
-                .Append(start).Distinct().Where(p => p.Y >= 0
+                .Select(x => new Vector2(Math.Clamp(x, 0, WorldWidth - Width), b.Bounds.Top - Height)))
+                .Append(start).Distinct().Where(p => p.Y >= WorldTop
                     && !solids.Any(b => Bounds(p).Intersects(b.Bounds))
                     && !hazards.Any(h => Bounds(p).Intersects(h))).ToArray();
             var visited = new HashSet<Vector2> { start };
@@ -102,9 +107,9 @@ internal static class ParkourCheck
             for (int frame = 0; frame < 150; frame++)
             {
                 float distance = frame < movementDelay ? 0 : Math.Clamp(target.X - position.X, -distancePerFrame, distancePerFrame);
-                position = movement.MoveHorizontally(position, Width, Height, distance, 0, ScreenWidth - Width);
+                position = movement.MoveHorizontally(position, Width, Height, distance, 0, WorldWidth - Width);
                 position = movement.Apply(position, Width, Height, Step);
-                if (position.Y > ScreenHeight || hazards.Any(h => Bounds(position).Intersects(h))) return false;
+                if (position.Y > WorldHeight || hazards.Any(h => Bounds(position).Intersects(h))) return false;
                 if (movement.IsOnGround && Vector2.DistanceSquared(position, target) < 1) return true;
             }
             return false;

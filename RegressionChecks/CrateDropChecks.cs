@@ -31,7 +31,7 @@ internal static class CrateDropChecks
 
     private static void CheckReinforcedCrate()
     {
-        LevelData data = LevelParser.Parse(new[] { "[tiles]", "P.R", "GGG" }).Data;
+        LevelData data = LevelParser.Parse(new[] { "[tiles]", "....P.R", "GGGGGGG" }).Data;
         Level level = new Level(data);
         SupplyCrate crate = level.Blocks.OfType<SupplyCrate>().Single();
         var bomb = new Bomb(crate.Position, new StubSprite(), gravity: 0, createExplosion: () => new StubSprite());
@@ -106,20 +106,23 @@ internal static class CrateDropChecks
         Check("the fixed Level 1 crate can be broken by rolling right from spawn", !level.HasIntactReinforcedCrate
             && level.Blocks.OfType<SupplyCrate>().Count(crate => crate.IsDestroyed) == 1);
 
-        level = new Level(first, new Random(0));
-        player = new Player(level.PlayerStart, level.Blocks, new ProjectileManager(), level.Gravity);
-        for (int frame = 0; frame < 30; frame++) player.Update(Step(1.0 / 60));
-        player.Transform();
-        for (int frame = 0; frame < 16; frame++)
+        LevelData lowCeilingData = LevelParser.Parse(new[]
         {
-            player.Move(Direction.Right);
-            player.Update(Step(1.0 / 60));
-        }
+            "[tiles]",
+            "....W...",
+            "........",
+            "........",
+            "P.GGGGGG"
+        }).Data;
+        level = new Level(lowCeilingData);
+        player = new Player(new Vector2(128, 472), level.Blocks, new ProjectileManager());
+        player.Transform();
+        player.Position = new Vector2(128, 472);
         Vector2 originalPosition = player.Position;
         player.Transform();
         Check("low ceiling prevents transformation without changing position", player.IsInBallForm
             && player.Position == originalPosition);
-        player.Position = new Vector2(100, player.Position.Y);
+        player.Position = new Vector2(0, player.Position.Y);
         player.Transform();
         Check("robot transformation succeeds again in a clear area", !player.IsInBallForm);
 

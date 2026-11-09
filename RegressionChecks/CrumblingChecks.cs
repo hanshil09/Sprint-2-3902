@@ -86,7 +86,7 @@ internal static class CrumblingChecks
                 valid &= crumbles.Length >= 2 && crumbles.Length <= 3;
                 valid &= crumbles.Select(p => p.Kind).Distinct().Count() == crumbles.Length;
                 valid &= crumbles.All(p => p.Bounds.Bottom <= 508);
-                valid &= level.Blocks.Count(b => b.Bounds.Top == 508 && b.IsSolid) == 30;
+                valid &= level.Blocks.Count(b => b.Bounds.Top == 508 && b.IsSolid) == data.Columns;
                 var spawnPlayer = new Player(level.PlayerStart, level.Blocks, new ProjectileManager());
                 valid &= level.Blocks.All(b => !b.Bounds.Intersects(new Rectangle((int)level.PlayerStart.X, (int)level.PlayerStart.Y, spawnPlayer.Width, spawnPlayer.Height)));
                 layouts.Add(Describe(level));

@@ -7,11 +7,27 @@ namespace TransformersGame.Controllers
 {
     internal static class ControllerFactory
     {
+        public static IController CreateSelfieShortcut(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.F2, new GameActionCommand(game.OpenSelfie));
+            return keyboard;
+        }
+
+        public static IController CreateSelfieController(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseSelfie));
+            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
+            keyboard.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
+            return keyboard;
+        }
+
         public static IController CreateMenuController(Game1 game)
         {
             KeyboardController keyboardController = new KeyboardController();
             keyboardController.RegisterSinglePressCommand(Keys.Enter, new StartGameCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
             return keyboardController;
@@ -21,19 +37,30 @@ namespace TransformersGame.Controllers
         public static IController CreateEndScreenController(Game1 game)
         {
             KeyboardController keyboardController = new KeyboardController();
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
             return keyboardController;
         }
 
+        public static IController CreateMapController(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.Tab, new GameActionCommand(game.CloseMap));
+            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseMap));
+            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
+            return keyboard;
+        }
+
         public static IController CreateGameplayController(Game1 game, IPlayer player, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
             KeyboardController keyboardController = new KeyboardController();
+            keyboardController.RegisterSinglePressCommand(Keys.Tab, new GameActionCommand(game.OpenMap));
             RegisterMovementCommands(keyboardController, player);
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMusicCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             RegisterActionCommands(keyboardController, player);
+            keyboardController.RegisterSinglePressCommand(Keys.X, new GameActionCommand(game.FireSelectedShot));
             RegisterCycleCommands(keyboardController, blocks, items, enemies);
             keyboardController.RegisterSinglePressCommand(Keys.F1, new ToggleHelpCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.H, new ToggleHelpCommand(game));
@@ -54,47 +81,29 @@ namespace TransformersGame.Controllers
 
         private static void RegisterMovementCommands(KeyboardController keyboardController, IPlayer player)
         {
-            keyboardController.RegisterCommand(Keys.A, new MovePlayerCommand(player, Direction.Left));
-            keyboardController.RegisterCommand(Keys.Left, new MovePlayerCommand(player, Direction.Left));
-            keyboardController.RegisterCommand(Keys.D, new MovePlayerCommand(player, Direction.Right));
-            keyboardController.RegisterCommand(Keys.Right, new MovePlayerCommand(player, Direction.Right));
-            keyboardController.RegisterCommand(Keys.S, new MovePlayerCommand(player, Direction.Down));
-            keyboardController.RegisterCommand(Keys.Down, new MovePlayerCommand(player, Direction.Down));
-            keyboardController.RegisterSinglePressCommand(Keys.W, new JumpPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.Up, new JumpPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.J, new JumpPlayerCommand(player));
+            keyboardController.RegisterCommand(new MovePlayerCommand(player, Direction.Left), Keys.A, Keys.Left);
+            keyboardController.RegisterCommand(new MovePlayerCommand(player, Direction.Right), Keys.D, Keys.Right);
+            keyboardController.RegisterCommand(new MovePlayerCommand(player, Direction.Down), Keys.S, Keys.Down);
+            keyboardController.RegisterSinglePressCommand(new JumpPlayerCommand(player), Keys.W, Keys.Up, Keys.J);
         }
 
         private static void RegisterActionCommands(KeyboardController keyboardController, IPlayer player)
         {
-            keyboardController.RegisterSinglePressCommand(Keys.Space, new TransformPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.Z, new ShootPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.N, new ShootPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.K, new AngledShootPlayerCommand(player));
-            keyboardController.RegisterSinglePressCommand(Keys.D5, new UseItemCommand(player, 5));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad5, new UseItemCommand(player, 5));
-            keyboardController.RegisterSinglePressCommand(Keys.D6, new UseItemCommand(player, 6));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad6, new UseItemCommand(player, 6));
-            keyboardController.RegisterSinglePressCommand(Keys.D7, new UseItemCommand(player, 7));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad7, new UseItemCommand(player, 7));
-            keyboardController.RegisterSinglePressCommand(Keys.D1, new UseItemCommand(player, 1));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad1, new UseItemCommand(player, 1));
-            keyboardController.RegisterSinglePressCommand(Keys.D2, new UseItemCommand(player, 2));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad2, new UseItemCommand(player, 2));
-            keyboardController.RegisterSinglePressCommand(Keys.D3, new UseInventoryItemCommand(player, ItemKind.Medkit));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad3, new UseInventoryItemCommand(player, ItemKind.Medkit));
-            keyboardController.RegisterSinglePressCommand(Keys.D4, new UseInventoryItemCommand(player, ItemKind.Shield));
-            keyboardController.RegisterSinglePressCommand(Keys.NumPad4, new UseInventoryItemCommand(player, ItemKind.Shield));
+            keyboardController.RegisterSinglePressCommand(new TransformPlayerCommand(player), Keys.Space);
+            keyboardController.RegisterSinglePressCommand(new UseItemCommand(player, 2), Keys.D2, Keys.NumPad2);
+            keyboardController.RegisterSinglePressCommand(new UseInventoryItemCommand(player, ItemKind.Medkit), Keys.D3, Keys.NumPad3);
+            keyboardController.RegisterSinglePressCommand(new UseInventoryItemCommand(player, ItemKind.Shield), Keys.D4, Keys.NumPad4);
+            keyboardController.RegisterSinglePressCommand(new UseItemCommand(player, 7), Keys.D7, Keys.NumPad7);
         }
 
         private static void RegisterCycleCommands(KeyboardController keyboardController, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
-            keyboardController.RegisterSinglePressCommand(Keys.T, new PreviousObjectCommand(blocks));
-            keyboardController.RegisterSinglePressCommand(Keys.Y, new NextObjectCommand(blocks));
-            keyboardController.RegisterSinglePressCommand(Keys.U, new PreviousObjectCommand(items));
-            keyboardController.RegisterSinglePressCommand(Keys.I, new NextObjectCommand(items));
-            keyboardController.RegisterSinglePressCommand(Keys.O, new PreviousObjectCommand(enemies));
-            keyboardController.RegisterSinglePressCommand(Keys.P, new NextObjectCommand(enemies));
+            keyboardController.RegisterSinglePressCommand(new PreviousObjectCommand(blocks), Keys.T);
+            keyboardController.RegisterSinglePressCommand(new NextObjectCommand(blocks), Keys.Y);
+            keyboardController.RegisterSinglePressCommand(new PreviousObjectCommand(items), Keys.U);
+            keyboardController.RegisterSinglePressCommand(new NextObjectCommand(items), Keys.I);
+            keyboardController.RegisterSinglePressCommand(new PreviousObjectCommand(enemies), Keys.O);
+            keyboardController.RegisterSinglePressCommand(new NextObjectCommand(enemies), Keys.P);
         }
     }
 }

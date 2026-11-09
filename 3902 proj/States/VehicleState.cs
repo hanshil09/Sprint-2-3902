@@ -27,7 +27,7 @@ namespace TransformersGame.States
         {
         }
 
-        public void UseItem(int itemNumber)
+        public void UseItem(int itemNumber, bool angled = false)
         {
             if (itemNumber == 2)
             {

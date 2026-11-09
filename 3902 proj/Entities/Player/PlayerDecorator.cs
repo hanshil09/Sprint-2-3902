@@ -27,6 +27,7 @@ namespace TransformersGame.Entities
         public virtual Vector2 Position { get => Inner.Position; set => Inner.Position = value; }
         public virtual int Width => Inner.Width;
         public virtual int Height => Inner.Height;
+        public virtual bool IsInBallForm => Inner.IsInBallForm;
         public virtual Direction Facing => Inner.Facing;
         public virtual int Health => Inner.Health;
         public virtual int MaxHealth => Inner.MaxHealth;
@@ -42,7 +43,7 @@ namespace TransformersGame.Entities
         public virtual void Jump() => Inner.Jump();
         public virtual void Bounce(float speed) => Inner.Bounce(speed);
         public virtual void Shoot(bool angled) => Inner.Shoot(angled);
-        public virtual void UseItem(int itemNumber) => Inner.UseItem(itemNumber);
+        public virtual void UseItem(int itemNumber, bool angled = false) => Inner.UseItem(itemNumber, angled);
         public virtual void Transform() => Inner.Transform();
         public virtual bool TakeDamage() => Inner.TakeDamage();
         public virtual bool TryAddItem(ItemKind kind) => Inner.TryAddItem(kind);

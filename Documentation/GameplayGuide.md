@@ -19,13 +19,11 @@ Repository: [hanshil09/Sprint-2-3902](https://github.com/hanshil09/Sprint-2-3902
 | S or Down | Face downward; this does not move the player down. |
 | Space | Switch between standing armadillo and smaller, faster ball form. |
 | Z or N | Fire a normal horizontal shot in standing form. |
-| K | Fire an angled shot in standing form. |
-| 1 | Fire an orb in standing form. |
+| X / Shift+X | Fire the selected fireball in robot form. Hold Shift to aim up, except with Spread. |
+| Tab | View the map and click a fireball to equip it. |
 | 2 | Drop a bomb in either form. Bombs are unlimited. |
 | 3 | Use a stored Medkit to restore health to the current maximum. |
 | 4 | Use a stored Shield for five seconds of protection. |
-| 5 | Fire a piercing shot that can damage up to three different enemies. |
-| 6 | Fire a three-way spread shot. |
 | 7 | Throw a returning boomerang; only one can be active at a time. |
 | B | Activate Barrel Storm: nine falling barrels damage enemies; 14-second cooldown. |
 | T/Y | Preview previous/next block or interactive-object kind. |
@@ -57,12 +55,9 @@ headers followed by a `[tiles]` grid. Parsing and validation are handled by
 
 | Order | Room | File | Gravity (pixels per second squared) |
 |---|---|---|---:|
-| 1 | Ground Courtyard | desert-01.room | 1800 |
 | 2 | Brick Stairway | laboratory-02.room | 1000 |
 | 3 | Stone Switchbacks | stone-03.room | 1900 |
 | 4 | Metal Towers | metal-04.room | 600 |
-| 5 | Crate Workshop | crates-05.room | 800 |
-| 6 | Hazard Crossing | hazards-06.room | 1550 |
 | 7 | Decepticon Fortress | fortress-07.room | 1100 |
 
 The first six rooms have an elevated gold forward door and a cyan return door.

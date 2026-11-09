@@ -27,6 +27,8 @@ namespace TransformersGame.Entities
         private float spawnElapsed;
         private bool isActive;
         private int spawnedBarrels;
+        private Rectangle visibleBounds;
+        private Rectangle roomBounds;
 
         public BarrelStorm(GraphicsDevice graphicsDevice, Action<GameSound> playSound)
         {
@@ -41,7 +43,7 @@ namespace TransformersGame.Entities
 
         public float CooldownRemaining => cooldownRemaining;
 
-        public bool TryActivate(IProjectileManager roomProjectiles)
+        public bool TryActivate(IProjectileManager roomProjectiles, Rectangle visibleWorldBounds, Rectangle roomWorldBounds)
         {
             ArgumentNullException.ThrowIfNull(roomProjectiles);
             if (isActive || cooldownRemaining > 0)
@@ -50,6 +52,8 @@ namespace TransformersGame.Entities
             }
 
             projectiles = roomProjectiles;
+            visibleBounds = visibleWorldBounds;
+            roomBounds = roomWorldBounds;
             cooldownRemaining = CooldownDuration;
             stormElapsed = 0;
             spawnElapsed = 0;
@@ -60,13 +64,14 @@ namespace TransformersGame.Entities
             return true;
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, Rectangle currentViewBounds)
         {
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             cooldownRemaining = Math.Max(0, cooldownRemaining - elapsed);
 
             if (isActive)
             {
+                visibleBounds = currentViewBounds;
                 stormElapsed += elapsed;
                 spawnElapsed += elapsed;
                 while (spawnedBarrels < BarrelCount && spawnElapsed >= SpawnInterval)
@@ -159,9 +164,19 @@ namespace TransformersGame.Entities
                 return;
             }
 
-            float x = RandomNumberGenerator.GetInt32(20, ScreenWidth - 52);
+            int minimumX = Math.Max(visibleBounds.Left, roomBounds.Left);
+            int maximumX = Math.Min(visibleBounds.Right - BarrelProjectile.Width, roomBounds.Right - BarrelProjectile.Width);
+            if (maximumX < minimumX)
+            {
+                minimumX = MathHelper.Clamp(visibleBounds.Center.X - BarrelProjectile.Width / 2,
+                    roomBounds.Left, roomBounds.Right - BarrelProjectile.Width);
+                maximumX = minimumX;
+            }
+            int x = maximumX == minimumX
+                ? minimumX
+                : RandomNumberGenerator.GetInt32(minimumX, maximumX + 1);
             float horizontalSpeed = NextRange(-50, 50);
-            var barrel = new BarrelProjectile(new Vector2(x, -39), horizontalSpeed,
+            var barrel = new BarrelProjectile(new Vector2(x, visibleBounds.Top - BarrelProjectile.Height), horizontalSpeed,
                 (position, count) => SpawnDust(position, count), () => playSound(GameSound.CrateBreak), pixel);
             projectiles.Add(barrel);
             barrels.Add(barrel);
@@ -185,8 +200,8 @@ namespace TransformersGame.Entities
 
     internal sealed class BarrelProjectile : IPlayerWeapon
     {
-        private const int Width = 32;
-        private const int Height = 40;
+        internal const int Width = 32;
+        internal const int Height = 40;
         private const float Gravity = 650f;
         private readonly float horizontalSpeed;
         private readonly Action<Vector2, int> emitDust;

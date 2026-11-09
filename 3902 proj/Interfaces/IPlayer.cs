@@ -9,6 +9,7 @@ namespace TransformersGame.Interfaces
         int Width { get; }
 
         int Height { get; }
+        bool IsInBallForm { get; }
 
         Direction Facing { get; }
 
@@ -42,7 +43,7 @@ namespace TransformersGame.Interfaces
 
         void Shoot(bool angled);
 
-        void UseItem(int itemNumber);
+        void UseItem(int itemNumber, bool angled = false);
 
         void Transform();
 

@@ -1,0 +1,42 @@
+READABILITY REVIEW
+
+Author of the code review: Hanshil Solanki
+Date of the code review: November 9, 2026
+Sprint number: 4
+Name of the .cs file being reviewed: PlayerHud.cs, HeartMeter.cs, and Game1.cs
+Author of the .cs file being reviewed: Hanshil Solanki (original HUD) and Shreya (visual update)
+Number of minutes taken to complete the review: 40 mins
+
+Changes reviewed:
+- November 3, 2026 (80dbed7, Hanshil): Added the top HUD, player and boss hearts, and inventory counters. Moved the objective into help and made both shield pickups activate manually.
+- November 8, 2026 (7d4fe5a, Shreya): Added a player portrait, inventory icons and dividers, and restyled the hearts and HUD. Game1 now loads the portrait.
+
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+DrawHealth, DrawInventory, and DrawRoomStatus make it easy to find each part of the HUD. DrawCounter keeps the icon and value layout consistent across items.
+
+What I noticed could be improved:
+The divider positions are listed separately from the counter positions. Moving a counter could leave its divider in the old spot. Derive both positions from the same layout values.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Hanshil Solanki
+Date of the code review: November 9, 2026
+Sprint number: 4
+Name of the .cs file being reviewed: PlayerHud.cs, HeartMeter.cs, and Game1.cs
+Author of the .cs file being reviewed: Hanshil Solanki and Shreya
+
+Specific comments on code quality:
+
+What I noticed:
+The HUD still reads live health and inventory from the player. HeartMeter still takes a fillColor argument, but the new drawing code ignores it and always uses its gold palette. That removes the boss's orange-red enraged hearts. Use the supplied color as the base fill and derive the highlight from it.
+
+Strict build check:
+- Game1.cs:44 (CA2213): Keep the Content-managed portrait in a local variable during loading and pass it to PlayerHud.
+- PlayerHud.cs:325 (CA1822): DrawIcon uses no instance state and can be static.
+
+Hypothetical change:
+If we add another inventory item, use the existing DrawCounter method and check spacing with the shield's ACTIVE label and the longest counter text.

@@ -23,9 +23,27 @@ namespace TransformersGame.Controllers
             controllerMappings.Add(key, command);
         }
 
+        // Bind several keys to the same continuous command (e.g. A and Left for "move left").
+        public void RegisterCommand(ICommand command, params Keys[] keys)
+        {
+            foreach (Keys key in keys)
+            {
+                controllerMappings.Add(key, command);
+            }
+        }
+
         public void RegisterSinglePressCommand(Keys key, ICommand command)
         {
             singlePressMappings.Add(key, command);
+        }
+
+        // Bind several keys to the same edge-triggered command (e.g. 1 and NumPad1).
+        public void RegisterSinglePressCommand(ICommand command, params Keys[] keys)
+        {
+            foreach (Keys key in keys)
+            {
+                singlePressMappings.Add(key, command);
+            }
         }
 
         public void Update()

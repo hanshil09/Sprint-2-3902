@@ -28,21 +28,24 @@ namespace TransformersGame.States
         }
 
         // Standard form can use every weapon: 1 orb, 2 bomb, 5 piercing, 6 spread, 7 boomerang.
-        public void UseItem(int itemNumber)
+        public void UseItem(int itemNumber, bool angled = false)
         {
             switch (itemNumber)
             {
                 case 1:
-                    player.Arsenal.FireOrb();
+                    player.Arsenal.FireOrb(angled);
                     break;
                 case 2:
                     player.DropBomb();
                     return;
                 case 5:
-                    player.Arsenal.FirePiercing();
+                    player.Arsenal.FirePiercing(angled);
                     break;
                 case 6:
                     player.Arsenal.FireSpread();
+                    break;
+                case FireballSelection.IceItem:
+                    player.Arsenal.FireIce(angled);
                     break;
                 case 7:
                     player.Arsenal.ThrowBoomerang();
@@ -50,7 +53,7 @@ namespace TransformersGame.States
                 default:
                     return;
             }
-            player.SetState(new ShootingRobotState(player, false));
+            player.SetState(new ShootingRobotState(player, angled && (itemNumber == 1 || itemNumber == 5 || itemNumber == FireballSelection.IceItem)));
         }
 
         public void Update(GameTime gameTime)
