@@ -15,7 +15,7 @@ namespace TransformersGame.Collisions
 
         private readonly Action damagePlayer;
         private readonly Action<int> enterDoor;
-        private readonly Rectangle worldBounds;
+        private Rectangle worldBounds;
         private readonly BlockCollision blockCollision;
         private List<IGameObject> objects = new List<IGameObject>();
 
@@ -26,7 +26,16 @@ namespace TransformersGame.Collisions
             this.damagePlayer = damagePlayer;
             this.enterDoor = enterDoor;
             worldBounds = new Rectangle(0, 0, maxWidth, maxHeight);
-            blockCollision = new BlockCollision(maxWidth);
+            blockCollision = new BlockCollision(worldBounds);
+        }
+
+        // Switches the collision world to a new room's bounds so each level can be any size or shape.
+        public void SetWorldBounds(Rectangle bounds)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bounds.Width);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bounds.Height);
+            worldBounds = bounds;
+            blockCollision.SetWorldBounds(bounds);
         }
 
         public void SetBlocks(IGameObject gameObject, IReadOnlyList<IBlock> blocks, float footInset = 0) =>

@@ -21,6 +21,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | W / Up / J | Jump |
 | Space | Transform; roll into blue crates to break them |
 | Z / N | Shoot |
+| X / K | Angled shot |
 | 2 | Drop bomb |
 | 3 / 4 | Use medkit / shield |
 | Left / right mouse click | Previous / next room (testing) |
@@ -36,12 +37,12 @@ pickups, room details, limitations, and artwork credits.
 
 - Normal-shot recoil changes position directly without wall collision
   resolution; firing beside a wall can cause overlap.
-- Facing down does not aim normal shots downward; use K for angled shots.
+- Facing down does not aim normal shots downward; use K or X for angled shots.
 - Revisiting a room resets enemies, pickups, crates, and platform phases,
   allowing pickups to be collected again. Player inventory/upgrades persist.
-- Automated route checks model simplified static geometry, not full combat or
-  every randomized crumbling-platform route. Manual gameplay and balance
-  testing is still needed.
+- Automated route checks model simplified static geometry (now using each
+  room's own size), not full combat or every randomized crumbling-platform
+  route. Manual gameplay and balance testing is still needed.
 - When Player is hit with a projectile while on a platform moving upwards,
   they fall through the platform. This is a collision error.
 

@@ -17,7 +17,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, K Angle, 1/5/6/7 Weapons, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, X/K Angle, 1/5/6/7 Weapons, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
@@ -40,6 +40,7 @@ namespace TransformersGame
         private RoomMapScreen roomMapScreen;
         private IController mapController;
         private ObjectShowcase showcase;
+        private Camera2D camera;
         private IPlayer player;
         private int pendingDoorDirection;
         private readonly GameAudio audio = new GameAudio();
@@ -205,16 +206,16 @@ namespace TransformersGame
             {
                 bool playing = gameState == GameState.Gameplay;
                 GraphicsDevice.Clear(playing ? GameplayColor : MenuColor);
-                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
                 if (playing)
                 {
                     DrawGameplay();
                 }
                 else
                 {
+                    spriteBatch.Begin(samplerState: SamplerState.PointClamp);
                     controlsOverlay.DrawMenu(spriteBatch, GraphicsDevice.Viewport, gameState, Player);
+                    spriteBatch.End();
                 }
-                spriteBatch.End();
             }
             base.Draw(gameTime);
         }
@@ -222,8 +223,21 @@ namespace TransformersGame
         private void DrawGameplay()
         {
             Room room = roomManager.ActiveRoom;
+
+            // World pass: scrolls with the camera.
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix());
             room.Draw(spriteBatch);
             Player.Draw(spriteBatch);
+            spriteBatch.End();
+
+            // UI pass: fixed to the screen, drawn without the camera transform.
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            DrawHud(room);
+            spriteBatch.End();
+        }
+
+        private void DrawHud(Room room)
+        {
             string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
             playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
             controlsOverlay.DrawSmallText(spriteBatch,
@@ -253,6 +267,9 @@ namespace TransformersGame
             roomManager = new RoomManager(initialRoom, roomFactory.RoomCount, player,
                 index => RoomFactory.CreateRoom(roomFactory.LoadLevel(index), Player,
                     new ProjectileManager(), collisionManager));
+            camera = new Camera2D(ScreenWidth, ScreenHeight);
+            camera.SnapTo(PlayerBounds(), roomManager.ActiveRoom.Level.WorldBounds);
+            collisionManager.SetWorldBounds(roomManager.ActiveRoom.Level.WorldBounds);
             pendingDoorDirection = 0;
             menuController = ControllerFactory.CreateMenuController(this);
             RefreshGameplayController();
@@ -263,7 +280,8 @@ namespace TransformersGame
             Room activeRoom = roomManager.ActiveRoom;
             activeRoom.Update(gameTime);
             Player.Update(gameTime);
-            KeepPlayerOnScreen();
+            KeepPlayerInRoom();
+            camera.Follow(PlayerBounds(), activeRoom.Level.WorldBounds, gameTime);
             ApplyPowerUps(activeRoom.CollectItems(Player));
             showcase.Update(gameTime);
             collisionManager.BuildTree(activeRoom.GetCollisionObjects(Player));
@@ -313,7 +331,9 @@ namespace TransformersGame
         private void SwitchRoom(System.Action switchRoom)
         {
             switchRoom();
+            collisionManager.SetWorldBounds(roomManager.ActiveRoom.Level.WorldBounds);
             collisionManager.BuildTree(roomManager.ActiveRoom.GetCollisionObjects(Player));
+            camera.SnapTo(PlayerBounds(), roomManager.ActiveRoom.Level.WorldBounds);
             RefreshGameplayController();
         }
 
@@ -327,11 +347,17 @@ namespace TransformersGame
                 this, Player, showcase.Blocks, showcase.Items, showcase.Enemies);
         }
 
-        private void KeepPlayerOnScreen()
+        private void KeepPlayerInRoom()
         {
-            Viewport viewport = GraphicsDevice.Viewport;
-            Vector2 maximum = new Vector2(viewport.Width - Player.Width, viewport.Height - Player.Height);
-            Player.Position = Vector2.Clamp(Player.Position, Vector2.Zero, maximum);
+            Rectangle bounds = roomManager.ActiveRoom.Level.WorldBounds;
+            Vector2 minimum = new Vector2(bounds.Left, bounds.Top);
+            Vector2 maximum = new Vector2(bounds.Right - Player.Width, bounds.Bottom - Player.Height);
+            Player.Position = Vector2.Clamp(Player.Position, minimum, maximum);
+        }
+
+        private Rectangle PlayerBounds()
+        {
+            return new Rectangle((int)Player.Position.X, (int)Player.Position.Y, Player.Width, Player.Height);
         }
     }
 }

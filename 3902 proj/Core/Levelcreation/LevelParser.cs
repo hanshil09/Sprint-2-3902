@@ -151,7 +151,7 @@ namespace TransformersGame.Core
 
             if (columns > ScreenColumns || rows.Count > ScreenRows)
             {
-                warnings.Add($"room is {columns} x {rows.Count} tiles but the screen shows {ScreenColumns} x {ScreenRows} and there is no scrolling camera yet, so part of it will be off-screen");
+                warnings.Add($"room is {columns} x {rows.Count} tiles, larger than the {ScreenColumns} x {ScreenRows} screen; the camera will scroll to follow the player");
             }
 
             List<Placement<BlockKind>> blocks = new List<Placement<BlockKind>>();

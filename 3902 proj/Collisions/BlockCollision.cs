@@ -14,13 +14,19 @@ namespace TransformersGame.Collisions
         public const float PlayerFootInset = 16f;
         public const int EnemyLedgeInset = 12;
 
-        private readonly int worldWidth;
+        private Rectangle worldBounds;
         private readonly ConditionalWeakTable<IGameObject, BlockCollisionState> states = new();
 
-        public BlockCollision(int worldWidth)
+        public BlockCollision(Rectangle worldBounds)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(worldWidth);
-            this.worldWidth = worldWidth;
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(worldBounds.Width);
+            this.worldBounds = worldBounds;
+        }
+
+        public void SetWorldBounds(Rectangle bounds)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bounds.Width);
+            worldBounds = bounds;
         }
 
         public void SetBlocks(IGameObject gameObject, IReadOnlyList<IBlock> blocks, float footInset = 0)
@@ -120,15 +126,16 @@ namespace TransformersGame.Collisions
 
         private Vector2 MovePlayerHorizontally(Player player, float distance, IReadOnlyList<IBlock> blocks)
         {
-            float maximumX = worldWidth - player.Width;
+            float minimumX = worldBounds.Left;
+            float maximumX = worldBounds.Right - player.Width;
             Vector2 resolved = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
-                distance, 0, maximumX, blocks, out IBlock hitBlock);
+                distance, minimumX, maximumX, blocks, out IBlock hitBlock);
             if (player.IsInBallForm && hitBlock is SupplyCrate crate && crate.TryBreakFromRoll())
             {
                 player.PlaySound(GameSound.CrateBreak);
                 // Finish the movement against the remaining solid blocks.
                 resolved = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
-                    distance, 0, maximumX, blocks);
+                    distance, minimumX, maximumX, blocks);
             }
             return resolved;
         }
@@ -201,7 +208,7 @@ namespace TransformersGame.Collisions
                 {
                     float targetX = platform.Delta.X > 0 ? platform.Bounds.Right : platform.Bounds.Left - player.Width;
                     player.Position = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
-                        targetX - player.Position.X, 0, worldWidth - player.Width, state.Blocks);
+                        targetX - player.Position.X, worldBounds.Left, worldBounds.Right - player.Width, state.Blocks);
                     body = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
                 }
             }
@@ -210,7 +217,7 @@ namespace TransformersGame.Collisions
                 && supportingPlatform.Delta != Vector2.Zero)
             {
                 player.Position = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width,
-                    player.Height, supportingPlatform.Delta.X, 0, worldWidth - player.Width, state.Blocks);
+                    player.Height, supportingPlatform.Delta.X, worldBounds.Left, worldBounds.Right - player.Width, state.Blocks);
                 float playerY = player.Position.Y;
                 if (supportingPlatform.Delta.Y != 0)
                 {
