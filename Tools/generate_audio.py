@@ -41,6 +41,24 @@ def melody(notes, beat):
     return [sample for note in notes for sample in tone(beat, note, note, 0.4)]
 
 
+def shutter():
+    """Two dry mechanical transients: shutter release, then curtain return."""
+    rng = random.Random(3902)
+    samples = [0.0] * int(0.12 * RATE)
+    for offset, strength, frequency in [(0.0, 0.64, 920), (0.041, 0.8, 1650)]:
+        start = int(offset * RATE)
+        previous = 0.0
+        for i in range(int(0.035 * RATE)):
+            t = i / RATE
+            noise = rng.uniform(-1, 1)
+            attack = min(1, t / 0.001)
+            click = (noise - 0.55 * previous) * math.exp(-t / 0.003)
+            mechanism = math.sin(2 * math.pi * frequency * t) * math.exp(-t / 0.006)
+            samples[start + i] = attack * strength * (0.66 * click + 0.34 * mechanism)
+            previous = noise
+    return samples
+
+
 def main():
     DEST.mkdir(parents=True, exist_ok=True)
     effects = {
@@ -51,6 +69,7 @@ def main():
         'Hurt': tone(0.22, 180, 55, noise=0.4),
         'Explosion': tone(0.65, 100, 25, noise=0.75),
         'CrateBreak': tone(0.23, 390, 68, volume=0.7, noise=0.65),
+        'Shutter': shutter(),
         'Item': melody([440, 660, 880], 0.12),
         'Victory': melody([523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5], 0.18),
         'Defeat': melody([440, 349.23, 293.66, 220], 0.25),

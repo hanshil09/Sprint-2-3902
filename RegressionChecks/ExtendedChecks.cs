@@ -221,6 +221,7 @@ sealed class StubPlayer : IPlayer
     public Vector2 Position { get; set; }
     public int Width => 10;
     public int Height => 10;
+    public bool IsInBallForm => false;
     public Direction Facing => Direction.Right;
     public int Health => 100;
     public int MaxHealth => 100;
@@ -257,6 +258,7 @@ sealed class StubSprite : ISprite
 }
 sealed class StubEnemy : IEnemy
 {
+    public EnemyKind Kind => EnemyKind.Crawler;
     public Vector2 Position { get; set; }
     public Rectangle Bounds => new((int)Position.X, (int)Position.Y, 10, 10);
     public bool IsDestroyed => Hits > 0;

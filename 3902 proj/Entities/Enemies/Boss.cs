@@ -47,6 +47,7 @@ namespace TransformersGame.Entities
         public Vector2 Position { get; set; }
 
         public int Health { get; private set; }
+        public EnemyKind Kind => EnemyKind.Warlord;
 
         public bool IsDefeated => Health <= 0;
 

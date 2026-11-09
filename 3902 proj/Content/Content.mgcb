@@ -228,6 +228,20 @@
 /processorParam:Version=3.8.5.1
 /build:Sprites/reinforced-health.png
 
+#begin Sprites/Selfie/selfie-pose-sheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyEnabled=False
+/processorParam:PremultiplyAlpha=True
+/build:Sprites/Selfie/selfie-pose-sheet.png
+
+#begin Sprites/Selfie/photographer-bot.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyEnabled=False
+/processorParam:PremultiplyAlpha=True
+/build:Sprites/Selfie/photographer-bot.png
+
 #begin Sprites/sprint3-objects.png
 /importer:TextureImporter
 /processor:TextureProcessor
