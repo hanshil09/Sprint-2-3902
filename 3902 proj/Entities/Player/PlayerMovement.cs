@@ -62,7 +62,7 @@ internal sealed class PlayerMovement
             distance = direction * speed * speedScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        collisions.UpdatePlayerMovement(player, physics, gameTime, distance);
+        collisions.UpdateMovement(player, player.Width, player.Height, physics, gameTime, distance);
     }
 
     public bool TryJump() => collisions.TryJump(player, physics, JumpSpeed);
