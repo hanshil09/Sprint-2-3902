@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using TransformersGame.Entities;
 using TransformersGame.Factories;
@@ -10,10 +11,12 @@ namespace TransformersGame.Core
     internal sealed class LevelBlockFactory
     {
         private readonly LevelData data;
+        private readonly RoomProgress progress;
 
-        public LevelBlockFactory(LevelData data, Random random)
+        public LevelBlockFactory(LevelData data, Random random, RoomProgress progress)
         {
             this.data = data;
+            this.progress = progress;
             ReinforcedSupply = SelectReinforcedSupply(data, random);
         }
 
@@ -26,8 +29,12 @@ namespace TransformersGame.Core
                 if (drop.Column == placement.Column && drop.Row == placement.Row)
                 {
                     bool reinforced = placement.Kind == BlockKind.ReinforcedCrate || drop == ReinforcedSupply;
-                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(drop.Kind, reinforced);
-                    return new SupplyCrate(position, crateSprite, drop.Kind, reinforced);
+                    bool requiresMorphBall = placement.Kind == BlockKind.MorphBallCrate;
+                    string crateId = $"crate:{placement.Column}:{placement.Row}";
+                    ISprite crateSprite = BlockSpriteFactory.Instance.CreateSupplyCrateSprite(
+                        drop.Kind, requiresMorphBall, reinforced);
+                    return new SupplyCrate(position, crateSprite, drop.Kind, crateId, requiresMorphBall,
+                        progress.IsCrateOpened(crateId), reinforced);
                 }
             }
             ISprite sprite = BlockSpriteFactory.Instance.CreateBlockSprite(placement.Kind);
@@ -43,6 +50,13 @@ namespace TransformersGame.Core
             List<Placement<ItemKind>> candidates = new();
             foreach (Placement<ItemKind> drop in data.CrateDrops)
             {
+                bool isMorphBallCrate = data.Blocks.Any(block =>
+                    block.Column == drop.Column && block.Row == drop.Row
+                    && block.Kind == BlockKind.MorphBallCrate);
+                if (isMorphBallCrate)
+                {
+                    continue;
+                }
                 foreach (Placement<BlockKind> block in data.Blocks)
                 {
                     if (block.Column == drop.Column && block.Row == drop.Row + 1

@@ -18,8 +18,6 @@ namespace TransformersGame.Factories
 
         private Texture2D blockSpriteSheet;
         private Texture2D objectSpriteSheet;
-        private Texture2D reinforcedHealth;
-        private Texture2D reinforcedEnergon;
         private Texture2D additionalItemSprites;
 
         private BlockSpriteFactory()
@@ -38,8 +36,6 @@ namespace TransformersGame.Factories
         {
             blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
-            reinforcedHealth = content.Load<Texture2D>("Sprites/reinforced-health");
-            reinforcedEnergon = content.Load<Texture2D>("Sprites/reinforced-energon");
             additionalItemSprites = content.Load<Texture2D>("Sprites/additionalItemSprites");
         }
 
@@ -47,7 +43,7 @@ namespace TransformersGame.Factories
         {
             if (kind == BlockKind.ReinforcedCrate)
             {
-                return CreateSupplyCrateSprite(ItemKind.Energon, true);
+                return CreateSupplyCrateSprite(ItemKind.Energon, reinforced: true);
             }
             if (kind == BlockKind.Alloy)
             {
@@ -56,33 +52,29 @@ namespace TransformersGame.Factories
             int index = kind switch
             {
                 BlockKind.Crate => 1,
+                BlockKind.MorphBallCrate => 1,
                 BlockKind.Hazard => 3,
                 BlockKind.Wood => 4,
                 BlockKind.Caution => 5,
                 _ => (int)kind
             };
-            Color tint = kind switch
-            {
-                BlockKind.Crate => Color.Orange,
-                BlockKind.Hazard => Color.Red,
-                _ => Color.White
-            };
+            Color tint = kind == BlockKind.Crate ? Color.Orange
+                : kind == BlockKind.MorphBallCrate ? Color.OrangeRed
+                : kind == BlockKind.Hazard ? Color.Red : Color.White;
             Rectangle frame = new Rectangle(index * BlockSize, 0, BlockSize, BlockSize);
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
-        public ISprite CreateSupplyCrateSprite(ItemKind kind, bool reinforced = false)
+        public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false, bool reinforced = false)
         {
             Rectangle frame = reinforced
                 ? new Rectangle(102, 15, 16, 17)
                 : new Rectangle(71, 15, 16, 17);
-
-            return new TextureRegionSprite(
-                additionalItemSprites,
-                frame,
-                BlockSize,
-                BlockSize,
-                Color.White);
+            Color tint = reinforced
+                ? Color.White
+                : requiresMorphBall ? Color.OrangeRed
+                : kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
+            return new TextureRegionSprite(additionalItemSprites, frame, BlockSize, BlockSize, tint);
         }
 
         public ISprite CreateCrumblingSprite(CrumbleKind kind, bool warning, bool reforming)

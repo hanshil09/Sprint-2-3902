@@ -24,9 +24,11 @@ blocking crates have been cleared and excludes combat, springs, and dynamic
 platform behavior. Some arena sizes and the jump impulse remain fixed test
 settings. This is a limited reachability search, not a full game simulation.
 
-October 26 verification: 43 basic, 129 extended, 51 crumbling, 23 crate-drop,
-and 32 pickup assertions passed. Existing counts are unchanged; no new checks
-were added. The Strict solution and regression builds have zero warnings/errors.
+Historical October 26 verification reported 43 basic, 129 extended, 51
+crumbling, 23 crate-drop, and 32 pickup assertions. Those totals predate the
+latest pickup, crate-drop, and room-progress checks. The current targeted Strict
+run passes 43 basic, 36 pickup, 33 crate-drop, 8 room-progress, and 51 crumbling
+checks. The Strict solution and regression builds have zero warnings/errors.
 
 ## Pickup checks (optional)
 
@@ -41,7 +43,14 @@ forwarding, and repeated temporary power-up refreshes.
 `dotnet run --project RegressionChecks -c Strict --no-restore -- --crate-drops`
 
 Checks room-file contents, shot and bomb destruction, exactly one pickup per
-crate, collection effects, and empty/indestructible blocks.
+crate, Morph Ball-only crate access, collection effects, and empty/indestructible blocks.
+
+## Room progress checks (optional)
+
+`dotnet run --project RegressionChecks -c Strict --no-restore -- --room-progress`
+
+Checks collected pickup persistence, opened-crate state and drops, defeated boss
+state, and clearing room progress when a new game starts.
 
 ## Crumbling platform checks (optional)
 

@@ -192,7 +192,9 @@ namespace TransformersGame.Collisions
 
             switch (projectile)
             {
-                case Bomb bomb when bomb.Bounds.Intersects(targetBounds) && bomb.IsExploding && block is Block crate:
+                case Bomb bomb when bomb.Bounds.Intersects(targetBounds) && bomb.IsExploding
+                    && block is Block crate
+                    && (crate.Kind != BlockKind.MorphBallCrate || bomb.CanDestroyMorphBallCrates):
                     crate.Destroy();
                     break;
                 case IPlayerWeapon weapon when block.IsSolid:

@@ -40,4 +40,3 @@ Strict build check:
 
 Hypothetical change:
 If we add another inventory item, use the existing DrawCounter method and check spacing with the shield's ACTIVE label and the longest counter text.
-

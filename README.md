@@ -24,6 +24,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | X | Fire the equipped fireball in robot form |
 | Shift + X | Aim Standard, Orb, Piercing, or Ice diagonally upward. Spread keeps its usual pattern. |
 | 2 | Drop bomb |
+| B | Activate Barrel Storm (14-second cooldown) |
 | 3 / 4 | Use medkit / shield |
 | 7 | Throw boomerang in robot form |
 | Left / right mouse click or Page Up / Page Down | Previous / next room during gameplay (testing) |
@@ -42,12 +43,14 @@ pickups, room details, limitations, and artwork credits.
 
 - Normal-shot recoil changes position directly without wall collision
   resolution; firing beside a wall can cause overlap.
-- Facing down does not aim normal shots downward; hold Shift and press X to aim upward.
-- Revisiting a room resets enemies, pickups, crates, and platform phases,
-  allowing pickups to be collected again. Player inventory/upgrades persist.
-- Automated route checks model simplified static geometry (now using each
-  room's own size), not full combat or every randomized crumbling-platform
-  route. Manual gameplay and balance testing is still needed.
+- Normal shots do not aim downward; use Shift + X to aim compatible weapons
+  diagonally upward.
+- Revisiting a room respawns regular enemies, but collected pickups and opened
+  crates stay cleared. Uncollected crate drops and defeated-boss progress persist;
+  moving and crumbling platform phases reset. Player inventory/upgrades persist.
+- Automated route checks model simplified static geometry, not full combat or
+  every randomized crumbling-platform route. Manual gameplay and balance
+  testing is still needed.
 - When Player is hit with a projectile while on a platform moving upwards,
   they fall through the platform. This is a collision error.
 
@@ -63,6 +66,11 @@ pickups, room details, limitations, and artwork credits.
   comparison of production source-file and line counts. These measure project
   size, not complexity or proof of quality; no continuous complexity history
   is claimed.
+
+## Sprint 5 planning
+
+- **Feature ideas and research:** [Sprint 5 ideas](Documentation/Sprint5-FeatureIdeas.md).
+- **Room revisit behavior:** [Room respawn decision](Documentation/RoomRespawnDecision.md).
 
 ## Sprint 3 code quality and reviews
 

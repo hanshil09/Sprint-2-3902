@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Collisions;
@@ -18,18 +19,20 @@ namespace TransformersGame.Core
         private readonly List<IGameObject> objs;
         private readonly List<IBlock> blocks;
         private readonly List<IItem> items;
+        private readonly Dictionary<IItem, string> itemProgressIds = new();
         private readonly List<Door> doors = new();
         private readonly List<IPlayerTrigger> triggers;
         private Rectangle playerSpawnBounds;
 
-        public Level(LevelData data, Random random = null)
+        public Level(LevelData data, Random random = null, RoomProgress roomProgress = null)
         {
             ArgumentNullException.ThrowIfNull(data);
             this.data = data;
+            Progress = roomProgress ?? new RoomProgress();
             objs = new List<IGameObject>();
             blocks = new List<IBlock>();
             items = new List<IItem>();
-            LevelBlockFactory blockFactory = new LevelBlockFactory(data, random);
+            LevelBlockFactory blockFactory = new LevelBlockFactory(data, random, Progress);
 
             foreach (Placement<BlockKind> placement in data.Blocks)
             {
@@ -46,7 +49,16 @@ namespace TransformersGame.Core
 
             foreach (Placement<ItemKind> placement in data.Items)
             {
-                items.Add(EntityFactory.CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
+                AddItem(placement.Kind, CellPosition(placement.Column, placement.Row),
+                    PlacedItemId(placement.Column, placement.Row));
+            }
+            foreach (SupplyCrate crate in blocks.OfType<SupplyCrate>())
+            {
+                string dropId = CrateDropId(crate.ProgressId);
+                if (crate.IsDestroyed && !Progress.HasCollectedCrateDrop(dropId))
+                {
+                    AddItem(crate.ItemKind, crate.Position, dropId);
+                }
             }
             foreach (Placement<int> placement in data.Doors)
             {
@@ -66,6 +78,8 @@ namespace TransformersGame.Core
 
         public float Gravity => data.Gravity;
 
+        internal RoomProgress Progress { get; }
+
         // World-space pixel bounds of the whole room. The grid is anchored to the bottom of a
         // 540px screen, so rooms taller than one screen extend upward into negative Y.
         public Rectangle WorldBounds =>
@@ -84,6 +98,10 @@ namespace TransformersGame.Core
             occupied.Add(playerSpawnBounds);
             foreach (Placement<EnemyKind> placement in data.Enemies)
             {
+                if (placement.Kind == EnemyKind.Warlord && Progress.BossDefeated)
+                {
+                    continue;
+                }
                 Point size = EntityFactory.SpawnSize(placement.Kind);
                 Vector2 start = LevelSpawnSearch.Find(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
@@ -105,10 +123,30 @@ namespace TransformersGame.Core
         public IReadOnlyList<IItem> CollectItems(IPlayer player)
         {
             Rectangle playerBounds = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
-            List<IItem> collected = items.FindAll(item => playerBounds.Intersects(item.Bounds) && item.TryCollect(player));
+            List<IItem> collected = new List<IItem>();
+            foreach (IItem item in items)
+            {
+                if (!playerBounds.Intersects(item.Bounds) || !item.TryCollect(player))
+                {
+                    continue;
+                }
+                collected.Add(item);
+                if (itemProgressIds.TryGetValue(item, out string itemId))
+                {
+                    if (itemId.StartsWith("crate:", StringComparison.Ordinal))
+                    {
+                        Progress.RecordCollectedCrateDrop(itemId);
+                    }
+                    else
+                    {
+                        Progress.RecordCollectedItem(itemId);
+                    }
+                }
+            }
             foreach (IItem item in collected)
             {
                 items.Remove(item);
+                itemProgressIds.Remove(item);
             }
             return collected;
         }
@@ -119,6 +157,17 @@ namespace TransformersGame.Core
             ReleaseCrateItems();
             items.ForEach(item => item.Update(gameTime));
             triggers.ForEach(trigger => trigger.Update(gameTime));
+        }
+
+        internal void RecordPendingCrateDrops()
+        {
+            foreach (IBlock block in blocks)
+            {
+                if (block is SupplyCrate crate && crate.TryReleaseItem(out _))
+                {
+                    Progress.RecordCrateOpened(crate.ProgressId);
+                }
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -143,12 +192,31 @@ namespace TransformersGame.Core
         {
             foreach (IBlock block in blocks)
             {
-                if (block is IItemDropBlock crate && crate.TryReleaseItem(out ItemKind kind))
+                if (block is SupplyCrate crate && crate.TryReleaseItem(out ItemKind kind))
                 {
-                    items.Add(EntityFactory.CreateItem(kind, block.Position));
+                    Progress.RecordCrateOpened(crate.ProgressId);
+                    AddItem(kind, block.Position, CrateDropId(crate.ProgressId));
                 }
             }
         }
+
+        private void AddItem(ItemKind kind, Vector2 position, string progressId)
+        {
+            if (progressId.StartsWith("placed:", StringComparison.Ordinal)
+                && Progress.HasCollectedItem(progressId))
+            {
+                return;
+            }
+            IItem item = EntityFactory.CreateItem(kind, position);
+            items.Add(item);
+            itemProgressIds.Add(item, progressId);
+        }
+
+        private static string PlacedItemId(int column, int row) => $"placed:{column}:{row}";
+
+        private static string CrateId(int column, int row) => $"crate:{column}:{row}";
+
+        private static string CrateDropId(string crateId) => $"{crateId}:drop";
 
         private void PlacePlayerStart()
         {

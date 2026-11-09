@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TransformersGame.Core;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.Entities
@@ -77,7 +78,7 @@ namespace TransformersGame.Entities
         // Player shots break crates; every solid block stops the shot.
         public void HitSolid(IBlock block)
         {
-            if (block is Block crate)
+            if (block is Block crate && crate.Kind == BlockKind.Crate)
             {
                 crate.Destroy();
             }

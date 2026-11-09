@@ -18,7 +18,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W Jump, X Fire, Tab Map / Fireball, 7 Boomerang, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W Jump, X Fire, Tab Map / Fireball, B Barrel Storm, 7 Boomerang, 2 Bomb, 3/4 Items, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
@@ -50,6 +50,7 @@ namespace TransformersGame
         private IPlayer player;
         private int pendingDoorDirection;
         private readonly GameAudio audio = new GameAudio();
+        private BarrelStorm barrelStorm;
 
         public Game1()
         {
@@ -131,6 +132,7 @@ namespace TransformersGame
         public void ResetGame()
         {
             audio.StopMusic();
+            barrelStorm?.Reset();
             InitializeGameObjects();
             gameState = GameState.StartMenu;
             Window.Title = MenuTitle;
@@ -142,7 +144,7 @@ namespace TransformersGame
 
         public void DamagePlayer()
         {
-            
+
             if (Player is DamagedPlayer || !Player.TakeDamage())
             {
                 return;
@@ -188,6 +190,8 @@ namespace TransformersGame
             playerHud = new PlayerHud(uiFont, playerPortrait);
             roomMapScreen = new RoomMapScreen(uiFont, fireballs);
             showcase = new ObjectShowcase();
+            barrelStorm?.Dispose();
+            barrelStorm = new BarrelStorm(GraphicsDevice, audio.Play);
             InitializeGameObjects();
         }
 
@@ -226,6 +230,8 @@ namespace TransformersGame
                 roomManager?.Unload();
                 selfieScreen?.Dispose();
                 selfieScreen = null;
+                barrelStorm?.Dispose();
+                barrelStorm = null;
                 audio.Dispose();
                 controlsOverlay?.Dispose();
                 controlsOverlay = null;
@@ -276,11 +282,13 @@ namespace TransformersGame
             // World pass: scrolls with the camera.
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: camera.GetViewMatrix());
             room.Draw(spriteBatch);
+            barrelStorm.DrawParticles(spriteBatch);
             Player.Draw(spriteBatch);
             spriteBatch.End();
 
             // UI pass: fixed to the screen, drawn without the camera transform.
             spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            barrelStorm.DrawOverlay(spriteBatch);
             DrawHud(room);
             spriteBatch.End();
         }
@@ -338,6 +346,7 @@ namespace TransformersGame
         {
             Room activeRoom = roomManager.ActiveRoom;
             activeRoom.Update(gameTime);
+            barrelStorm.Update(gameTime, camera.ViewBounds);
             Player.Update(gameTime);
             KeepPlayerInRoom();
             camera.Follow(PlayerBounds(), activeRoom.Level.WorldBounds, gameTime);
@@ -389,6 +398,7 @@ namespace TransformersGame
 
         private void EndGame(GameState endState, string title)
         {
+            barrelStorm.CancelRoomEffect();
             audio.StopMusic();
             audio.Play(endState == GameState.Victory ? GameSound.Victory : GameSound.Defeat);
             gameState = endState;
@@ -398,12 +408,22 @@ namespace TransformersGame
 
         private void SwitchRoom(System.Action switchRoom)
         {
+            barrelStorm.CancelRoomEffect();
             selfieNeedsSpace = false;
             switchRoom();
             collisionManager.SetWorldBounds(roomManager.ActiveRoom.Level.WorldBounds);
             collisionManager.BuildTree(roomManager.ActiveRoom.GetCollisionObjects(Player));
             camera.SnapTo(PlayerBounds(), roomManager.ActiveRoom.Level.WorldBounds);
             RefreshGameplayController();
+        }
+
+        public void ActivateBarrelStorm()
+        {
+            if (gameState == GameState.Gameplay && roomManager?.ActiveRoom != null)
+            {
+                barrelStorm.TryActivate(roomManager.ActiveRoom.Projectiles,
+                    camera.ViewBounds, roomManager.ActiveRoom.Level.WorldBounds);
+            }
         }
 
         private void RefreshGameplayController()
