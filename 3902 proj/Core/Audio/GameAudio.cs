@@ -9,9 +9,9 @@ namespace TransformersGame.Core
     {
         private readonly Dictionary<GameSound, SoundEffect> effects = new();
         private SoundEffectInstance music;
-        private bool musicMuted;
+        private float unmutedVolume;
 
-        public bool MusicMuted => musicMuted;
+        public bool IsMuted { get; private set; }
 
         public void Load(ContentManager content)
         {
@@ -24,30 +24,41 @@ namespace TransformersGame.Core
             music.Volume = 0.22f;
         }
 
-        public void Play(GameSound sound) => effects[sound].Play(0.55f, 0f, 0f);
-
-        public void StartMusic()
+        public void Play(GameSound sound)
         {
-            if (!musicMuted && music.State != SoundState.Playing)
+            if (!IsMuted)
             {
-                if (music.State == SoundState.Paused) music.Resume();
-                else music.Play();
+                effects[sound].Play(0.55f, 0f, 0f);
             }
         }
 
+        public void StartMusic() => music.Play();
+
         public void StopMusic() => music.Stop();
 
-        public void ToggleMusic(bool playing)
+        public void ToggleMute()
         {
-            musicMuted = !musicMuted;
-            if (musicMuted) music.Pause();
-            else if (playing) StartMusic();
+            if (IsMuted)
+            {
+                SoundEffect.MasterVolume = unmutedVolume;
+            }
+            else
+            {
+                unmutedVolume = SoundEffect.MasterVolume;
+                // The master volume also silences effects that are already playing.
+                SoundEffect.MasterVolume = 0f;
+            }
+            IsMuted = !IsMuted;
         }
 
         public void Dispose()
         {
             music?.Dispose();
             music = null;
+            if (IsMuted)
+            {
+                ToggleMute();
+            }
             // ContentManager owns the loaded SoundEffect assets.
         }
     }

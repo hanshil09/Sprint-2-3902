@@ -28,7 +28,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | 7 | Throw boomerang in robot form |
 | Left / right mouse click or Page Up / Page Down | Previous / next room during gameplay (testing) |
 | F1 / H | Full controls |
-| M | Mute / unmute background music (sound effects stay on) |
+| M | Mute / unmute all game audio (music and sound effects) |
 | R | Reset to menu |
 | Q / Escape | Quit outside the room preview |
 
@@ -45,9 +45,9 @@ pickups, room details, limitations, and artwork credits.
 - Facing down does not aim normal shots downward; hold Shift and press X to aim upward.
 - Revisiting a room resets enemies, pickups, crates, and platform phases,
   allowing pickups to be collected again. Player inventory/upgrades persist.
-- Automated route checks model simplified static geometry, not full combat or
-  every randomized crumbling-platform route. Manual gameplay and balance
-  testing is still needed.
+- Automated route checks model simplified static geometry (now using each
+  room's own size), not full combat or every randomized crumbling-platform
+  route. Manual gameplay and balance testing is still needed.
 - When Player is hit with a projectile while on a platform moving upwards,
   they fall through the platform. This is a collision error.
 

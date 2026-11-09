@@ -11,22 +11,29 @@ namespace TransformersGame.Collisions
     internal class CollisionManager
     {
         public const float PlayerFootInset = BlockCollision.PlayerFootInset;
-        public const int EnemyLedgeInset = BlockCollision.EnemyLedgeInset;
+        //public const int EnemyLedgeInset = BlockCollision.EnemyLedgeInset;
 
         private readonly Action damagePlayer;
         private readonly Action<int> enterDoor;
-        private readonly Rectangle worldBounds;
+        private Rectangle worldBounds;
         private readonly BlockCollision blockCollision;
         private List<IGameObject> objects = new List<IGameObject>();
 
         public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null, Action<int> enterDoor = null)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxWidth);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxHeight);
             this.damagePlayer = damagePlayer;
             this.enterDoor = enterDoor;
             worldBounds = new Rectangle(0, 0, maxWidth, maxHeight);
-            blockCollision = new BlockCollision(maxWidth);
+            blockCollision = new BlockCollision(worldBounds);
+        }
+
+        // Switches the collision world to a new room's bounds so each level can be any size or shape.
+        public void SetWorldBounds(Rectangle bounds)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bounds.Width);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bounds.Height);
+            worldBounds = bounds;
+            blockCollision.SetWorldBounds(bounds);
         }
 
         public void SetBlocks(IGameObject gameObject, IReadOnlyList<IBlock> blocks, float footInset = 0) =>
@@ -47,8 +54,8 @@ namespace TransformersGame.Collisions
             int width, int height, GameTime gameTime) =>
             blockCollision.UpdateVerticalMovement(gameObject, physics, position, width, height, gameTime);
 
-        public void UpdatePlayerMovement(Player player, Physics physics, GameTime gameTime, float horizontalDistance) =>
-            blockCollision.UpdatePlayerMovement(player, physics, gameTime, horizontalDistance, worldBounds.Height);
+        public void UpdateMovement(IGameObject entity, int width, int height, Physics physics, GameTime gameTime, float horizontalDistance) =>
+            blockCollision.UpdateMovement(entity, width, height, physics, gameTime, horizontalDistance);
 
         public Vector2 MoveHorizontally(IGameObject gameObject, Vector2 position, int width, int height,
             float distance, float minimumX, float maximumX) =>
@@ -62,27 +69,10 @@ namespace TransformersGame.Collisions
             Vector2 position, int width, int height) =>
             blockCollision.HasGroundAhead(gameObject, direction, distance, position, width, height);
 
-        public static Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance,
-            float minimumX, float maximumX, IReadOnlyList<IBlock> blocks) =>
-            BlockCollisionHelper.MoveHorizontally(position, width, height, distance, minimumX, maximumX, blocks);
-
-        public static Vector2 MoveVertically(Vector2 position, int width, int height, float distance,
-            float minimumY, float maximumY, IReadOnlyList<IBlock> blocks) =>
-            BlockCollisionHelper.MoveVertically(position, width, height, distance, minimumY, maximumY, blocks);
-
-        public static Vector2 ResolveVerticalMovement(Vector2 previousPosition, Vector2 desiredPosition,
-            int width, int height, float verticalVelocity, IReadOnlyList<IBlock> blocks, float footInset,
-            out bool isOnGround, out IBlock supportingBlock) =>
-            BlockCollisionHelper.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
-                verticalVelocity, blocks, footInset, out isOnGround, out supportingBlock);
-
-        public static bool IntersectsBlock(Rectangle bounds, IBlock block) =>
-            BlockCollisionHelper.IntersectsBlock(bounds, block);
-
         public void BuildTree(IReadOnlyList<IGameObject> objs)
         {
             ArgumentNullException.ThrowIfNull(objs);
-            objects = new List<IGameObject>(objs);
+            objects = [.. objs];
         }
 
         public void DetectCollision()
@@ -90,7 +80,7 @@ namespace TransformersGame.Collisions
             foreach (IGameObject gameObject in objects)
             {
                 if (gameObject is not IProjectile projectile || !projectile.IsActive) continue;
-                List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = new();
+                List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = [];
                 foreach (IGameObject target in objects)
                 {
                     if (ReferenceEquals(projectile, target) || IsUnavailable(target)

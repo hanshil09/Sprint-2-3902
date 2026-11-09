@@ -66,6 +66,11 @@ namespace TransformersGame.Core
 
         public float Gravity => data.Gravity;
 
+        // World-space pixel bounds of the whole room. The grid is anchored to the bottom of a
+        // 540px screen, so rooms taller than one screen extend upward into negative Y.
+        public Rectangle WorldBounds =>
+            new Rectangle(0, ScreenHeight - data.Rows * TileSize, data.Columns * TileSize, data.Rows * TileSize);
+
         public bool HasIntactReinforcedCrate =>
             blocks.Exists(block => block is SupplyCrate { Kind: BlockKind.ReinforcedCrate, IsDestroyed: false });
 

@@ -50,9 +50,16 @@ foreach (string path in roomFiles)
     Check(room + ": valid room and player spawn", result.Success);
     LevelData data = result.Data;
 
-    Check(room + ": exactly two different enemies",
-        data.Enemies.Count == 2 && data.Enemies.Select(e => e.Kind).Distinct().Count() == 2);
-    Check(room + ": one to three pickups", data.Items.Count is >= 1 and <= 3);
+    // Room sizes vary, so scale expectations with the room instead of using fixed counts.
+    // Variety: at least two enemies and at least two distinct kinds.
+    Check(room + ": at least two enemy kinds",
+        data.Enemies.Count >= 2 && data.Enemies.Select(e => e.Kind).Distinct().Count() >= 2);
+
+    // Density: at least one pickup, and no more than roughly one screen's worth per 170 tiles.
+    int tileArea = data.Columns * data.Rows;
+    int maxPickups = Math.Max(3, tileArea / 170);
+    Check(room + $": pickup count within 1..{maxPickups} for {data.Columns}x{data.Rows}",
+        data.Items.Count >= 1 && data.Items.Count <= maxPickups);
 
     int returnDoors = data.Doors.Count(d => d.Kind == -1);
     int forwardDoors = data.Doors.Count(d => d.Kind == 1);

@@ -9,7 +9,7 @@ namespace TransformersGame.UI;
 
 internal sealed class RoomMapScreen
 {
-    private const float PreviewScale = 0.72f;
+    private const float MaximumPreviewScale = 0.72f;
     private const int PreviewLeft = 134;
     private const int PreviewTop = 54;
     private const int HeaderY = 13;
@@ -84,11 +84,15 @@ internal sealed class RoomMapScreen
     public void Draw(SpriteBatch batch, RoomManager rooms, IPlayer player, Color roomColor)
     {
         Viewport viewport = batch.GraphicsDevice.Viewport;
-        Rectangle preview = new Rectangle(PreviewLeft, PreviewTop,
-            (int)(viewport.Width * PreviewScale), (int)(viewport.Height * PreviewScale));
+        Level level = previewLevel ?? rooms.ActiveRoom.Level;
+        Rectangle world = level.WorldBounds;
+        float scale = MathHelper.Min(viewport.Width * MaximumPreviewScale / world.Width,
+            viewport.Height * MaximumPreviewScale / world.Height);
+        int width = (int)(world.Width * scale);
+        int height = (int)(world.Height * scale);
+        Rectangle preview = new Rectangle((viewport.Width - width) / 2, PreviewTop, width, height);
         batch.Begin(samplerState: SamplerState.PointClamp);
         HudFrame.Fill(batch, preview, roomColor);
-        Level level = previewLevel ?? rooms.ActiveRoom.Level;
         string title = $"ROOM {previewIndex + 1}/{rooms.RoomCount}  {level.Name}";
         DrawArrow(batch, PreviousButton, "<", previewIndex > 0);
         DrawArrow(batch, NextButton, ">", previewIndex < rooms.RoomCount - 1);
@@ -97,8 +101,9 @@ internal sealed class RoomMapScreen
         batch.DrawString(font, "Click to equip  |  TAB resumes  |  Shift+X aims up", new Vector2(PreviewLeft, FooterY), Color.White);
         batch.End();
 
-        Matrix transform = Matrix.CreateScale(PreviewScale, PreviewScale, 1f) *
-            Matrix.CreateTranslation(PreviewLeft, PreviewTop, 0f);
+        Matrix transform = Matrix.CreateTranslation(-world.X, -world.Y, 0f) *
+            Matrix.CreateScale(scale, scale, 1f) *
+            Matrix.CreateTranslation(preview.X, preview.Y, 0f);
         batch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: transform);
         if (previewLevel == null)
         {
