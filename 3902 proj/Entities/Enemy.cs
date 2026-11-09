@@ -220,6 +220,19 @@ namespace TransformersGame.Entities
 
         public void Update(GameTime gameTime)
         {
+            float horizontalDistance =
+                    Facing *
+                    Stats.MovementSpeed *
+                    1f *
+                    (float)gameTime.ElapsedGameTime.TotalSeconds;
+            collisionManager.UpdateMovement(
+                this, 
+                Width, 
+                Height, 
+                physics, 
+                gameTime, 
+                horizontalDistance
+            );
             State.Update(gameTime);
             Sprite.Update(gameTime);
         }

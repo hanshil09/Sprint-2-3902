@@ -281,8 +281,10 @@ namespace TransformersGame.Entities
                     (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            collisionManager.UpdatePlayerMovement(
+            collisionManager.UpdateMovement(
                 this,
+                Width,
+                Height, 
                 physics,
                 gameTime,
                 horizontalDistance);

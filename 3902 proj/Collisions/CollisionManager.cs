@@ -21,8 +21,6 @@ namespace TransformersGame.Collisions
 
         public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null, Action<int> enterDoor = null)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxWidth);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxHeight);
             this.damagePlayer = damagePlayer;
             this.enterDoor = enterDoor;
             worldBounds = new Rectangle(0, 0, maxWidth, maxHeight);
@@ -44,8 +42,8 @@ namespace TransformersGame.Collisions
             int width, int height, GameTime gameTime) =>
             blockCollision.UpdateVerticalMovement(gameObject, physics, position, width, height, gameTime);
 
-        public void UpdatePlayerMovement(Player player, Physics physics, GameTime gameTime, float horizontalDistance) =>
-            blockCollision.UpdatePlayerMovement(player, physics, gameTime, horizontalDistance);
+        public void UpdateMovement(IGameObject entity, int width, int height, Physics physics, GameTime gameTime, float horizontalDistance) =>
+            blockCollision.UpdateMovement(entity, width, height, physics, gameTime, horizontalDistance);
 
         public Vector2 MoveHorizontally(IGameObject gameObject, Vector2 position, int width, int height,
             float distance, float minimumX, float maximumX) =>
@@ -70,7 +68,7 @@ namespace TransformersGame.Collisions
             foreach (IGameObject gameObject in objects)
             {
                 if (gameObject is not IProjectile projectile || !projectile.IsActive) continue;
-                List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = new();
+                List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = [];
                 foreach (IGameObject target in objects)
                 {
                     if (ReferenceEquals(projectile, target) || IsUnavailable(target)

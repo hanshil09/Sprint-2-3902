@@ -63,6 +63,11 @@ namespace TransformersGame.Collisions
                     continue;
                 }
 
+                if(block is IMovingBlock platform)
+                {
+                    //Needs to check for moving block specifically, will hopefully fix collision problem
+                }
+
                 if (distance > 0 && startY + height <= bounds.Top && desiredY + height > bounds.Top)
                 {
                     resolvedY = Math.Min(resolvedY, bounds.Top - height);
