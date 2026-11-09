@@ -38,7 +38,7 @@ namespace TransformersGame.Core
         {
             ['H'] = ItemKind.HealthCell,
             ['E'] = ItemKind.Energon,
-            ['Q'] = ItemKind.BombPack
+            ['Q'] = ItemKind.BombPack,
             ['R'] = ItemKind.Energon
         };
 

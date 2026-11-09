@@ -1,6 +1,42 @@
-        crate = level.Blocks.OfType<SupplyCrate>().Single();
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using TransformersGame.Collisions;
+using TransformersGame.Core;
+using TransformersGame.Entities;
+using TransformersGame.Interfaces;
+
+internal static class CrateDropChecks
+{
+    private static int passed;
+
+    private static GameTime Step(double seconds) =>
+        new GameTime(TimeSpan.Zero, TimeSpan.FromSeconds(seconds));
+
+    public static void Run()
+    {
+        CheckReinforcedCrate();
+        CheckReinforcedLayout();
+        Console.WriteLine($"{passed} crate-drop checks passed.");
+    }
+
+    private static void Check(string name, bool condition)
+    {
+        if (!condition) throw new InvalidOperationException("FAIL: " + name);
+        passed++;
+        Console.WriteLine("PASS: " + name);
+    }
+
+    private static void CheckReinforcedCrate()
+    {
+        LevelData data = LevelParser.Parse(new[] { "[tiles]", "P.R", "GGG" }).Data;
+        Level level = new Level(data);
+        SupplyCrate crate = level.Blocks.OfType<SupplyCrate>().Single();
         var bomb = new Bomb(crate.Position, new StubSprite(), gravity: 0, createExplosion: () => new StubSprite());
         bomb.Update(Step(1.2));
+        var collisions = new CollisionManager(960, 540);
         collisions.BuildTree(new List<IGameObject> { crate, bomb });
         collisions.DetectCollision();
         Check("reinforced crate survives a bomb explosion", crate.IsSolid);
@@ -15,6 +51,7 @@
         player.Update(Step(1.0 / 60));
         Check("robot movement stops at the reinforced crate", crate.IsSolid
             && player.Position.X + player.Width == crate.Bounds.Left);
+
         level = new Level(data);
         crate = level.Blocks.OfType<SupplyCrate>().Single();
         player = new Player(Vector2.Zero, level.Blocks, new ProjectileManager());
@@ -22,6 +59,7 @@
         player.Position = new Vector2(crate.Bounds.Left - player.Width, crate.Bounds.Bottom - player.Height);
         player.Update(Step(1.0 / 60));
         Check("stationary ball contact does not break the crate", crate.IsSolid);
+
         level = new Level(data);
         crate = level.Blocks.OfType<SupplyCrate>().Single();
         player = new Player(Vector2.Zero, level.Blocks, new ProjectileManager());
@@ -77,7 +115,7 @@
             player.Move(Direction.Right);
             player.Update(Step(1.0 / 60));
         }
-        var originalPosition = player.Position;
+        Vector2 originalPosition = player.Position;
         player.Transform();
         Check("low ceiling prevents transformation without changing position", player.IsInBallForm
             && player.Position == originalPosition);

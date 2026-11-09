@@ -67,11 +67,6 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
-        public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false)
-        {
-            Color tint = requiresMorphBall ? Color.OrangeRed
-                : kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
-
        public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false, bool reinforced = false)
         {
             if (reinforced)

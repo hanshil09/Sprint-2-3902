@@ -27,6 +27,7 @@ Repository: [hanshil09/Sprint-2-3902](https://github.com/hanshil09/Sprint-2-3902
 | 5 | Fire a piercing shot that can damage up to three different enemies. |
 | 6 | Fire a three-way spread shot. |
 | 7 | Throw a returning boomerang; only one can be active at a time. |
+| B | Activate Barrel Storm: nine falling barrels damage enemies; 14-second cooldown. |
 | T/Y | Preview previous/next block or interactive-object kind. |
 | U/I | Preview previous/next pickup kind. |
 | O/P | Preview previous/next enemy kind. |
@@ -41,6 +42,11 @@ Numeric actions 1–7 also support the number pad. Weapons 1, 5, 6, and 7 requir
 standing form. Medkits cannot be used at full health; stored Shields cannot be used
 while a shield is already active. Object previews appear briefly when cycled
 and do not replace or spawn the room's gameplay objects.
+
+Barrel Storm darkens the upper half of the active room while barrels fall.
+Barrels damage enemies but not the player. The barrel art and dust are drawn
+from simple shapes; its activation and impact use the existing Explosion and
+CrateBreak sound effects. Dedicated western sound effects are optional polish.
 
 ## Rooms and progression
 

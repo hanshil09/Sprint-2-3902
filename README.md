@@ -22,6 +22,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | Space | Transform; roll into blue crates to break them |
 | Z / N | Shoot |
 | 2 | Drop bomb |
+| B | Activate Barrel Storm (14-second cooldown) |
 | 3 / 4 | Use medkit / shield |
 | Left / right mouse click | Previous / next room (testing) |
 | F1 | Full controls |

@@ -17,7 +17,7 @@ namespace TransformersGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, K Angle, 1/5/6/7 Weapons, 2 Bomb, 3/4 Items, T/Y U/I O/P Showcase, F1 Help, R Reset, Q Quit";
+        private const string GameplayTitle = "Transformers - A/D Move, W Jump, Z Shoot, B Barrel Storm, 2 Bomb, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
@@ -41,6 +41,7 @@ namespace TransformersGame
         private IPlayer player;
         private int pendingDoorDirection;
         private readonly GameAudio audio = new GameAudio();
+        private BarrelStorm barrelStorm;
 
         public Game1()
         {
@@ -79,6 +80,7 @@ namespace TransformersGame
         public void ResetGame()
         {
             audio.StopMusic();
+            barrelStorm?.Reset();
             InitializeGameObjects();
             gameState = GameState.StartMenu;
             Window.Title = MenuTitle;
@@ -126,6 +128,8 @@ namespace TransformersGame
             controlsOverlay = new ControlsOverlay(uiFont, GraphicsDevice);
             playerHud = new PlayerHud(uiFont);
             showcase = new ObjectShowcase();
+            barrelStorm?.Dispose();
+            barrelStorm = new BarrelStorm(GraphicsDevice, audio.Play);
             InitializeGameObjects();
         }
 
@@ -148,6 +152,8 @@ namespace TransformersGame
             if (disposing)
             {
                 roomManager?.Unload();
+                barrelStorm?.Dispose();
+                barrelStorm = null;
                 audio.Dispose();
                 controlsOverlay?.Dispose();
                 controlsOverlay = null;
@@ -180,6 +186,8 @@ namespace TransformersGame
         {
             Room room = roomManager.ActiveRoom;
             room.Draw(spriteBatch);
+            barrelStorm.DrawOverlay(spriteBatch);
+            barrelStorm.DrawParticles(spriteBatch);
             Player.Draw(spriteBatch);
             string roomStatus = $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
             playerHud.Draw(spriteBatch, Player, room.Level.Name, roomStatus);
@@ -219,6 +227,7 @@ namespace TransformersGame
         {
             Room activeRoom = roomManager.ActiveRoom;
             activeRoom.Update(gameTime);
+            barrelStorm.Update(gameTime);
             Player.Update(gameTime);
             KeepPlayerOnScreen();
             ApplyPowerUps(activeRoom.CollectItems(Player));
@@ -260,6 +269,7 @@ namespace TransformersGame
 
         private void EndGame(GameState endState, string title)
         {
+            barrelStorm.CancelRoomEffect();
             audio.StopMusic();
             audio.Play(endState == GameState.Victory ? GameSound.Victory : GameSound.Defeat);
             gameState = endState;
@@ -269,9 +279,18 @@ namespace TransformersGame
 
         private void SwitchRoom(System.Action switchRoom)
         {
+            barrelStorm.CancelRoomEffect();
             switchRoom();
             collisionManager.BuildTree(roomManager.ActiveRoom.GetCollisionObjects(Player));
             RefreshGameplayController();
+        }
+
+        public void ActivateBarrelStorm()
+        {
+            if (gameState == GameState.Gameplay && roomManager?.ActiveRoom != null)
+            {
+                barrelStorm.TryActivate(roomManager.ActiveRoom.Projectiles);
+            }
         }
 
         private void RefreshGameplayController()
