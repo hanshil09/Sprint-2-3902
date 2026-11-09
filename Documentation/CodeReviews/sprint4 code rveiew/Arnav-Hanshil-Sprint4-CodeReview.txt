@@ -1,0 +1,54 @@
+READABILITY REVIEW
+
+Author of the code review: Arnav Kumar
+Date of the code review: November 9, 2026
+Sprint number: 4
+Name of the .cs file being reviewed: EnemyFreeze.cs, IceProjectile.cs, and FireballSelection.cs (3902 proj/Entities)
+Author of the .cs file being reviewed: Hanshil Solanki
+Number of minutes taken to complete the review: [Enter your actual review time before submitting]
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+EnemyFreeze is small and focused, and DurationSeconds, BarHeight, BarGap and
+Tint are named constants. IceProjectile only overrides HitEnemy, so its
+behavior is easy to find. FireballSelection keeps each shot's name, firing
+Action and preview sprite in one shot record which makes the list very easy to scan.
+
+
+
+What I noticed could be improved:
+
+FireballSelection mixes private item numbers (OrbItem, PiercingItem,
+SpreadItem) with a public IceItem. Making them consistent, or exposing none,
+would be clearer. EnemyFreeze.Update both advances the timer and returns
+whether the enemy is still frozen. A name such as TickAndCheckFrozen, or a
+separate IsFrozen property, would explain this. In Boss.cs the freeze field
+sits in the middle of the class rather than with the other fields.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Arnav Kumar
+Date of the code review: November 9, 2026
+Sprint number: 4
+Name of the .cs file being reviewed: EnemyFreeze.cs, IceProjectile.cs, and FireballSelection.cs (3902 proj/Entities)
+Author of the .cs file being reviewed: Hanshil Solanki
+
+Specific comments on code quality:
+
+What I noticed:
+Sharing EnemyFreeze between Enemy and Boss avoids duplicating the five-second
+timer and the freeze bar. IceProjectile checks `is Enemy` and `is Boss`, so
+it depends on both concrete classes. Adding Freeze() to IEnemy would remove
+those checks and let any new enemy type work with ice automatically.
+The Piercing entry in FireballSelection reuses CreateOrbSprite for its
+preview, so it looks the same as Orb. The magic item numbers must match the
+indexes in PlayerArsenal. If those change, the selection silently fires the
+wrong weapon.
+
+Hypothetical change:
+If we add another status effect such as a slow, EnemyFreeze is too specific
+to extend. A shared timed-status class with a freeze or slow on top would
+let Enemy and Boss reuse the update and draw code. A check should cover an
+enemy being frozen again while already frozen, and a frozen boss changing phase.
