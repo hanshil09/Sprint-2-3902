@@ -73,15 +73,16 @@ namespace TransformersGame.Factories
 
         public ISprite CreateSupplyCrateSprite(ItemKind kind, bool reinforced = false)
         {
-            if (reinforced)
-            {
-                Texture2D texture = kind == ItemKind.HealthCell ? reinforcedHealth : reinforcedEnergon;
-                return new TextureRegionSprite(texture, new Rectangle(0, 0, BlockSize, BlockSize),
-                    BlockSize, BlockSize, Color.White);
-            }
-            Color tint = kind == ItemKind.HealthCell ? Color.LightGreen : Color.Gold;
-            Rectangle frame = new Rectangle(BlockSize, 0, BlockSize, BlockSize);
-            return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
+            Rectangle frame = reinforced
+                ? new Rectangle(102, 15, 16, 17)
+                : new Rectangle(71, 15, 16, 17);
+
+            return new TextureRegionSprite(
+                additionalItemSprites,
+                frame,
+                BlockSize,
+                BlockSize,
+                Color.White);
         }
 
         public ISprite CreateCrumblingSprite(CrumbleKind kind, bool warning, bool reforming)
