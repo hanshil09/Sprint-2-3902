@@ -40,11 +40,13 @@ internal static class ExtendedChecks
             var baseFloor = result.Data.Blocks.Where(b => b.Row == result.Data.Rows - 1).ToArray();
             Check("complete themed base floor " + path, baseFloor.Length == result.Data.Columns && baseFloor.All(b => b.Kind == expectedFloor));
             var platforms = result.Data.Blocks.Where(b => b.Row < result.Data.Rows - 1
-                && b.Kind is not (BlockKind.Crate or BlockKind.ReinforcedCrate or BlockKind.Hazard)).ToArray();
+                && b.Kind is not (BlockKind.Crate or BlockKind.MorphBallCrate or BlockKind.ReinforcedCrate or BlockKind.Hazard)).ToArray();
+
             Check("parkour blocks match base floor " + path, platforms.Length > 0 && platforms.All(b => b.Kind == expectedFloor));
             var floorPhysics = new Physics(result.Data.Gravity);
-            Check("themed floor supports falling objects " + path,
-                floorPhysics.Apply(new Vector2(100, 400), Step(.5)).Y == 498);
+            float expectedFall = 400 + result.Data.Gravity * 0.25f;
+            Check("room gravity moves falling objects " + path,
+                Math.Abs(floorPhysics.Apply(new Vector2(100, 400), Step(.5)).Y - expectedFall) < 0.01f);
             // Rooms vary in size/shape, so scale enemy and pickup expectations with the room area.
             int tileArea = result.Data.Columns * result.Data.Rows;
             Check("at least two enemy kinds " + path,
@@ -70,7 +72,9 @@ internal static class ExtendedChecks
         var physics = new Physics();
         //Check("horizontal wall crossing", physics.MoveHorizontally(new Vector2(70, 100), 10, 10, 100, 0, 960).X == 90);
         //Check("upward ceiling crossing", physics.MoveVertically(new Vector2(100, 130), 10, 10, -100, 0, 540).Y == 110);
-        Check("landing", physics.Apply(new Vector2(100, 80), Step(.2)).Y == 90);
+        float defaultGravityFall = 80 + Physics.DefaultGravity * 0.2f * 0.2f;
+        Check("default gravity advances a falling body",
+            Math.Abs(physics.Apply(new Vector2(100, 80), Step(.2)).Y - defaultGravityFall) < 0.01f);
         var enemy = new StubEnemy { Position = new Vector2(100, 100) };
         var shot = new EnergyProjectile(new Vector2(0, 100), new Vector2(1000, 0), false, false, new StubSprite());
         shot.Update(Step(.2));

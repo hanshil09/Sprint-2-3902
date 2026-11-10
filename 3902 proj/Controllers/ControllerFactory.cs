@@ -11,6 +11,18 @@ namespace TransformersGame.Controllers
         {
             KeyboardController keyboard = new KeyboardController();
             keyboard.RegisterSinglePressCommand(Keys.F2, new GameActionCommand(game.OpenSelfie));
+            keyboard.RegisterSinglePressCommand(Keys.F3, new GameActionCommand(game.OpenGallery));
+            return keyboard;
+        }
+
+        public static IController CreateGalleryController(Game1 game)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            keyboard.RegisterSinglePressCommand(Keys.F3, new GameActionCommand(game.CloseGallery));
+            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseGalleryOrPhoto));
+            keyboard.RegisterSinglePressCommand(Keys.Left, new GameActionCommand(game.GalleryPreviousPage));
+            keyboard.RegisterSinglePressCommand(Keys.Right, new GameActionCommand(game.GalleryNextPage));
+            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             return keyboard;
         }
 
@@ -64,6 +76,7 @@ namespace TransformersGame.Controllers
             RegisterCycleCommands(keyboardController, blocks, items, enemies);
             keyboardController.RegisterSinglePressCommand(Keys.F1, new ToggleHelpCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.H, new ToggleHelpCommand(game));
+            keyboardController.RegisterSinglePressCommand(Keys.B, new BarrelStormCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.PageUp, new RoomNavigationCommand(game, false));
             keyboardController.RegisterSinglePressCommand(Keys.PageDown, new RoomNavigationCommand(game, true));
             keyboardController.RegisterSinglePressCommand(Keys.E, new DamagePlayerCommand(game));

@@ -26,6 +26,7 @@ namespace TransformersGame.Core
             ['C'] = BlockKind.Crate,
             ['H'] = BlockKind.Crate,
             ['E'] = BlockKind.Crate,
+            ['Q'] = BlockKind.MorphBallCrate,
             ['R'] = BlockKind.ReinforcedCrate,
             ['X'] = BlockKind.Hazard,
             ['W'] = BlockKind.Wood,
@@ -37,6 +38,7 @@ namespace TransformersGame.Core
         {
             ['H'] = ItemKind.HealthCell,
             ['E'] = ItemKind.Energon,
+            ['Q'] = ItemKind.BombPack,
             ['R'] = ItemKind.Energon
         };
 

@@ -25,6 +25,10 @@ namespace TransformersGame.Core
             return Matrix.CreateTranslation(-(float)System.Math.Round(position.X), -(float)System.Math.Round(position.Y), 0f);
         }
 
+        public Rectangle ViewBounds =>
+            new Rectangle((int)System.Math.Round(position.X), (int)System.Math.Round(position.Y),
+                viewWidth, viewHeight);
+
         // Follow the target (its center) and clamp to the room bounds. Called each gameplay frame.
         public void Follow(Rectangle target, Rectangle worldBounds, GameTime gameTime)
         {

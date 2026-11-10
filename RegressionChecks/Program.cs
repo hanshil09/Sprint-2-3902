@@ -24,6 +24,12 @@ if (args.Contains("--crate-drops"))
     return;
 }
 
+if (args.Contains("--room-progress"))
+{
+    RoomProgressChecks.Run();
+    return;
+}
+
 if (args.Contains("--crumbling"))
 {
     CrumblingChecks.Run();

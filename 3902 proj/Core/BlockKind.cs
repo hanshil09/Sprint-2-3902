@@ -1,4 +1,7 @@
 namespace TransformersGame.Core
 {
-    internal enum BlockKind { Ground, Brick, Stone, Metal, Crate, Hazard, Wood, Caution, Alloy, ReinforcedCrate }
+    internal enum BlockKind
+    {
+        Ground, Brick, Stone, Metal, Crate, Hazard, Wood, Caution, Alloy, MorphBallCrate, ReinforcedCrate
+    }
 }

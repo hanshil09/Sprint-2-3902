@@ -121,7 +121,8 @@ namespace TransformersGame.Collisions
             foreach (IGameObject gameObject in objects)
             {
                 if (gameObject is IProjectile projectile && projectile.IsActive
-                    && !projectile.Bounds.Intersects(worldBounds))
+                    && !projectile.Bounds.Intersects(worldBounds)
+                    && !(projectile is BarrelProjectile && projectile.Bounds.Bottom <= worldBounds.Top))
                 {
                     projectile.Deactivate();
                 }

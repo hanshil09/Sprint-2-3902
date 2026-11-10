@@ -25,6 +25,7 @@ Repository: [hanshil09/Sprint-2-3902](https://github.com/hanshil09/Sprint-2-3902
 | 3 | Use a stored Medkit to restore health to the current maximum. |
 | 4 | Use a stored Shield for five seconds of protection. |
 | 7 | Throw a returning boomerang; only one can be active at a time. |
+| B | Activate Barrel Storm: nine falling barrels damage enemies; 14-second cooldown. |
 | T/Y | Preview previous/next block or interactive-object kind. |
 | U/I | Preview previous/next pickup kind. |
 | O/P | Preview previous/next enemy kind. |
@@ -39,6 +40,11 @@ Numeric actions 1–7 also support the number pad. Weapons 1, 5, 6, and 7 requir
 standing form. Medkits cannot be used at full health; stored Shields cannot be used
 while a shield is already active. Object previews appear briefly when cycled
 and do not replace or spawn the room's gameplay objects.
+
+Barrel Storm darkens the upper half of the active room while barrels fall.
+Barrels damage enemies but not the player. The barrel art and dust are drawn
+from simple shapes; its activation and impact use the existing Explosion and
+CrateBreak sound effects. Dedicated western sound effects are optional polish.
 
 ## Rooms and progression
 
@@ -60,10 +66,13 @@ defeated. Quick room navigation wraps at either end. Moving platforms,
 elevators, and spring pads provide additional movement interactions.
 
 Only the active room updates and draws. The player's health, inventory, and
-upgrades persist when switching rooms. The room is recreated on a revisit:
-enemies, pickups, destroyed crates, and platform phases reset, and old
-projectiles are cleared. Crumbling-platform selections stay the same for that
-game; their countdowns do not persist between visits.
+upgrades persist when switching rooms. Regular enemies respawn on a revisit,
+but collected placed pickups stay gone, opened supply crates stay open, and
+defeated bosses stay defeated. An opened crate's drop remains available if it
+was not collected before leaving. Moving and crumbling platforms are recreated;
+crumbling selections stay the same for that game, but their phases and
+countdowns restart. Old projectiles are cleared. Press R to start a new game
+and reset room progress.
 
 ## Pickups and health
 
@@ -74,15 +83,15 @@ Health and maximum health start at 100. Touch pickups to collect them.
 | Medkit | Adds one stored full-heal item, used with 3. |
 | Shield | Adds one stored five-second shield, used with 4. |
 | Health Cell | Immediately restores 10 HP, capped at current maximum health. |
-| Shield Battery | Immediately adds five seconds of shield time, capped at ten seconds remaining. |
+| Shield Battery | Adds one stored shield charge, used with 4 for five seconds of protection. |
 | Spark Core | Grants eight seconds of invincibility. |
 | Turbo Boost | Grants six seconds of faster movement. |
 | Energon | Increases the collected Energon count. |
 | Bomb Pack | Increases bomb blast size, up to upgrade level 3. |
 | Max Health Up | Raises maximum health by 20, up to 200, and fully heals. |
 
-Health Cells stay available at full health. Shield Batteries stay available at
-the ten-second protection cap, and Bomb Packs stay available at level 3.
+Health Cells stay available at full health, and Bomb Packs stay available at
+level 3.
 Max Health upgrades stay available when health and maximum health are both 200;
 they can still heal an injured player at that capacity cap. Stored Medkits,
 Shields, and Energon remain collectible. Repeated Spark Core and Turbo Boost
@@ -93,15 +102,19 @@ screen; R resets and Q/Escape quits.
 
 ## Blocks and supply crates
 
-The game includes Ground, Brick, Stone, Metal, Crate, Hazard, Wood, Caution, and
-Alloy block kinds. Ordinary crates break on player shots or bomb explosions;
-red hazards damage the player on contact.
+The game includes Ground, Brick, Stone, Metal, Crate, Hazard, Wood, Caution,
+Alloy, and Morph Ball crate blocks. Ordinary crates break on player shots or
+bomb explosions; red hazards damage the player on contact. Orange-red Morph
+Ball crates only break when a bomb is dropped in vehicle (Morph Ball) form.
+Touching them or shooting them does not break them.
 
 Crate Workshop includes green supply crates containing one Health Cell and
-gold supply crates containing one Energon pickup. Shoot or bomb a crate, then
-touch its released pickup. Each supply crate drops only once per room instance.
-Plain crates remain empty. Room files use `H` for Health Cell crates, `E` for
-Energon crates, and `C` for empty crates. See [supply crates](SupplyCrates.md).
+gold supply crates containing one Energon pickup, plus an orange-red crate
+containing a Bomb Pack. Destroy a supply crate, then touch its released pickup.
+An opened crate cannot be farmed by revisiting the room. Plain crates remain
+empty. Room files use `H` for Health Cell crates, `E` for Energon crates, `Q`
+for a Morph Ball-only Bomb Pack crate, and `C` for empty crates. See
+[supply crates](SupplyCrates.md).
 
 Blue and purple reinforced crates resist shots and bombs. Press Space to transform, then
 roll into one from either side. Level 1 has a fixed tutorial crate (`R`) that
