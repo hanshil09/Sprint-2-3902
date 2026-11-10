@@ -20,6 +20,7 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | A/D or arrows | Move |
 | W / Up / J | Jump |
 | Space | Transform; roll into blue crates to break them |
+| F3 | Open the selfie gallery. Click a photo to enlarge it, use Left / Right to change page, and press F3 or Esc to return. |
 | Tab | Pause and open the room preview. Click a fireball to equip it or use the arrows to browse rooms. Press Tab or Esc to resume. |
 | X | Fire the equipped fireball in robot form |
 | Shift + X | Aim Standard, Orb, Piercing, or Ice diagonally upward. Spread keeps its usual pattern. |
