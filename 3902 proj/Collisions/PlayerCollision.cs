@@ -6,16 +6,13 @@ namespace TransformersGame.Collisions
 {
     internal static class PlayerCollision
     {
-        public static void HandleContact(IPlayer player, IGameObject other, Action<int> enterDoor,
+        public static void HandleContact(IPlayer player, IGameObject other, Action<Door> enterDoor,
             Action<IPlayer> damagePlayer)
         {
             switch (other)
             {
                 case Door door:
-                    if (enterDoor != null)
-                    {
-                        enterDoor(door.Direction);
-                    }
+                    enterDoor?.Invoke(door);
                     break;
                 case IPlayerTrigger trigger:
                     trigger.OnPlayerContact(player);

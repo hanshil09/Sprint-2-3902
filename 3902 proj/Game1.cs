@@ -24,6 +24,7 @@ namespace TransformersGame
         private static readonly Color GameplayColor = new Color(42, 55, 70);
 
         private readonly RoomFactory roomFactory = new RoomFactory(
+            "Content/Levels/hub-00.room",
             "Content/Levels/desert-01.room", "Content/Levels/laboratory-02.room",
             "Content/Levels/stone-03.room", "Content/Levels/metal-04.room",
             "Content/Levels/crates-05.room", "Content/Levels/hazards-06.room",
@@ -48,7 +49,9 @@ namespace TransformersGame
         private ObjectShowcase showcase;
         private Camera2D camera;
         private IPlayer player;
-        private int pendingDoorDirection;
+        private Door pendingDoor;
+        // Targeted locked doors the player has already opened (roomIndex, targetRoomIndex); they stay open on revisits.
+        private readonly System.Collections.Generic.HashSet<(int From, int To)> unlockedDoors = new();
         private readonly GameAudio audio = new GameAudio();
 
         public Game1()
@@ -139,6 +142,8 @@ namespace TransformersGame
         public void NextRoom() => SwitchRoom(roomManager.SwitchNext);
 
         public void PreviousRoom() => SwitchRoom(roomManager.SwitchPrevious);
+
+        public void GoToRoom(int roomIndex) => SwitchRoom(() => roomManager.SwitchTo(roomIndex));
 
         public void DamagePlayer()
         {
@@ -312,7 +317,7 @@ namespace TransformersGame
             Level initialLevel = roomFactory.LoadLevel(0);
             IProjectileManager initialProjectiles = new ProjectileManager();
             collisionManager = new CollisionManager(ScreenWidth, ScreenHeight, DamagePlayer,
-                direction => pendingDoorDirection = direction);
+                door => pendingDoor = door);
             player = new Player(initialLevel.PlayerStart, initialLevel.Blocks, initialProjectiles,
                 initialLevel.Gravity, collisionManager);
             ((Player)player).SoundRequested += audio.Play;
@@ -323,7 +328,8 @@ namespace TransformersGame
             camera = new Camera2D(ScreenWidth, ScreenHeight);
             camera.SnapTo(PlayerBounds(), roomManager.ActiveRoom.Level.WorldBounds);
             collisionManager.SetWorldBounds(roomManager.ActiveRoom.Level.WorldBounds);
-            pendingDoorDirection = 0;
+            pendingDoor = null;
+            unlockedDoors.Clear();
             menuController = ControllerFactory.CreateMenuController(this);
             RefreshGameplayController();
         }
@@ -345,11 +351,11 @@ namespace TransformersGame
             showcase.Update(gameTime);
             collisionManager.BuildTree(activeRoom.GetCollisionObjects(Player));
             collisionManager.DetectCollision();
-            if (pendingDoorDirection != 0 && Player.Health > 0)
+            if (pendingDoor != null && Player.Health > 0)
             {
-                int direction = pendingDoorDirection;
-                pendingDoorDirection = 0;
-                if (direction > 0) NextRoom(); else PreviousRoom();
+                Door door = pendingDoor;
+                pendingDoor = null;
+                UseDoor(door);
             }
             CheckForGameEnd();
         }
@@ -394,6 +400,37 @@ namespace TransformersGame
             gameState = endState;
             Window.Title = title;
             menuController = ControllerFactory.CreateEndScreenController(this);
+        }
+
+        // Resolves a door the player touched: relative (legacy) or targeted, honoring locks and keys.
+        private void UseDoor(Door door)
+        {
+            if (!door.Spec.IsTargeted)
+            {
+                // Legacy '<' / '>' door: move relative to the current room.
+                if (door.Direction > 0) NextRoom(); else if (door.Direction < 0) PreviousRoom();
+                return;
+            }
+
+            int target = door.TargetRoomIndex.Value;
+            if (target < 0 || target >= roomManager.RoomCount)
+            {
+                return;
+            }
+
+            (int From, int To) id = (roomManager.ActiveRoomIndex, target);
+            if (door.IsLocked && !unlockedDoors.Contains(id))
+            {
+                if (!Player.TryUseKey())
+                {
+                    // No key: leave the door shut. Play a cue so the player understands why.
+                    audio.Play(GameSound.Item);
+                    return;
+                }
+                unlockedDoors.Add(id);
+                door.IsLocked = false;
+            }
+            GoToRoom(target);
         }
 
         private void SwitchRoom(System.Action switchRoom)

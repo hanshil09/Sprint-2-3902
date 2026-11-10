@@ -29,7 +29,7 @@ namespace TransformersGame.Core
             IReadOnlyList<Placement<BlockKind>> blocks,
             IReadOnlyList<Placement<ItemKind>> items,
             IReadOnlyList<Placement<EnemyKind>> enemies,
-            IReadOnlyList<Placement<int>> doors = null,
+            IReadOnlyList<Placement<DoorSpec>> doors = null,
             float gravity = Physics.DefaultGravity)
         {
             Name = name;
@@ -41,7 +41,7 @@ namespace TransformersGame.Core
             Blocks = blocks;
             Items = items;
             Enemies = enemies;
-            Doors = doors ?? System.Array.Empty<Placement<int>>();
+            Doors = doors ?? System.Array.Empty<Placement<DoorSpec>>();
         }
 
         public string Name { get; }
@@ -62,7 +62,7 @@ namespace TransformersGame.Core
         public IReadOnlyList<Placement<ItemKind>> CrateDrops { get; init; } = System.Array.Empty<Placement<ItemKind>>();
 
         public IReadOnlyList<Placement<EnemyKind>> Enemies { get; }
-        public IReadOnlyList<Placement<int>> Doors { get; }
+        public IReadOnlyList<Placement<DoorSpec>> Doors { get; }
 
         // Moving platforms, elevators, springs and goals; one placement per tile.
         public IReadOnlyList<Placement<ObjectKind>> Objects { get; init; } = System.Array.Empty<Placement<ObjectKind>>();

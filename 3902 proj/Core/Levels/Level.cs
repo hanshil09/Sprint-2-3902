@@ -48,10 +48,10 @@ namespace TransformersGame.Core
             {
                 items.Add(EntityFactory.CreateItem(placement.Kind, CellPosition(placement.Column, placement.Row)));
             }
-            foreach (Placement<int> placement in data.Doors)
+            foreach (Placement<DoorSpec> placement in data.Doors)
             {
                 doors.Add(new Door(CellPosition(placement.Column, placement.Row), placement.Kind,
-                    BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind)));
+                    BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind.Direction, placement.Kind.IsLocked)));
             }
             PlacePlayerStart();
         }

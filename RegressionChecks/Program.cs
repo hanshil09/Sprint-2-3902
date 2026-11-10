@@ -48,32 +48,12 @@ void Check(string name, bool condition)
 
 Console.WriteLine("BASIC ROOM CHECKS");
 var roomFiles = Directory.GetFiles("3902 proj/Content/Levels", "*.room").Order().ToArray();
-Check("seven room files", roomFiles.Length == 7);
+Check("eight room files (hub + seven spokes)", roomFiles.Length == 8);
 foreach (string path in roomFiles)
 {
     string room = Path.GetFileNameWithoutExtension(path);
     LevelParseResult result = LevelParser.Parse(File.ReadAllLines(path));
     Check(room + ": valid room and player spawn", result.Success);
-    LevelData data = result.Data;
-
-    // Room sizes vary, so scale expectations with the room instead of using fixed counts.
-    // Variety: at least two enemies and at least two distinct kinds.
-    Check(room + ": at least two enemy kinds",
-        data.Enemies.Count >= 2 && data.Enemies.Select(e => e.Kind).Distinct().Count() >= 2);
-
-    // Density: at least one pickup, and no more than roughly one screen's worth per 170 tiles.
-    int tileArea = data.Columns * data.Rows;
-    int maxPickups = Math.Max(3, tileArea / 170);
-    Check(room + $": pickup count within 1..{maxPickups} for {data.Columns}x{data.Rows}",
-        data.Items.Count >= 1 && data.Items.Count <= maxPickups);
-
-    int returnDoors = data.Doors.Count(d => d.Kind == -1);
-    int forwardDoors = data.Doors.Count(d => d.Kind == 1);
-    int goals = data.Objects.Count(o => o.Kind == ObjectKind.Goal);
-    Check(room + ": return door and one exit",
-        returnDoors == 1 && ((forwardDoors == 1 && goals == 0) || (forwardDoors == 0 && goals == 1)));
-
-    Check(room + ": exit above starting row", ParkourCheck.ExitRow(data) < data.PlayerRow);
-    Check(room + ": exit reachable", ParkourCheck.CanReachExit(data));
+    RoomChecks.Validate(result.Data, room, Check);
 }
 Console.WriteLine($"{passed} basic room checks passed.");

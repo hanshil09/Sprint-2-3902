@@ -74,6 +74,14 @@ namespace TransformersGame.Core
             ['F'] = ObjectKind.Goal
         };
 
+        // Locked-door symbols -> destination room index. Chosen to avoid colliding with
+        // block/item/enemy/object/player symbols; each needs a key to open.
+        private static readonly Dictionary<char, int> LockedDoorSymbols = new Dictionary<char, int>
+        {
+            ['D'] = 0, ['J'] = 1, ['L'] = 2, ['N'] = 3, ['O'] = 4,
+            ['Q'] = 5, ['T'] = 6, ['U'] = 7, ['V'] = 8, ['Z'] = 9
+        };
+
         public static LevelParseResult Parse(IEnumerable<string> lines)
         {
             ArgumentNullException.ThrowIfNull(lines);
@@ -159,7 +167,7 @@ namespace TransformersGame.Core
             List<Placement<ItemKind>> items = new List<Placement<ItemKind>>();
             List<Placement<ItemKind>> crateDrops = new List<Placement<ItemKind>>();
             List<Placement<EnemyKind>> enemies = new List<Placement<EnemyKind>>();
-            List<Placement<int>> doors = new();
+            List<Placement<DoorSpec>> doors = new();
             List<Placement<ObjectKind>> objects = new();
             List<string> spawnLocations = new List<string>();
             Dictionary<char, UnknownTile> unknownTiles = new Dictionary<char, UnknownTile>();
@@ -193,7 +201,17 @@ namespace TransformersGame.Core
                     }
                     else if (symbol == '<' || symbol == '>')
                     {
-                        doors.Add(new Placement<int>(symbol == '<' ? -1 : 1, c, r));
+                        doors.Add(new Placement<DoorSpec>(DoorSpec.Relative(symbol == '<' ? -1 : 1), c, r));
+                    }
+                    else if (symbol >= '0' && symbol <= '9')
+                    {
+                        // Digit = unlocked door to that room index (hub-and-spoke navigation).
+                        doors.Add(new Placement<DoorSpec>(DoorSpec.ToRoom(symbol - '0', false), c, r));
+                    }
+                    else if (LockedDoorSymbols.TryGetValue(symbol, out int lockedTarget))
+                    {
+                        // Dedicated locked-door letters map to room indices; they need a key.
+                        doors.Add(new Placement<DoorSpec>(DoorSpec.ToRoom(lockedTarget, true), c, r));
                     }
                     else if (BlockSymbols.TryGetValue(symbol, out BlockKind block))
                     {

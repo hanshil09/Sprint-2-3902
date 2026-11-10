@@ -114,7 +114,7 @@ internal static class ParkourCheck
 
         public static Rectangle ExitBounds(LevelData data)
         {
-            var door = data.Doors.SingleOrDefault(d => d.Kind == 1);
+            var door = data.Doors.SingleOrDefault(d => d.Kind.Direction == 1);
             if (door != null)
             {
                 Vector2 point = Cell(door.Column, door.Row, data.Rows);
@@ -126,7 +126,7 @@ internal static class ParkourCheck
         }
 
         public static int ExitRow(LevelData data) =>
-            data.Doors.SingleOrDefault(d => d.Kind == 1)?.Row ?? data.Objects.Single(o => o.Kind == ObjectKind.Goal).Row;
+            data.Doors.SingleOrDefault(d => d.Kind.Direction == 1)?.Row ?? data.Objects.Single(o => o.Kind == ObjectKind.Goal).Row;
 
         private static Vector2 Cell(int column, int row, int rows) =>
             new(column * BlockSpriteFactory.BlockSize, ScreenHeight - (rows - row) * BlockSpriteFactory.BlockSize);
