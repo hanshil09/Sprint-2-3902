@@ -20,6 +20,7 @@ namespace TransformersGame.Core
         private readonly List<IBlock> blocks;
         private readonly List<IItem> items;
         private readonly Dictionary<IItem, string> itemProgressIds = new();
+        private readonly HashSet<string> spawnedEnemyDrops = new();
         private readonly List<Door> doors = new();
         private readonly List<IPlayerTrigger> triggers;
         private Rectangle playerSpawnBounds;
@@ -151,6 +152,21 @@ namespace TransformersGame.Core
             return collected;
         }
 
+        // Spawns a key pickup at the given position (used when an enemy is defeated). The drop id
+        // keeps the key from re-spawning once the player has collected it, even after leaving and
+        // returning to the room.
+        public void SpawnKeyDrop(Vector2 position, string dropId)
+        {
+            AddItem(ItemKind.Key, position, EnemyDropId(dropId));
+        }
+
+        // True once the key for this enemy drop has already been handed out this room lifetime so the
+        // caller does not spawn a duplicate every frame the enemy stays destroyed.
+        public bool HasSpawnedEnemyDrop(string dropId)
+        {
+            return spawnedEnemyDrops.Contains(EnemyDropId(dropId));
+        }
+
         public void Update(GameTime gameTime)
         {
             blocks.ForEach(block => block.Update(gameTime));
@@ -202,10 +218,15 @@ namespace TransformersGame.Core
 
         private void AddItem(ItemKind kind, Vector2 position, string progressId)
         {
-            if (progressId.StartsWith("placed:", StringComparison.Ordinal)
+            if ((progressId.StartsWith("placed:", StringComparison.Ordinal)
+                    || progressId.StartsWith("enemy:", StringComparison.Ordinal))
                 && Progress.HasCollectedItem(progressId))
             {
                 return;
+            }
+            if (progressId.StartsWith("enemy:", StringComparison.Ordinal))
+            {
+                spawnedEnemyDrops.Add(progressId);
             }
             IItem item = EntityFactory.CreateItem(kind, position);
             items.Add(item);
@@ -213,6 +234,8 @@ namespace TransformersGame.Core
         }
 
         private static string PlacedItemId(int column, int row) => $"placed:{column}:{row}";
+
+        private static string EnemyDropId(string dropId) => $"enemy:{dropId}";
 
         private static string CrateId(int column, int row) => $"crate:{column}:{row}";
 
