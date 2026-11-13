@@ -59,9 +59,9 @@ internal sealed class SelfieGalleryScreen : IDisposable
         return true;
     }
 
-    public void PreviousPage() => ChangePage(page - 1);
+    public void Previous() => Navigate(-1);
 
-    public void NextPage() => ChangePage(page + 1);
+    public void Next() => Navigate(1);
 
     public void Update()
     {
@@ -97,6 +97,25 @@ internal sealed class SelfieGalleryScreen : IDisposable
     }
 
     public void Dispose() => DisposePage();
+
+    private void Navigate(int direction)
+    {
+        if (viewing < 0)
+        {
+            ChangePage(page + direction);
+            return;
+        }
+
+        int nextPhoto = viewing + direction;
+        if (nextPhoto < 0 || nextPhoto >= photos.Length) return;
+        viewing = nextPhoto;
+        int photoPage = viewing / PerPage;
+        if (photoPage != page)
+        {
+            page = photoPage;
+            LoadPage();
+        }
+    }
 
     private void ChangePage(int newPage)
     {
@@ -205,7 +224,8 @@ internal sealed class SelfieGalleryScreen : IDisposable
         HudFrame.Fill(batch, new Rectangle(bounds.X - Border, bounds.Y - Border,
             bounds.Width + 2 * Border, bounds.Height + 2 * Border), Accent);
         DrawPhoto(batch, photo, bounds);
-        batch.DrawString(font, "Click or Esc to go back", new Vector2(GridLeft, FooterY), Color.White);
+        batch.DrawString(font, "Left / Right: change photo  |  Click or Esc: go back",
+            new Vector2(GridLeft, FooterY), Color.White);
     }
 
     private void DrawPhoto(SpriteBatch batch, Texture2D photo, Rectangle bounds)

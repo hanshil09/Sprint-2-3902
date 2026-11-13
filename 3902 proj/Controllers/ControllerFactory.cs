@@ -15,56 +15,6 @@ namespace TransformersGame.Controllers
             return keyboard;
         }
 
-        public static IController CreateGalleryController(Game1 game)
-        {
-            KeyboardController keyboard = new KeyboardController();
-            keyboard.RegisterSinglePressCommand(Keys.F3, new GameActionCommand(game.CloseGallery));
-            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseGalleryOrPhoto));
-            keyboard.RegisterSinglePressCommand(Keys.Left, new GameActionCommand(game.GalleryPreviousPage));
-            keyboard.RegisterSinglePressCommand(Keys.Right, new GameActionCommand(game.GalleryNextPage));
-            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            return keyboard;
-        }
-
-        public static IController CreateSelfieController(Game1 game)
-        {
-            KeyboardController keyboard = new KeyboardController();
-            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseSelfie));
-            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            keyboard.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
-            return keyboard;
-        }
-
-        public static IController CreateMenuController(Game1 game)
-        {
-            KeyboardController keyboardController = new KeyboardController();
-            keyboardController.RegisterSinglePressCommand(Keys.Enter, new StartGameCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
-            return keyboardController;
-        }
-
-        // Game over and mission complete screens: reset or quit.
-        public static IController CreateEndScreenController(Game1 game)
-        {
-            KeyboardController keyboardController = new KeyboardController();
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
-            return keyboardController;
-        }
-
-        public static IController CreateMapController(Game1 game)
-        {
-            KeyboardController keyboard = new KeyboardController();
-            keyboard.RegisterSinglePressCommand(Keys.Tab, new GameActionCommand(game.CloseMap));
-            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseMap));
-            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            return keyboard;
-        }
-
         public static IController CreateGameplayController(Game1 game, IPlayer player, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
         {
             KeyboardController keyboardController = new KeyboardController();

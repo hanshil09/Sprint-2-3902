@@ -32,21 +32,6 @@ namespace TransformersGame.Commands
         public void Execute() => game.ActivateBarrelStorm();
     }
 
-    internal class StartGameCommand : ICommand
-    {
-        private readonly Game1 game;
-
-        public StartGameCommand(Game1 game)
-        {
-            this.game = game;
-        }
-
-        public void Execute()
-        {
-            game.StartGame();
-        }
-    }
-
     internal class ResetGameCommand : ICommand
     {
         private readonly Game1 game;
