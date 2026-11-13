@@ -20,6 +20,7 @@ namespace TransformersGame.Factories
 
         private Texture2D itemSpriteSheet;
         private Texture2D objectSpriteSheet;
+        private Texture2D bazookaCall;
 
         private ItemSpriteFactory()
         {
@@ -37,10 +38,15 @@ namespace TransformersGame.Factories
         {
             itemSpriteSheet = content.Load<Texture2D>("Sprites/items");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
+            bazookaCall = content.Load<Texture2D>("Sprites/bazooka-call");
         }
 
         public ISprite CreateItemSprite(ItemKind kind)
         {
+            if (kind == ItemKind.BazookaCall)
+            {
+                return new TextureRegionSprite(bazookaCall, new Rectangle(0, 0, 32, 32), ItemSize, ItemSize, Color.White);
+            }
             Rectangle[] atlasFrames = AtlasFrames(kind);
             if (atlasFrames != null)
             {

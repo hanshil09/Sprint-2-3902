@@ -21,11 +21,13 @@ namespace TransformersGame.Core
                 [ItemKind.ShieldBattery] = () => ShieldCount++,
                 [ItemKind.Energon] = () => EnergonCount++,
                 [ItemKind.Key] = () => KeyCount++,
+                [ItemKind.BazookaCall] = () => HasBazookaCall = true,
                 [ItemKind.BombPack] = () => BombLevel = Math.Min(MaximumBombLevel, BombLevel + 1)
             };
         }
 
-        public PlayerInventoryView View => new PlayerInventoryView(MedkitCount, ShieldCount, BombLevel, EnergonCount);
+        public PlayerInventoryView View => new PlayerInventoryView(MedkitCount, ShieldCount, BombLevel, EnergonCount,
+            HasBazookaCall, BazookaAmmo);
 
         public int MedkitCount { get; private set; }
 
@@ -37,9 +39,32 @@ namespace TransformersGame.Core
 
         public int KeyCount { get; private set; }
 
+        public bool HasBazookaCall { get; private set; }
+        public int BazookaAmmo { get; private set; }
+        public bool BazookaLoaded => BazookaAmmo > 0;
+
+        public bool TryUseBazookaCall()
+        {
+            if (!HasBazookaCall || BazookaLoaded) return false;
+            HasBazookaCall = false;
+            BazookaAmmo = 3;
+            return true;
+        }
+
+        public bool TryFireBazooka()
+        {
+            if (!BazookaLoaded) return false;
+            BazookaAmmo--;
+            return true;
+        }
+
         // Returns false for unsupported items or an upgrade already at its cap.
         public bool TryCollect(ItemKind kind)
         {
+            if (kind == ItemKind.BazookaCall && (HasBazookaCall || BazookaLoaded))
+            {
+                return false;
+            }
             if (kind == ItemKind.BombPack && BombLevel == MaximumBombLevel)
             {
                 return false;

@@ -56,6 +56,7 @@ namespace TransformersGame
         private readonly System.Collections.Generic.HashSet<(int From, int To)> unlockedDoors = new();
         private readonly GameAudio audio = new GameAudio();
         private BarrelStorm barrelStorm;
+        private BazookaAbility bazooka;
 
         public Game1()
         {
@@ -139,6 +140,16 @@ namespace TransformersGame
             }
         }
 
+        public void CallBazooka()
+        {
+            if (gameState == GameState.Gameplay) bazooka.Call(Player, camera.ViewBounds, ActiveRoom.Level.Blocks);
+        }
+
+        public void FireBazooka()
+        {
+            if (gameState == GameState.Gameplay) bazooka.Fire(Player);
+        }
+
         public void StartGame()
         {
             SetState(GameState.Gameplay, gameplayState);
@@ -189,6 +200,8 @@ namespace TransformersGame
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            bazooka = new BazookaAbility(Content.Load<Texture2D>("Sprites/bazooka-helper"),
+                Content.Load<Texture2D>("Sprites/bazooka-weapon"));
             audio.Load(Content);
             SpriteAtlas.LoadAllTextures(Content);
             PlayerSpriteFactory.Instance.LoadAllTextures(Content);
@@ -276,6 +289,7 @@ namespace TransformersGame
             room.Draw(spriteBatch);
             barrelStorm.DrawParticles(spriteBatch);
             Player.Draw(spriteBatch);
+            bazooka.Draw(spriteBatch, Player);
             spriteBatch.End();
 
             // UI pass: fixed to the screen, drawn without the camera transform.
@@ -294,6 +308,7 @@ namespace TransformersGame
             controlsOverlay.DrawSmallText(spriteBatch,
                 audio.IsMuted ? "M: Audio OFF" : "M: Audio ON", 820, 86, false);
             controlsOverlay.DrawSmallText(spriteBatch, "F3: Gallery", 728, 100, false);
+            controlsOverlay.DrawSmallText(spriteBatch, bazooka.Status(Player), 440, 100, true);
             if (roomManager.ActiveRoomIndex == 0 && room.Level.HasIntactReinforcedCrate)
             {
                 controlsOverlay.DrawSmallText(spriteBatch,
@@ -305,6 +320,7 @@ namespace TransformersGame
 
         private void InitializeGameObjects()
         {
+            bazooka.Reset();
             selfieNeedsSpace = false;
             roomManager?.Unload();
             roomManager = null;
@@ -333,11 +349,17 @@ namespace TransformersGame
         private void UpdateGameplayFrame(GameTime gameTime)
         {
             gameplayController.Update();
-            if (State == GameState.Gameplay) UpdateGameplay(gameTime);
+            if (State == GameState.Gameplay && !bazooka.Active) UpdateGameplay(gameTime);
         }
 
         private void UpdateActiveGameplay(GameTime gameTime)
         {
+            bazooka.SetAim(Keyboard.GetState());
+            if (bazooka.Active)
+            {
+                bazooka.Update(gameTime);
+                return;
+            }
             selfieShortcut.Update();
             if (State == GameState.Gameplay) UpdateGameplayFrame(gameTime);
         }
@@ -430,6 +452,7 @@ namespace TransformersGame
 
         private void SwitchRoom(System.Action switchRoom)
         {
+            bazooka.ClearSpaceWarning();
             barrelStorm.CancelRoomEffect();
             selfieNeedsSpace = false;
             switchRoom();

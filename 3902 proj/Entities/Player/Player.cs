@@ -155,6 +155,15 @@ internal class Player : IPlayer
     public void DropBomb() => Arsenal.DropBomb(movement.Gravity, Inventory.BombLevel);
     public bool TryUseKey() => inventory.TryUseKey();
 
+    public bool UseBazookaCall() => inventory.TryUseBazookaCall();
+
+    public bool FireBazooka(bool aimUp = false)
+    {
+        if (IsInBallForm || !inventory.TryFireBazooka()) return false;
+        Arsenal.FireBazooka(aimUp);
+        return true;
+    }
+
     public void EnterRoom(
         IReadOnlyList<IBlock> blocks,
         IProjectileManager projectiles,

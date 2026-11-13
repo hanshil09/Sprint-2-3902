@@ -242,6 +242,8 @@ sealed class StubPlayer : IPlayer
     public bool TryAddItem(ItemKind kind) { ItemsAdded++; return true; }
     public bool UseMedkit() => false;
     public bool UseShield() => false;
+    public bool UseBazookaCall() => false;
+    public bool FireBazooka(bool aimUp = false) => false;
     public bool TryUseKey() => false;
     public void Move(Direction direction) { }
     public void Jump() { }

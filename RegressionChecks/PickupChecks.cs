@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using TransformersGame.Core;
 using TransformersGame.Entities;
 using TransformersGame.Interfaces;
@@ -15,6 +16,9 @@ internal static class PickupChecks
         CheckBombPacks();
         CheckMaxHealthUpgrades();
         CheckStoredItems();
+        CheckBazookaCallStorage();
+        CheckBazookaShot();
+        CheckBazookaAim();
         CheckDecoratedPlayer();
         CheckPowerUps();
         Console.WriteLine($"{passed} pickup checks passed.");
@@ -25,6 +29,70 @@ internal static class PickupChecks
         if (!condition) throw new InvalidOperationException("FAIL: " + name);
         passed++;
         Console.WriteLine("PASS: " + name);
+    }
+
+    private static void CheckBazookaCallStorage()
+    {
+        var inventory = new PlayerInventory();
+        Check("bazooka call is stored until used", inventory.TryCollect(ItemKind.BazookaCall) && inventory.HasBazookaCall);
+        Check("a second call is not collected while one is stored", !inventory.TryCollect(ItemKind.BazookaCall));
+        Check("using the call loads three shots", inventory.TryUseBazookaCall() && !inventory.HasBazookaCall && inventory.BazookaAmmo == 3);
+        Check("an empty call cannot be used again", !inventory.TryUseBazookaCall());
+        Check("a loaded shot prevents another pickup", !inventory.TryCollect(ItemKind.BazookaCall));
+        Check("three shots can be consumed, but not a fourth", inventory.TryFireBazooka() && inventory.TryFireBazooka()
+            && inventory.TryFireBazooka() && !inventory.TryFireBazooka());
+        Check("another call can be collected after firing", inventory.TryCollect(ItemKind.BazookaCall));
+    }
+
+    private static void CheckBazookaShot()
+    {
+        var projectiles = new ProjectileManager();
+        var player = new Player(Vector2.Zero, Array.Empty<IBlock>(), projectiles, gravity: 0);
+        Check("bazooka cannot fire before collection", !player.FireBazooka());
+        Check("collected call equips three shots", player.TryAddItem(ItemKind.BazookaCall)
+            && player.UseBazookaCall() && player.Inventory.BazookaAmmo == 3);
+        player.EnterRoom(Array.Empty<IBlock>(), projectiles, Vector2.Zero, gravity: 0);
+        Check("the loaded shot stays available after a room change", player.Inventory.BazookaLoaded);
+        player.Transform();
+        Check("ball form cannot waste the shot", !player.FireBazooka() && player.Inventory.BazookaLoaded);
+        player.Transform();
+        Check("robot fires one bazooka projectile", player.FireBazooka()
+            && player.Inventory.BazookaAmmo == 2 && projectiles.Projectiles.Count == 1);
+        var enemy = new StubEnemy();
+        ((IPlayerWeapon)projectiles.Projectiles[0]).HitEnemy(enemy);
+        Check("bazooka deals five damage and deactivates on impact",
+            enemy.Hits == 5 && !projectiles.Projectiles[0].IsActive);
+        Check("robot fires a vertical shot", player.FireBazooka(true) && player.Inventory.BazookaAmmo == 1);
+        IProjectile upward = projectiles.Projectiles[1];
+        Vector2 before = upward.Position;
+        upward.Update(Step(0.1));
+        Check("upward shot travels straight up", upward.Position.Y < before.Y && upward.Position.X == before.X);
+        Check("last shot fires and a fourth is rejected", player.FireBazooka()
+            && player.Inventory.BazookaAmmo == 0 && !player.FireBazooka());
+        var freshPlayer = new Player(Vector2.Zero, Array.Empty<IBlock>(), new ProjectileManager(), gravity: 0);
+        Check("a fresh player starts without a call or loaded shot",
+            !freshPlayer.Inventory.HasBazookaCall && !freshPlayer.Inventory.BazookaLoaded);
+    }
+
+    private static void CheckBazookaAim()
+    {
+        var projectiles = new ProjectileManager();
+        var player = new Player(Vector2.Zero, Array.Empty<IBlock>(), projectiles, gravity: 0);
+        var bazooka = new BazookaAbility(null, null);
+        player.TryAddItem(ItemKind.BazookaCall);
+        player.UseBazookaCall();
+        bazooka.SetAim(new KeyboardState(Keys.LeftShift));
+        bazooka.Fire(player);
+        IProjectile shot = projectiles.Projectiles[0];
+        Vector2 before = shot.Position;
+        shot.Update(Step(0.1));
+        Check("bazooka uses sampled upward aim when firing", shot.Position.Y < before.Y && shot.Position.X == before.X);
+        bazooka.SetAim(new KeyboardState());
+        bazooka.Fire(player);
+        shot = projectiles.Projectiles[1];
+        before = shot.Position;
+        shot.Update(Step(0.1));
+        Check("releasing aim restores horizontal fire", shot.Position.X > before.X && shot.Position.Y == before.Y);
     }
 
     private static Level CreateLevel(string symbols) => new Level(LevelParser.Parse(new[] { "[tiles]", "P..." + symbols }).Data);

@@ -53,7 +53,7 @@ namespace TransformersGame.Core
                 bool isMorphBallCrate = data.Blocks.Any(block =>
                     block.Column == drop.Column && block.Row == drop.Row
                     && block.Kind == BlockKind.MorphBallCrate);
-                if (isMorphBallCrate)
+                if (isMorphBallCrate || drop.Kind == ItemKind.BazookaCall)
                 {
                     continue;
                 }

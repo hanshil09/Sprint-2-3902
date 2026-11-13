@@ -47,6 +47,8 @@ namespace TransformersGame.Entities
         public virtual bool TryAddItem(ItemKind kind) => Inner.TryAddItem(kind);
         public virtual bool UseMedkit() => Inner.UseMedkit();
         public virtual bool UseShield() => Inner.UseShield();
+        public virtual bool UseBazookaCall() => Inner.UseBazookaCall();
+        public virtual bool FireBazooka(bool aimUp = false) => Inner.FireBazooka(aimUp);
         public virtual bool TryUseKey() => Inner.TryUseKey();
         public virtual void Draw(SpriteBatch spriteBatch) => Inner.Draw(spriteBatch);
 

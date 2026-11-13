@@ -52,6 +52,10 @@ namespace TransformersGame.Interfaces
 
         bool UseShield();
 
+        bool UseBazookaCall();
+
+        bool FireBazooka(bool aimUp = false);
+
         // Spends one key to open a locked door; returns false when the player has none.
         bool TryUseKey();
 
