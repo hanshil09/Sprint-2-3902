@@ -17,18 +17,12 @@ namespace TransformersGame.Interfaces
 
         int MaxHealth { get; }
 
-        int MedkitCount { get; }
 
-        int ShieldCount { get; }
 
-        // Bombs are unlimited; this is the blast-size upgrade level from Bomb Packs.
-        int BombLevel { get; }
 
-        int EnergonCount { get; }
 
-        // Keys collected; used to open locked doors. Persists across rooms.
+        PlayerInventoryView Inventory { get; }
         int KeyCount { get; }
-
         bool IsShieldActive { get; }
 
         // True while a power-up makes the player immune to damage; contact then damages enemies instead.

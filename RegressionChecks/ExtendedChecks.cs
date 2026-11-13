@@ -229,11 +229,8 @@ sealed class StubPlayer : IPlayer
     public Direction Facing => Direction.Right;
     public int Health => 100;
     public int MaxHealth => 100;
-    public int MedkitCount => 0;
-    public int ShieldCount => 0;
+    public PlayerInventoryView Inventory => default;
     public bool IsShieldActive => false;
-    public int BombLevel => 0;
-    public int EnergonCount => 0;
     public int KeyCount => 0;
     public bool IsInvincible { get; set; }
     public float SpeedScale { get; set; } = 1f;

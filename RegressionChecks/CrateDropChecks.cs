@@ -77,7 +77,7 @@ internal static class CrateDropChecks
             && sounds.Count(sound => sound == GameSound.CrateBreak) == 1);
         player.Position = crate.Position;
         level.CollectItems(player);
-        Check("fixed crate rewards one Energon", player.EnergonCount == 1);
+        Check("fixed crate rewards one Energon", player.Inventory.EnergonCount == 1);
 
         level = new Level(data);
         crate = level.Blocks.OfType<SupplyCrate>().Single();

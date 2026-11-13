@@ -31,10 +31,7 @@ namespace TransformersGame.Entities
         public virtual Direction Facing => Inner.Facing;
         public virtual int Health => Inner.Health;
         public virtual int MaxHealth => Inner.MaxHealth;
-        public virtual int MedkitCount => Inner.MedkitCount;
-        public virtual int ShieldCount => Inner.ShieldCount;
-        public virtual int BombLevel => Inner.BombLevel;
-        public virtual int EnergonCount => Inner.EnergonCount;
+        public virtual PlayerInventoryView Inventory => Inner.Inventory;
         public virtual int KeyCount => Inner.KeyCount;
         public virtual bool IsShieldActive => Inner.IsShieldActive;
         public virtual bool IsInvincible => Inner.IsInvincible;

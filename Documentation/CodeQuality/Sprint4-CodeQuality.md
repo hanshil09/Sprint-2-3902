@@ -1,5 +1,5 @@
 # Sprint 4 Code Quality Changes
-
+|Hanshil|
 | File or folder | Why it improves code quality |
 |---|---|
 | `3902 proj/UI/PlayerHud.cs` | Keeps the counters together. Moving a counter also moves its divider, so there is one position to update. |
@@ -20,3 +20,5 @@
 | `3902 proj/Entities/Player/FireballSelection.cs` | Keeps each shot name and attack together. The map and HUD share the selected shot, and firing uses the existing player attacks. |
 | `3902 proj/Entities/Projectiles/IceProjectile.cs` | Reuses normal projectile movement and collision. It adds only the special effect when Ice hits an enemy. |
 | `3902 proj/Entities/Enemies/Enemy.cs` | Keeps the freeze timer with the enemy it affects. Existing attacks still use the same damage rules. |
+| `3902 proj/Core/PlayerInventory.cs`, `3902 proj/Entities/Player/Player.cs`, and `3902 proj/Entities/Player/PlayerShield.cs` | Inventory now handles pickup and item-use rules in one place. Health still handles healing and the shield still handles its timer. Player plays the item sound after successful use. |
+| IPlayer.cs and Core/PlayerInventoryView.cs | The HUD reads item counts through one read-only inventory view. The player still handles item use. |

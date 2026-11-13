@@ -37,7 +37,7 @@ namespace TransformersGame.UI
             DrawText(spriteBatch, MenuTitle(screen), left + 28, top + 22, HeadingColor, 1.25f);
             if (screen == GameState.Victory)
             {
-                DrawText(spriteBatch, $"The Warlord is defeated and the beacon is lit. Energon collected: {player.EnergonCount}", left + 30, top + 66, PowerColor, 0.55f);
+                DrawText(spriteBatch, $"The Warlord is defeated and the beacon is lit. Energon collected: {player.Inventory.EnergonCount}", left + 30, top + 66, PowerColor, 0.55f);
             }
             DrawText(spriteBatch, "Climb to the GOLD exit. Defeat the boss in the last room, then touch the beacon.", left + 30, top + 92, TextColor, 0.52f);
             bool ended = screen != GameState.StartMenu;
@@ -111,7 +111,7 @@ namespace TransformersGame.UI
             DrawHelpLine(spriteBatch, "FIRE", "X fire   Shift+X aim up   TAB choose shot   7 boomerang", 179);
             DrawHelpLine(spriteBatch, "ITEMS", "2 bomb     3 medkit (full heal)     4 shield (5 seconds)", 207);
             DrawHelpLine(spriteBatch, "ABILITY", "B Barrel Storm (9 falling barrels; 14-second cooldown)", 235);
-            DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.MedkitCount}   Shields {player.ShieldCount}   Blast Lv {player.BombLevel}   Energon {player.EnergonCount}", 263);
+            DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.Inventory.MedkitCount}   Shields {player.Inventory.ShieldCount}   Blast Lv {player.Inventory.BombLevel}   Energon {player.Inventory.EnergonCount}", 263);
             DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 291);
             DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 319);
             DrawHelpLine(spriteBatch, "SYSTEM", "F2 selfie   F3 gallery   M mute all audio   E damage   R reset   Q / ESC quit", 347);

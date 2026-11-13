@@ -79,8 +79,8 @@ internal sealed class PlayerHud
 
     private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, FireballSelection fireballs)
     {
-        DrawCounter(spriteBatch, Medkits, player.MedkitCount.ToString(CultureInfo.InvariantCulture));
-        string shieldStatus = player.ShieldCount.ToString(CultureInfo.InvariantCulture);
+        DrawCounter(spriteBatch, Medkits, player.Inventory.MedkitCount.ToString(CultureInfo.InvariantCulture));
+        string shieldStatus = player.Inventory.ShieldCount.ToString(CultureInfo.InvariantCulture);
         Color shieldStatusColor = TextColor;
         if (player.IsShieldActive)
         {
@@ -89,8 +89,8 @@ internal sealed class PlayerHud
         }
 
         DrawCounter(spriteBatch, Shields, shieldStatus, shieldStatusColor);
-        DrawCounter(spriteBatch, Gems, player.EnergonCount.ToString(CultureInfo.InvariantCulture));
-        DrawCounter(spriteBatch, BombPacks, $"{player.BombLevel}/{PlayerInventory.MaximumBombLevel}");
+        DrawCounter(spriteBatch, Gems, player.Inventory.EnergonCount.ToString(CultureInfo.InvariantCulture));
+        DrawCounter(spriteBatch, BombPacks, $"{player.Inventory.BombLevel}/{PlayerInventory.MaximumBombLevel}");
         DrawDivider(spriteBatch, FireballLeft);
         DrawText(spriteBatch, "FIREBALL", FireballLeft, LabelY, PowerColor, LabelScale);
         ISprite preview = fireballs.SelectedPreview;

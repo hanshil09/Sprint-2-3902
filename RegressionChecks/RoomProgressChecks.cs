@@ -34,7 +34,7 @@ internal static class RoomProgressChecks
         Level firstVisit = new Level(data, roomProgress: progress);
         Player player = new Player(firstVisit.Items[0].Position, firstVisit.Blocks, new ProjectileManager());
         Check("placed Bomb Pack collects on first visit",
-            firstVisit.CollectItems(player).Count == 1 && player.BombLevel == 1);
+            firstVisit.CollectItems(player).Count == 1 && player.Inventory.BombLevel == 1);
 
         Level revisit = new Level(data, roomProgress: progress);
         Check("collected placed item stays gone on revisit",
@@ -59,7 +59,7 @@ internal static class RoomProgressChecks
 
         Player player = new Player(openedCrate.Position, revisitBeforeCollection.Blocks, new ProjectileManager());
         Check("preserved crate drop can still be collected",
-            revisitBeforeCollection.CollectItems(player).Count == 1 && player.BombLevel == 1);
+            revisitBeforeCollection.CollectItems(player).Count == 1 && player.Inventory.BombLevel == 1);
 
         Level revisitAfterCollection = new Level(data, roomProgress: progress);
         Check("collected crate drop does not return",

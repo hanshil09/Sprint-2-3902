@@ -56,16 +56,16 @@ internal static class PickupChecks
         Level level = CreateLevel("$");
         Player player = CreatePlayer(level);
         IItem pickup = level.Items[0];
-        Check("battery collects into inventory", level.CollectItems(player).Count == 1 && player.ShieldCount == 1);
+        Check("battery collects into inventory", level.CollectItems(player).Count == 1 && player.Inventory.ShieldCount == 1);
         Check("battery does not activate automatically", !player.IsShieldActive);
-        Check("collected battery cannot be counted twice", !pickup.TryCollect(player) && player.ShieldCount == 1);
-        Check("battery activates on manual use", player.UseShield() && player.IsShieldActive && player.ShieldCount == 0);
+        Check("collected battery cannot be counted twice", !pickup.TryCollect(player) && player.Inventory.ShieldCount == 1);
+        Check("battery activates on manual use", player.UseShield() && player.IsShieldActive && player.Inventory.ShieldCount == 0);
         player.Update(Step(4));
-        Check("battery can be stored while shield is active", player.TryAddItem(ItemKind.ShieldBattery) && player.ShieldCount == 1);
-        Check("active shield cannot consume another charge", !player.UseShield() && player.ShieldCount == 1);
+        Check("battery can be stored while shield is active", player.TryAddItem(ItemKind.ShieldBattery) && player.Inventory.ShieldCount == 1);
+        Check("active shield cannot consume another charge", !player.UseShield() && player.Inventory.ShieldCount == 1);
         player.Update(Step(1.1));
         Check("collecting battery does not extend active shield", !player.IsShieldActive);
-        Check("stored battery can activate after expiry", player.UseShield() && player.ShieldCount == 0 && player.IsShieldActive);
+        Check("stored battery can activate after expiry", player.UseShield() && player.Inventory.ShieldCount == 0 && player.IsShieldActive);
         player.Update(Step(5.1));
         Check("manual shield expires after five seconds", !player.IsShieldActive);
         Check("empty inventory cannot activate shield", !player.UseShield());
@@ -76,10 +76,10 @@ internal static class PickupChecks
         Level level = CreateLevel("%");
         Player player = CreatePlayer(level);
         for (int upgrade = 0; upgrade < PlayerInventory.MaximumBombLevel - 1; upgrade++) player.TryAddItem(ItemKind.BombPack);
-        Check("Bomb Pack collects below cap", level.CollectItems(player).Count == 1 && player.BombLevel == PlayerInventory.MaximumBombLevel);
+        Check("Bomb Pack collects below cap", level.CollectItems(player).Count == 1 && player.Inventory.BombLevel == PlayerInventory.MaximumBombLevel);
         level = CreateLevel("%");
         Check("Bomb Pack remains at maximum level", level.CollectItems(player).Count == 0 && level.Items.Count == 1);
-        Check("direct bomb upgrade also rejects at cap", !player.TryAddItem(ItemKind.BombPack) && player.BombLevel == PlayerInventory.MaximumBombLevel);
+        Check("direct bomb upgrade also rejects at cap", !player.TryAddItem(ItemKind.BombPack) && player.Inventory.BombLevel == PlayerInventory.MaximumBombLevel);
         var inventory = new PlayerInventory();
         for (int upgrade = 0; upgrade < PlayerInventory.MaximumBombLevel; upgrade++) inventory.TryCollect(ItemKind.BombPack);
         Check("inventory rejects capped Bomb Pack", !inventory.TryCollect(ItemKind.BombPack));
@@ -103,11 +103,11 @@ internal static class PickupChecks
         Level level = CreateLevel("+*@");
         Player player = CreatePlayer(level);
         Check("stored items and Energon collect at full health", level.CollectItems(player).Count == 3 && level.Items.Count == 0);
-        Check("stored items increase correct inventory counts", player.MedkitCount == 1 && player.ShieldCount == 1 && player.EnergonCount == 1);
-        Check("full health still prevents wasting stored Medkit", !player.UseMedkit() && player.MedkitCount == 1);
+        Check("stored items increase correct inventory counts", player.Inventory.MedkitCount == 1 && player.Inventory.ShieldCount == 1 && player.Inventory.EnergonCount == 1);
+        Check("full health still prevents wasting stored Medkit", !player.UseMedkit() && player.Inventory.MedkitCount == 1);
         player.TakeDamage();
-        Check("stored Medkit can heal later", player.UseMedkit() && player.Health == player.MaxHealth && player.MedkitCount == 0);
-        Check("stored Shield can activate later", player.UseShield() && player.IsShieldActive && player.ShieldCount == 0);
+        Check("stored Medkit can heal later", player.UseMedkit() && player.Health == player.MaxHealth && player.Inventory.MedkitCount == 0);
+        Check("stored Shield can activate later", player.UseShield() && player.IsShieldActive && player.Inventory.ShieldCount == 0);
     }
 
     private static void CheckDecoratedPlayer()
