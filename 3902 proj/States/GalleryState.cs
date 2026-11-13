@@ -10,7 +10,7 @@ using TransformersGame.UI;
 namespace TransformersGame.States
 {
     // Owns the gallery's input and rendering while Game1 controls transitions.
-    internal sealed class GalleryState : IDisposable
+    internal sealed class GalleryState : IGameState, IDisposable
     {
         private readonly SelfieGalleryScreen screen;
         private readonly GraphicsDevice graphics;
@@ -18,12 +18,14 @@ namespace TransformersGame.States
         private readonly Action toggleMute;
         private IController controller;
         private bool active;
+        private readonly Color background;
 
-        public GalleryState(GraphicsDevice graphics, SpriteFont font, Action close, Action toggleMute)
+        public GalleryState(GraphicsDevice graphics, SpriteFont font, Action close, Action toggleMute, Color background)
         {
             this.graphics = graphics;
             this.close = close;
             this.toggleMute = toggleMute;
+            this.background = background;
             screen = new SelfieGalleryScreen(graphics, font);
         }
 
@@ -40,13 +42,13 @@ namespace TransformersGame.States
             active = true;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             controller.Update();
             if (active) screen.Update();
         }
 
-        public void Draw(SpriteBatch spriteBatch, Color background)
+        public void Draw(SpriteBatch spriteBatch)
         {
             graphics.Clear(background);
             screen.Draw(spriteBatch);

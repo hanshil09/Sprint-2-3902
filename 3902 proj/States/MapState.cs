@@ -11,7 +11,7 @@ using TransformersGame.UI;
 
 namespace TransformersGame.States
 {
-    internal sealed class MapState
+    internal sealed class MapState : IGameState
     {
         private readonly RoomMapScreen screen;
         private readonly GraphicsDevice graphics;
@@ -20,14 +20,23 @@ namespace TransformersGame.States
         private readonly Action toggleMute;
         private IController controller;
         private bool active;
+        private readonly Func<RoomManager> roomManager;
+        private readonly Func<IPlayer> player;
+        private readonly Color background;
+        private readonly Color roomColor;
 
         public MapState(GraphicsDevice graphics, SpriteFont font, FireballSelection fireballs,
-            RoomFactory rooms, Action close, Action toggleMute)
+            RoomFactory rooms, Action close, Action toggleMute, Func<RoomManager> roomManager,
+            Func<IPlayer> player, Color background, Color roomColor)
         {
             this.graphics = graphics;
             this.rooms = rooms;
             this.close = close;
             this.toggleMute = toggleMute;
+            this.roomManager = roomManager;
+            this.player = player;
+            this.background = background;
+            this.roomColor = roomColor;
             screen = new RoomMapScreen(font, fireballs);
         }
 
@@ -41,16 +50,16 @@ namespace TransformersGame.States
             active = true;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             controller.Update();
             if (active) screen.UpdateNavigation(rooms);
         }
 
-        public void Draw(SpriteBatch batch, RoomManager roomManager, IPlayer player, Color background, Color roomColor)
+        public void Draw(SpriteBatch batch)
         {
             graphics.Clear(background);
-            screen.Draw(batch, roomManager, player, roomColor);
+            screen.Draw(batch, roomManager(), player(), roomColor);
         }
 
         private void Close()

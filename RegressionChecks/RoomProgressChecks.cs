@@ -7,6 +7,7 @@ internal static class RoomProgressChecks
 
     public static void Run()
     {
+        CheckDistinctCrateAndDoorSymbols();
         CheckCollectedItemsPersist();
         CheckOpenedCratesPersist();
         CheckBossProgressPersists();
@@ -22,10 +23,19 @@ internal static class RoomProgressChecks
     }
 
     private static LevelData CreateData() =>
-        LevelParser.Parse(new[] { "[tiles]", "P.%Q", "GGGGG" }).Data;
+        LevelParser.Parse(new[] { "[tiles]", "P.%E", "GGGGG" }).Data;
 
     private static LevelData CreateCrateData() =>
-        LevelParser.Parse(new[] { "[tiles]", "P...Q", "GGGGG" }).Data;
+        LevelParser.Parse(new[] { "[tiles]", "P...E", "GGGGG" }).Data;
+
+    private static void CheckDistinctCrateAndDoorSymbols()
+    {
+        LevelParseResult parsed = LevelParser.Parse(new[] { "name: symbols", "[tiles]", "P.Qq", "GGGG" });
+        Check("Q is a Morph Ball crate and q is the locked room-5 door",
+            parsed.Success && parsed.Data.Blocks.Any(block => block.Kind == BlockKind.MorphBallCrate)
+            && parsed.Data.CrateDrops.Any(drop => drop.Kind == ItemKind.BombPack)
+            && parsed.Data.Doors.Any(door => door.Kind.IsLocked && door.Kind.TargetRoomIndex == 5));
+    }
 
     private static void CheckCollectedItemsPersist()
     {
@@ -59,7 +69,7 @@ internal static class RoomProgressChecks
 
         Player player = new Player(openedCrate.Position, revisitBeforeCollection.Blocks, new ProjectileManager());
         Check("preserved crate drop can still be collected",
-            revisitBeforeCollection.CollectItems(player).Count == 1 && player.Inventory.BombLevel == 1);
+            revisitBeforeCollection.CollectItems(player).Count == 1 && player.Inventory.EnergonCount == 1);
 
         Level revisitAfterCollection = new Level(data, roomProgress: progress);
         Check("collected crate drop does not return",

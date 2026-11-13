@@ -10,7 +10,7 @@ using TransformersGame.UI;
 
 namespace TransformersGame.States
 {
-    internal sealed class SelfieState : IDisposable
+    internal sealed class SelfieState : IGameState, IDisposable
     {
         private readonly SelfieScreen screen;
         private readonly Action close;
@@ -19,14 +19,19 @@ namespace TransformersGame.States
         private readonly Action shutter;
         private IController controller;
         private bool active;
+        private readonly Func<Room> room;
+        private readonly Color background;
 
-        public SelfieState(SelfieScreen screen, Action close, Action toggleMute, Action quit, Action shutter)
+        public SelfieState(SelfieScreen screen, Action close, Action toggleMute, Action quit, Action shutter,
+            Func<Room> room, Color background)
         {
             this.screen = screen;
             this.close = close;
             this.toggleMute = toggleMute;
             this.quit = quit;
             this.shutter = shutter;
+            this.room = room;
+            this.background = background;
         }
 
         public bool Open(Room room, IPlayer player, Matrix camera)
@@ -49,9 +54,9 @@ namespace TransformersGame.States
             if (screen.Finished) Close();
         }
 
-        public void Draw(SpriteBatch batch, Room room, Color background)
+        public void Draw(SpriteBatch batch)
         {
-            if (screen.Draw(batch, room, background)) shutter();
+            if (screen.Draw(batch, room(), background)) shutter();
         }
 
         public void Dispose() => screen.Dispose();

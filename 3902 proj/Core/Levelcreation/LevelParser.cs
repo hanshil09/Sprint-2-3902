@@ -81,7 +81,7 @@ namespace TransformersGame.Core
         private static readonly Dictionary<char, int> LockedDoorSymbols = new Dictionary<char, int>
         {
             ['D'] = 0, ['J'] = 1, ['L'] = 2, ['N'] = 3, ['O'] = 4,
-            ['Q'] = 5, ['T'] = 6, ['U'] = 7, ['V'] = 8, ['Z'] = 9
+            ['q'] = 5, ['T'] = 6, ['U'] = 7, ['V'] = 8, ['Z'] = 9
         };
 
         public static LevelParseResult Parse(IEnumerable<string> lines)

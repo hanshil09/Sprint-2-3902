@@ -11,7 +11,7 @@ using TransformersGame.UI;
 namespace TransformersGame.States
 {
     // Handles the start, game-over and victory screens.
-    internal sealed class MenuState
+    internal sealed class MenuState : IGameState
     {
         private readonly ControlsOverlay overlay;
         private readonly GraphicsDevice graphics;
@@ -20,9 +20,13 @@ namespace TransformersGame.States
         private readonly Action mute;
         private readonly Action quit;
         private IController controller;
+        private readonly Func<GameState> state;
+        private readonly Func<IPlayer> player;
+        private readonly Color background;
 
         public MenuState(ControlsOverlay overlay, GraphicsDevice graphics,
-            Action start, Action reset, Action mute, Action quit)
+            Action start, Action reset, Action mute, Action quit,
+            Func<GameState> state, Func<IPlayer> player, Color background)
         {
             this.overlay = overlay;
             this.graphics = graphics;
@@ -30,6 +34,9 @@ namespace TransformersGame.States
             this.reset = reset;
             this.mute = mute;
             this.quit = quit;
+            this.state = state;
+            this.player = player;
+            this.background = background;
         }
 
         public void Open(bool isEndScreen)
@@ -44,13 +51,13 @@ namespace TransformersGame.States
             controller = keyboard;
         }
 
-        public void Update() => controller.Update();
+        public void Update(GameTime gameTime) => controller.Update();
 
-        public void Draw(SpriteBatch batch, GameState state, IPlayer player, Color background)
+        public void Draw(SpriteBatch batch)
         {
             graphics.Clear(background);
             batch.Begin(samplerState: SamplerState.PointClamp);
-            overlay.DrawMenu(batch, graphics.Viewport, state, player);
+            overlay.DrawMenu(batch, graphics.Viewport, state(), player());
             batch.End();
         }
     }
