@@ -71,7 +71,13 @@ namespace TransformersGame.Factories
         {
             if (kind == ItemKind.BazookaCall)
             {
-                return new TextureRegionSprite(bazookaBarrel, new Rectangle(0, 0, 32, 32), BlockSize, BlockSize, Color.White);
+                return new TextureRegionSprite(
+                    additionalItemSprites,
+                    new Rectangle(164, 15, 16, 17),
+                    BlockSize,
+                    BlockSize,
+                    Color.White
+                );
             }
             Rectangle frame = reinforced
                 ? new Rectangle(102, 15, 16, 17)

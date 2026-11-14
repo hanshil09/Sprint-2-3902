@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -17,10 +18,20 @@ namespace TransformersGame.Entities
         private const float StormDuration = 5.2f;
         private const float CooldownDuration = 14f;
 
+        // Standard barrel sprite from additionalItemSprites.png.
+        private static readonly Rectangle BarrelSource =
+            new Rectangle(71, 15, 16, 17);
+
         private readonly Texture2D pixel;
+        private readonly Texture2D barrelTexture;
         private readonly Action<GameSound> playSound;
-        private readonly List<BarrelProjectile> barrels = new List<BarrelProjectile>();
-        private readonly List<DustParticle> particles = new List<DustParticle>();
+
+        private readonly List<BarrelProjectile> barrels =
+            new List<BarrelProjectile>();
+
+        private readonly List<DustParticle> particles =
+            new List<DustParticle>();
+
         private IProjectileManager projectiles;
         private float cooldownRemaining;
         private float stormElapsed;
@@ -30,11 +41,18 @@ namespace TransformersGame.Entities
         private Rectangle visibleBounds;
         private Rectangle roomBounds;
 
-        public BarrelStorm(GraphicsDevice graphicsDevice, Action<GameSound> playSound)
+        public BarrelStorm(
+            GraphicsDevice graphicsDevice,
+            Action<GameSound> playSound,
+            Texture2D barrelTexture)
         {
             ArgumentNullException.ThrowIfNull(graphicsDevice);
             ArgumentNullException.ThrowIfNull(playSound);
+            ArgumentNullException.ThrowIfNull(barrelTexture);
+
             this.playSound = playSound;
+            this.barrelTexture = barrelTexture;
+
             pixel = new Texture2D(graphicsDevice, 1, 1);
             pixel.SetData(new[] { Color.White });
         }
@@ -43,9 +61,13 @@ namespace TransformersGame.Entities
 
         public float CooldownRemaining => cooldownRemaining;
 
-        public bool TryActivate(IProjectileManager roomProjectiles, Rectangle visibleWorldBounds, Rectangle roomWorldBounds)
+        public bool TryActivate(
+            IProjectileManager roomProjectiles,
+            Rectangle visibleWorldBounds,
+            Rectangle roomWorldBounds)
         {
             ArgumentNullException.ThrowIfNull(roomProjectiles);
+
             if (isActive || cooldownRemaining > 0)
             {
                 return false;
@@ -54,19 +76,24 @@ namespace TransformersGame.Entities
             projectiles = roomProjectiles;
             visibleBounds = visibleWorldBounds;
             roomBounds = roomWorldBounds;
+
             cooldownRemaining = CooldownDuration;
             stormElapsed = 0;
             spawnElapsed = 0;
             spawnedBarrels = 0;
             isActive = true;
+
             SpawnBarrel();
             playSound(GameSound.Explosion);
+
             return true;
         }
 
         public void Update(GameTime gameTime, Rectangle currentViewBounds)
         {
-            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float elapsed =
+                (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             cooldownRemaining = Math.Max(0, cooldownRemaining - elapsed);
 
             if (isActive)
@@ -74,7 +101,9 @@ namespace TransformersGame.Entities
                 visibleBounds = currentViewBounds;
                 stormElapsed += elapsed;
                 spawnElapsed += elapsed;
-                while (spawnedBarrels < BarrelCount && spawnElapsed >= SpawnInterval)
+
+                while (spawnedBarrels < BarrelCount &&
+                       spawnElapsed >= SpawnInterval)
                 {
                     spawnElapsed -= SpawnInterval;
                     SpawnBarrel();
@@ -83,10 +112,12 @@ namespace TransformersGame.Entities
                 if (stormElapsed >= StormDuration)
                 {
                     isActive = false;
+
                     foreach (BarrelProjectile barrel in barrels)
                     {
                         barrel.Deactivate();
                     }
+
                     barrels.Clear();
                     projectiles = null;
                 }
@@ -104,6 +135,7 @@ namespace TransformersGame.Entities
             {
                 particle.Update(elapsed);
             }
+
             particles.RemoveAll(particle => particle.IsExpired);
             barrels.RemoveAll(barrel => !barrel.IsActive);
         }
@@ -115,10 +147,20 @@ namespace TransformersGame.Entities
                 return;
             }
 
-            float fadeIn = MathHelper.Clamp(stormElapsed / 0.35f, 0, 1);
-            float fadeOut = MathHelper.Clamp((StormDuration - stormElapsed) / 0.9f, 0, 1);
+            float fadeIn =
+                MathHelper.Clamp(stormElapsed / 0.35f, 0, 1);
+
+            float fadeOut =
+                MathHelper.Clamp(
+                    (StormDuration - stormElapsed) / 0.9f,
+                    0,
+                    1);
+
             byte alpha = (byte)(105 * Math.Min(fadeIn, fadeOut));
-            spriteBatch.Draw(pixel, new Rectangle(0, 0, ScreenWidth, ScreenHeight / 2),
+
+            spriteBatch.Draw(
+                pixel,
+                new Rectangle(0, 0, ScreenWidth, ScreenHeight / 2),
                 new Color(20, 23, 30, (int)alpha));
         }
 
@@ -133,10 +175,12 @@ namespace TransformersGame.Entities
         public void CancelRoomEffect()
         {
             isActive = false;
+
             foreach (BarrelProjectile barrel in barrels)
             {
                 barrel.Deactivate();
             }
+
             barrels.Clear();
             particles.Clear();
             projectiles = null;
@@ -145,6 +189,7 @@ namespace TransformersGame.Entities
         public void Reset()
         {
             CancelRoomEffect();
+
             cooldownRemaining = 0;
             stormElapsed = 0;
             spawnElapsed = 0;
@@ -164,20 +209,42 @@ namespace TransformersGame.Entities
                 return;
             }
 
-            int minimumX = Math.Max(visibleBounds.Left, roomBounds.Left);
-            int maximumX = Math.Min(visibleBounds.Right - BarrelProjectile.Width, roomBounds.Right - BarrelProjectile.Width);
+            int minimumX = Math.Max(
+                visibleBounds.Left,
+                roomBounds.Left);
+
+            int maximumX = Math.Min(
+                visibleBounds.Right - BarrelProjectile.Width,
+                roomBounds.Right - BarrelProjectile.Width);
+
             if (maximumX < minimumX)
             {
-                minimumX = MathHelper.Clamp(visibleBounds.Center.X - BarrelProjectile.Width / 2,
-                    roomBounds.Left, roomBounds.Right - BarrelProjectile.Width);
+                minimumX = MathHelper.Clamp(
+                    visibleBounds.Center.X - BarrelProjectile.Width / 2,
+                    roomBounds.Left,
+                    roomBounds.Right - BarrelProjectile.Width);
+
                 maximumX = minimumX;
             }
+
             int x = maximumX == minimumX
                 ? minimumX
-                : RandomNumberGenerator.GetInt32(minimumX, maximumX + 1);
+                : RandomNumberGenerator.GetInt32(
+                    minimumX,
+                    maximumX + 1);
+
             float horizontalSpeed = NextRange(-50, 50);
-            var barrel = new BarrelProjectile(new Vector2(x, visibleBounds.Top - BarrelProjectile.Height), horizontalSpeed,
-                (position, count) => SpawnDust(position, count), () => playSound(GameSound.CrateBreak), pixel);
+
+            var barrel = new BarrelProjectile(
+                new Vector2(
+                    x,
+                    visibleBounds.Top - BarrelProjectile.Height),
+                horizontalSpeed,
+                (position, count) => SpawnDust(position, count),
+                () => playSound(GameSound.CrateBreak),
+                barrelTexture,
+                BarrelSource);
+
             projectiles.Add(barrel);
             barrels.Add(barrel);
             spawnedBarrels++;
@@ -190,36 +257,55 @@ namespace TransformersGame.Entities
                 float horizontalSpeed = NextRange(-45, 45);
                 float verticalSpeed = NextRange(-80, -15);
                 float size = NextRange(2, 5);
-                particles.Add(new DustParticle(position, new Vector2(horizontalSpeed, verticalSpeed), size));
+
+                particles.Add(
+                    new DustParticle(
+                        position,
+                        new Vector2(horizontalSpeed, verticalSpeed),
+                        size));
             }
         }
 
         private static float NextRange(float minimum, float maximum) =>
-            minimum + RandomNumberGenerator.GetInt32(10_000) / 10_000f * (maximum - minimum);
+            minimum +
+            RandomNumberGenerator.GetInt32(10_000) / 10_000f *
+            (maximum - minimum);
     }
 
     internal sealed class BarrelProjectile : IPlayerWeapon
     {
         internal const int Width = 32;
         internal const int Height = 40;
+
         private const float Gravity = 650f;
+
         private readonly float horizontalSpeed;
         private readonly Action<Vector2, int> emitDust;
         private readonly Action playImpactSound;
-        private readonly Texture2D pixel;
+        private readonly Texture2D barrelTexture;
+        private readonly Rectangle barrelSource;
+
         private float verticalSpeed = 40f;
         private float dustTimer;
         private bool impactHandled;
 
-        public BarrelProjectile(Vector2 position, float horizontalSpeed, Action<Vector2, int> emitDust,
-            Action playImpactSound, Texture2D pixel)
+        public BarrelProjectile(
+            Vector2 position,
+            float horizontalSpeed,
+            Action<Vector2, int> emitDust,
+            Action playImpactSound,
+            Texture2D barrelTexture,
+            Rectangle barrelSource)
         {
             Position = position;
             PreviousPosition = position;
+
             this.horizontalSpeed = horizontalSpeed;
             this.emitDust = emitDust;
             this.playImpactSound = playImpactSound;
-            this.pixel = pixel;
+            this.barrelTexture = barrelTexture;
+            this.barrelSource = barrelSource;
+
             IsActive = true;
         }
 
@@ -227,7 +313,12 @@ namespace TransformersGame.Entities
 
         public Vector2 PreviousPosition { get; private set; }
 
-        public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
+        public Rectangle Bounds =>
+            new Rectangle(
+                (int)Position.X,
+                (int)Position.Y,
+                Width,
+                Height);
 
         public bool IsActive { get; private set; }
 
@@ -238,28 +329,39 @@ namespace TransformersGame.Entities
                 return;
             }
 
-            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float elapsed =
+                (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             PreviousPosition = Position;
-            verticalSpeed = Math.Min(verticalSpeed + Gravity * elapsed, 560f);
-            Position += new Vector2(horizontalSpeed, verticalSpeed) * elapsed;
+
+            verticalSpeed = Math.Min(
+                verticalSpeed + Gravity * elapsed,
+                560f);
+
+            Position +=
+                new Vector2(horizontalSpeed, verticalSpeed) * elapsed;
+
             dustTimer += elapsed;
+
             while (dustTimer >= 0.1f)
             {
                 dustTimer -= 0.1f;
-                emitDust(new Vector2(Position.X + Width / 2f, Position.Y + Height), 2);
+
+                emitDust(
+                    new Vector2(
+                        Position.X + Width / 2f,
+                        Position.Y + Height),
+                    2);
             }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            Rectangle body = Bounds;
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 3, body.Y + 3, 26, 34), new Color(126, 67, 31));
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 7, body.Y + 5, 5, 30), new Color(170, 105, 54));
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 20, body.Y + 5, 5, 30), new Color(151, 83, 39));
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 2, body.Y + 2, 28, 5), new Color(82, 49, 31));
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 2, body.Y + 33, 28, 5), new Color(82, 49, 31));
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 2, body.Y + 11, 28, 3), new Color(190, 160, 119));
-            spriteBatch.Draw(pixel, new Rectangle(body.X + 2, body.Y + 27, 28, 3), new Color(190, 160, 119));
+            spriteBatch.Draw(
+                barrelTexture,
+                Bounds,
+                barrelSource,
+                Color.White);
         }
 
         public void Deactivate() => IsActive = false;
@@ -272,10 +374,12 @@ namespace TransformersGame.Entities
             }
 
             impactHandled = true;
+
             if (!enemy.IsDestroyed)
             {
                 enemy.TakeDamage(2);
             }
+
             Impact();
         }
 
@@ -292,13 +396,22 @@ namespace TransformersGame.Entities
         {
             if (IsActive)
             {
-                emitDust(new Vector2(Position.X + Width / 2f, Position.Y + Height), 1);
+                emitDust(
+                    new Vector2(
+                        Position.X + Width / 2f,
+                        Position.Y + Height),
+                    1);
             }
         }
 
         private void Impact()
         {
-            emitDust(new Vector2(Position.X + Width / 2f, Position.Y + Height - 4), 9);
+            emitDust(
+                new Vector2(
+                    Position.X + Width / 2f,
+                    Position.Y + Height - 4),
+                9);
+
             playImpactSound();
             Deactivate();
         }
@@ -319,12 +432,17 @@ namespace TransformersGame.Entities
         private readonly Color color;
         private float lifetime = 0.55f;
 
-        public DustParticle(Vector2 position, Vector2 velocity, float size)
+        public DustParticle(
+            Vector2 position,
+            Vector2 velocity,
+            float size)
         {
             this.position = position;
             this.velocity = velocity;
             this.size = size;
-            color = Colors[RandomNumberGenerator.GetInt32(Colors.Length)];
+
+            color = Colors[
+                RandomNumberGenerator.GetInt32(Colors.Length)];
         }
 
         public bool IsExpired => lifetime <= 0;
@@ -337,10 +455,22 @@ namespace TransformersGame.Entities
 
         public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
         {
-            byte alpha = (byte)(MathHelper.Clamp(lifetime / 0.55f, 0, 1) * color.A);
-            spriteBatch.Draw(pixel,
-                new Rectangle((int)position.X, (int)position.Y, Math.Max(1, (int)size), Math.Max(1, (int)size)),
-                new Color(color.R, color.G, color.B, alpha));
+            byte alpha = (byte)(
+                MathHelper.Clamp(lifetime / 0.55f, 0, 1) *
+                color.A);
+
+            spriteBatch.Draw(
+                pixel,
+                new Rectangle(
+                    (int)position.X,
+                    (int)position.Y,
+                    Math.Max(1, (int)size),
+                    Math.Max(1, (int)size)),
+                new Color(
+                    color.R,
+                    color.G,
+                    color.B,
+                    alpha));
         }
     }
 }
