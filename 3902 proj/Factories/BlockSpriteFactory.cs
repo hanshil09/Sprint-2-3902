@@ -19,6 +19,7 @@ namespace TransformersGame.Factories
         private Texture2D blockSpriteSheet;
         private Texture2D objectSpriteSheet;
         private Texture2D additionalItemSprites;
+        private Texture2D bazookaBarrel;
 
         private BlockSpriteFactory()
         {
@@ -37,6 +38,7 @@ namespace TransformersGame.Factories
             blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             additionalItemSprites = content.Load<Texture2D>("Sprites/additionalItemSprites");
+            bazookaBarrel = content.Load<Texture2D>("Sprites/bazooka-barrel");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)
@@ -67,6 +69,16 @@ namespace TransformersGame.Factories
 
         public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false, bool reinforced = false)
         {
+            if (kind == ItemKind.BazookaCall)
+            {
+                return new TextureRegionSprite(
+                    additionalItemSprites,
+                    new Rectangle(164, 15, 16, 17),
+                    BlockSize,
+                    BlockSize,
+                    Color.White
+                );
+            }
             Rectangle frame = reinforced
                 ? new Rectangle(102, 15, 16, 17)
                 : new Rectangle(71, 15, 16, 17);
@@ -92,7 +104,7 @@ namespace TransformersGame.Factories
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
-        public ISprite CreateDoorSprite(int direction)
+        public ISprite CreateDoorSprite(int direction, bool locked = false)
         {
             Rectangle frame = new Rectangle(130, 4, 22, 28);
 
@@ -101,7 +113,7 @@ namespace TransformersGame.Factories
                 frame,
                 48,
                 64,
-                Color.White);
+                locked ? new Color(255, 120, 120) : Color.White);
         }
 
         public ISprite CreatePlatformTileSprite(bool elevator)

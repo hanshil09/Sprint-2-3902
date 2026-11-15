@@ -20,11 +20,13 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 | A/D or arrows | Move |
 | W / Up / J | Jump |
 | Space | Transform; roll into blue crates to break them |
+| F3 | Open the selfie gallery. Click a photo to enlarge it, use Left / Right to change page, and press F3 or Esc to return. |
 | Tab | Pause and open the room preview. Click a fireball to equip it or use the arrows to browse rooms. Press Tab or Esc to resume. |
 | X | Fire the equipped fireball in robot form |
 | Shift + X | Aim Standard, Orb, Piercing, or Ice diagonally upward. Spread keeps its usual pattern. |
 | 2 | Drop bomb |
 | B | Activate Barrel Storm (14-second cooldown) |
+| 8 / 9 | Call the bazooka helper / fire; hold Shift, W, or Up with 9 to aim upward |
 | 3 / 4 | Use medkit / shield |
 | 7 | Throw boomerang in robot form |
 | Left / right mouse click or Page Up / Page Down | Previous / next room during gameplay (testing) |
@@ -35,6 +37,12 @@ dotnet run --project "3902 proj/3902 proj.csproj"
 
 Ice freezes regular enemies and the boss for five seconds. The blue bar
 shows how much time is left, and follow-up attacks deal normal damage.
+
+Shoot the red wooden barrel in Desert Outpost and collect its rocket token.
+In robot form, press 8 to call the red delivery robot. After the handoff,
+press 9 to fire a direct-hit shot for five damage, or hold Shift, W, or Up while pressing 9 to aim up. Three shots are loaded. The token or loaded ammo
+persist across rooms; another token cannot be collected until the ammo is used.
+A new game clears both. Gameplay pauses briefly during delivery.
 
 See the [gameplay guide](Documentation/GameplayGuide.md) for all weapons,
 pickups, room details, limitations, and artwork credits.

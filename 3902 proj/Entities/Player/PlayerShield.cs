@@ -1,5 +1,4 @@
 using System;
-using TransformersGame.Core;
 
 namespace TransformersGame.Entities;
 
@@ -10,16 +9,7 @@ internal sealed class PlayerShield
 
     public bool IsActive => remainingMilliseconds > 0;
 
-    public bool TryActivate(PlayerInventory inventory)
-    {
-        if (IsActive || !inventory.TryUseShield())
-        {
-            return false;
-        }
-
-        remainingMilliseconds = DurationMilliseconds;
-        return true;
-    }
+    public void Start() => remainingMilliseconds = DurationMilliseconds;
 
     public void Update(TimeSpan elapsed)
     {

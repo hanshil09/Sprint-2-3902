@@ -31,10 +31,8 @@ namespace TransformersGame.Entities
         public virtual Direction Facing => Inner.Facing;
         public virtual int Health => Inner.Health;
         public virtual int MaxHealth => Inner.MaxHealth;
-        public virtual int MedkitCount => Inner.MedkitCount;
-        public virtual int ShieldCount => Inner.ShieldCount;
-        public virtual int BombLevel => Inner.BombLevel;
-        public virtual int EnergonCount => Inner.EnergonCount;
+        public virtual PlayerInventoryView Inventory => Inner.Inventory;
+        public virtual int KeyCount => Inner.KeyCount;
         public virtual bool IsShieldActive => Inner.IsShieldActive;
         public virtual bool IsInvincible => Inner.IsInvincible;
         public virtual float SpeedScale { get => Inner.SpeedScale; set => Inner.SpeedScale = value; }
@@ -49,6 +47,9 @@ namespace TransformersGame.Entities
         public virtual bool TryAddItem(ItemKind kind) => Inner.TryAddItem(kind);
         public virtual bool UseMedkit() => Inner.UseMedkit();
         public virtual bool UseShield() => Inner.UseShield();
+        public virtual bool UseBazookaCall() => Inner.UseBazookaCall();
+        public virtual bool FireBazooka(bool aimUp = false) => Inner.FireBazooka(aimUp);
+        public virtual bool TryUseKey() => Inner.TryUseKey();
         public virtual void Draw(SpriteBatch spriteBatch) => Inner.Draw(spriteBatch);
 
         public virtual void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity)

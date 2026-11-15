@@ -14,12 +14,12 @@ namespace TransformersGame.Collisions
         //public const int EnemyLedgeInset = BlockCollision.EnemyLedgeInset;
 
         private readonly Action damagePlayer;
-        private readonly Action<int> enterDoor;
+        private readonly Action<Door> enterDoor;
         private Rectangle worldBounds;
         private readonly BlockCollision blockCollision;
         private List<IGameObject> objects = new List<IGameObject>();
 
-        public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null, Action<int> enterDoor = null)
+        public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null, Action<Door> enterDoor = null)
         {
             this.damagePlayer = damagePlayer;
             this.enterDoor = enterDoor;

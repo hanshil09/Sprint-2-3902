@@ -61,6 +61,17 @@ namespace TransformersGame.Entities
             player.Position = new Vector2(player.Position.X + recoil, player.Position.Y);
         }
 
+        public void FireBazooka(bool aimUp)
+        {
+            ISprite shot = ProjectileSpriteFactory.Instance.CreateShotSprite(player.FacingLeft);
+            Vector2 position = aimUp
+                ? new Vector2(player.Center.X - shot.Width / 2f, player.Position.Y - shot.Height)
+                : MuzzlePosition(shot);
+            Vector2 velocity = aimUp ? new Vector2(0, -ShotSpeed) : Forward(ShotSpeed);
+            projectiles.Add(new BazookaProjectile(position, velocity, shot));
+            player.PlaySound(GameSound.Explosion);
+        }
+
         public void FireOrb(bool angled = false)
         {
             player.PlaySound(GameSound.Shoot);

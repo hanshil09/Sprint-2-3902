@@ -17,15 +17,12 @@ namespace TransformersGame.Interfaces
 
         int MaxHealth { get; }
 
-        int MedkitCount { get; }
 
-        int ShieldCount { get; }
 
-        // Bombs are unlimited; this is the blast-size upgrade level from Bomb Packs.
-        int BombLevel { get; }
 
-        int EnergonCount { get; }
 
+        PlayerInventoryView Inventory { get; }
+        int KeyCount { get; }
         bool IsShieldActive { get; }
 
         // True while a power-up makes the player immune to damage; contact then damages enemies instead.
@@ -54,6 +51,13 @@ namespace TransformersGame.Interfaces
         bool UseMedkit();
 
         bool UseShield();
+
+        bool UseBazookaCall();
+
+        bool FireBazooka(bool aimUp = false);
+
+        // Spends one key to open a locked door; returns false when the player has none.
+        bool TryUseKey();
 
         void EnterRoom(IReadOnlyList<IBlock> blocks, IProjectileManager projectiles, Vector2 position, float gravity = Physics.DefaultGravity);
     }

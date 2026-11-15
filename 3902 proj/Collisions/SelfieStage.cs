@@ -56,12 +56,23 @@ namespace TransformersGame.Collisions
             return !float.IsPositiveInfinity(bestDistance);
         }
 
-        private bool TryRunway(Point feet, Rectangle space, int preferredSide, out SelfieMarks marks)
+        // Delivery must stay beside the player, rather than moving the player to a different platform.
+        public bool TryFindAt(Point feet, Rectangle playerSpace, Rectangle helperSpace, out SelfieMarks marks)
+        {
+            marks = default;
+            if (!IsClearAndSupported(At(playerSpace, feet))) return false;
+            int preferredSide = feet.X < viewport.Center.X ? 1 : -1;
+            int spacing = (playerSpace.Width + helperSpace.Width + 1) / 2 + 4;
+            return TryRunway(feet, helperSpace, preferredSide, out marks, spacing);
+        }
+
+        private bool TryRunway(Point feet, Rectangle space, int preferredSide, out SelfieMarks marks,
+            int spacing = ClickSpacing)
         {
             for (int distance = PreferredRunDistance; distance >= MinimumRunDistance; distance -= RunDistanceStep)
             {
-                if (TryWalkway(feet, space, preferredSide, distance, out marks)
-                    || TryWalkway(feet, space, -preferredSide, distance, out marks)) return true;
+                if (TryWalkway(feet, space, preferredSide, distance, spacing, out marks)
+                    || TryWalkway(feet, space, -preferredSide, distance, spacing, out marks)) return true;
             }
             marks = default;
             return false;
@@ -79,9 +90,9 @@ namespace TransformersGame.Collisions
             }
         }
 
-        private bool TryWalkway(Point feet, Rectangle clickSpace, int side, int distance, out SelfieMarks marks)
+        private bool TryWalkway(Point feet, Rectangle clickSpace, int side, int distance, int spacing, out SelfieMarks marks)
         {
-            Point clickFeet = new Point(feet.X + side * ClickSpacing, feet.Y);
+            Point clickFeet = new Point(feet.X + side * spacing, feet.Y);
             Point clickStart = new Point(clickFeet.X + side * distance, feet.Y);
             marks = new SelfieMarks(feet, clickFeet, clickStart);
             Rectangle walkway = Rectangle.Union(At(clickSpace, clickFeet), At(clickSpace, clickStart));

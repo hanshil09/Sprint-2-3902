@@ -11,45 +11,7 @@ namespace TransformersGame.Controllers
         {
             KeyboardController keyboard = new KeyboardController();
             keyboard.RegisterSinglePressCommand(Keys.F2, new GameActionCommand(game.OpenSelfie));
-            return keyboard;
-        }
-
-        public static IController CreateSelfieController(Game1 game)
-        {
-            KeyboardController keyboard = new KeyboardController();
-            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseSelfie));
-            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            keyboard.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
-            return keyboard;
-        }
-
-        public static IController CreateMenuController(Game1 game)
-        {
-            KeyboardController keyboardController = new KeyboardController();
-            keyboardController.RegisterSinglePressCommand(Keys.Enter, new StartGameCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
-            return keyboardController;
-        }
-
-        // Game over and mission complete screens: reset or quit.
-        public static IController CreateEndScreenController(Game1 game)
-        {
-            KeyboardController keyboardController = new KeyboardController();
-            keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
-            return keyboardController;
-        }
-
-        public static IController CreateMapController(Game1 game)
-        {
-            KeyboardController keyboard = new KeyboardController();
-            keyboard.RegisterSinglePressCommand(Keys.Tab, new GameActionCommand(game.CloseMap));
-            keyboard.RegisterSinglePressCommand(Keys.Escape, new GameActionCommand(game.CloseMap));
-            keyboard.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
+            keyboard.RegisterSinglePressCommand(Keys.F3, new GameActionCommand(game.OpenGallery));
             return keyboard;
         }
 
@@ -61,6 +23,8 @@ namespace TransformersGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             RegisterActionCommands(keyboardController, player);
             keyboardController.RegisterSinglePressCommand(Keys.X, new GameActionCommand(game.FireSelectedShot));
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.CallBazooka), Keys.D8, Keys.NumPad8);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.FireBazooka), Keys.D9, Keys.NumPad9);
             RegisterCycleCommands(keyboardController, blocks, items, enemies);
             keyboardController.RegisterSinglePressCommand(Keys.F1, new ToggleHelpCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.H, new ToggleHelpCommand(game));

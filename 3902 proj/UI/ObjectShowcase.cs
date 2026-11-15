@@ -121,6 +121,7 @@ namespace TransformersGame.UI
                 ItemKind.TurboBoost => "Turbo Boost",
                 ItemKind.Energon => "Energon Cube",
                 ItemKind.BombPack => "Bomb Pack",
+                ItemKind.BazookaCall => "Bazooka Call",
                 ItemKind.MaxHealthUp => "Max Health Up",
                 _ => kind.ToString()
             };

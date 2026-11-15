@@ -53,10 +53,10 @@ internal static class ExtendedChecks
                 result.Data.Enemies.Count >= 2 && result.Data.Enemies.Select(e => e.Kind).Distinct().Count() >= 2);
             Check("focused pickup density " + path,
                 result.Data.Items.Count >= 1 && result.Data.Items.Count <= Math.Max(3, tileArea / 170));
-            bool hasForwardDoor = result.Data.Doors.Count(d => d.Kind == 1) == 1;
+            bool hasForwardDoor = result.Data.Doors.Count(d => d.Kind.Direction == 1) == 1;
             bool hasGoal = result.Data.Objects.Count(o => o.Kind == ObjectKind.Goal) == 1;
             Check("return door plus one exit (forward door or beacon) " + path,
-                result.Data.Doors.Count(d => d.Kind == -1) == 1 && hasForwardDoor != hasGoal);
+                result.Data.Doors.Count(d => d.Kind.Direction == -1) == 1 && hasForwardDoor != hasGoal);
             Check("exit requires parkour " + path, ParkourCheck.ExitRow(result.Data) < result.Data.PlayerRow);
             Check("physics route reaches exit " + path, ParkourCheck.CanReachExit(result.Data));
         }
@@ -135,8 +135,8 @@ internal static class ExtendedChecks
         Check("room doors parsed", roomData.All(d => d.Doors.Count == (d.Objects.Any(o => o.Kind == ObjectKind.Goal) ? 1 : 2)));
         var testPlayer = new StubPlayer { Position = new Vector2(100, 100) };
         int doorDirection = 0;
-        collisions = new CollisionManager(960, 540, null, direction => doorDirection = direction);
-        collisions.BuildTree(new List<IGameObject> { testPlayer, new Door(new Vector2(100, 100), -1, new StubSprite()) });
+        collisions = new CollisionManager(960, 540, null, door => doorDirection = door.Direction);
+        collisions.BuildTree(new List<IGameObject> { testPlayer, new Door(new Vector2(100, 100), DoorSpec.Relative(-1), new StubSprite()) });
         collisions.DetectCollision();
         Check("door overlap requests previous room", doorDirection == -1);
         var enemyShot = new EnemyProjectile(new Vector2(105, 105), new Vector2(105, 105), new StubSprite());
@@ -229,11 +229,9 @@ sealed class StubPlayer : IPlayer
     public Direction Facing => Direction.Right;
     public int Health => 100;
     public int MaxHealth => 100;
-    public int MedkitCount => 0;
-    public int ShieldCount => 0;
+    public PlayerInventoryView Inventory => default;
     public bool IsShieldActive => false;
-    public int BombLevel => 0;
-    public int EnergonCount => 0;
+    public int KeyCount => 0;
     public bool IsInvincible { get; set; }
     public float SpeedScale { get; set; } = 1f;
     public float LastBounce { get; private set; }
@@ -244,6 +242,9 @@ sealed class StubPlayer : IPlayer
     public bool TryAddItem(ItemKind kind) { ItemsAdded++; return true; }
     public bool UseMedkit() => false;
     public bool UseShield() => false;
+    public bool UseBazookaCall() => false;
+    public bool FireBazooka(bool aimUp = false) => false;
+    public bool TryUseKey() => false;
     public void Move(Direction direction) { }
     public void Jump() { }
     public void Shoot(bool angled) { }

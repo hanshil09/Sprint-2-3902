@@ -1,5 +1,7 @@
 # Sprint 4 Code Quality Changes
 
+**Hanshil**
+
 | File or folder | Why it improves code quality |
 |---|---|
 | `3902 proj/UI/PlayerHud.cs` | Keeps the counters together. Moving a counter also moves its divider, so there is one position to update. |
@@ -39,3 +41,5 @@
 | `3902 proj/Core/GameObjectCycler.cs` and `3902 proj/Interfaces/IGameObjectCycler.cs` | Removed the unused `Draw` method and its interface declaration; the showcase already draws entries directly. Also removed a redundant count check after the empty-list case. The cycler and its navigation commands remain because rooms use it for enemies and the T/Y, U/I, and O/P showcase controls. |
 | `3902 proj/Collisions/CollisionManager.cs` | Split `DetectCollision()` into helpers for projectile impacts, object-pair collisions, and out-of-bounds projectile cleanup. Keeping these steps separate makes collision processing easier to read, debug, and maintain while preserving their existing order. |
 | `3902 proj/Collisions/BlockCollisionOperations.cs` | Renamed `BlockCollisionHelper` to show that it contains stateless block-collision operations. The similarly named movement methods in `BlockCollision` delegate to these algorithms, so they were not duplicate implementations and were kept unchanged. |
+| `3902 proj/Core/PlayerInventory.cs`, `3902 proj/Entities/Player/Player.cs`, and `3902 proj/Entities/Player/PlayerShield.cs` | Inventory now handles pickup and item-use rules in one place. Health still handles healing and the shield still handles its timer. Player plays the item sound after successful use. |
+| `3902 proj/Interfaces/IPlayer.cs` and `3902 proj/Core/PlayerInventoryView.cs` | The HUD reads item counts through one read-only inventory view. The player still handles item use. |

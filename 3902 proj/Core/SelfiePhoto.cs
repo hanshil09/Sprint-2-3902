@@ -10,6 +10,30 @@ namespace TransformersGame.Core
     {
         public const string FolderName = "Armadillo Selfies";
 
+        // Saved selfies, newest first. File names start with a timestamp, so a name sort is a time sort.
+        public static string[] ListPhotos()
+        {
+            try
+            {
+                string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                string folder = Path.Combine(profile, "Downloads", FolderName);
+                if (string.IsNullOrEmpty(profile) || !Directory.Exists(folder)) return Array.Empty<string>();
+
+                string[] files = Directory.GetFiles(folder, "Selfie-*.png");
+                Array.Sort(files, StringComparer.Ordinal);
+                Array.Reverse(files);
+                return files;
+            }
+            catch (IOException)
+            {
+                return Array.Empty<string>();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Array.Empty<string>();
+            }
+        }
+
         public static Task<bool> SaveAsync(Texture2D photo)
         {
             // Read the render target on the graphics thread; write the file off that thread.

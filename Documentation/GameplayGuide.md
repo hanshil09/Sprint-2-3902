@@ -116,6 +116,8 @@ empty. Room files use `H` for Health Cell crates, `E` for Energon crates, `Q`
 for a Morph Ball-only Bomb Pack crate, and `C` for empty crates. See
 [supply crates](SupplyCrates.md).
 
+The lowercase `q` tile is a locked door to room 5; uppercase `Q` is the Morph Ball crate.
+
 Blue and purple reinforced crates resist shots and bombs. Press Space to transform, then
 roll into one from either side. Level 1 has a fixed tutorial crate (`R`) that
 drops Energon. Crate Workshop reinforces one of its existing supported supply

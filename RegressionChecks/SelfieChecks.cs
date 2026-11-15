@@ -64,6 +64,14 @@ internal static class SelfieChecks
         Check(!stage.TryFind(new Point(45, 208), player, click, out _),
             "Click cannot walk across a gap or unsupported edge");
 
+        stage = new SelfieStage(new IBlock[] { Tile(0, 208, 480) }, view);
+        Check(stage.TryFindAt(new Point(180, 208), player, click, out marks)
+            && Math.Abs(marks.PlayerFeet.X - marks.ClickFeet.X) >= (player.Width + click.Width) / 2,
+            "delivery has supported footing and does not overlap the player");
+        stage = new SelfieStage(new IBlock[] { Tile(0, 208, 96), Tile(120, 208, 96) }, view);
+        Check(!stage.TryFindAt(new Point(45, 208), player, click, out _),
+            "delivery cannot cross unsupported gaps");
+
         stage = new SelfieStage(new IBlock[] { Tile(0, 208, 480, false) }, view);
         Check(!stage.TryFind(new Point(180, 208), player, click, out _),
             "non-solid platforms cannot support the photo cast");

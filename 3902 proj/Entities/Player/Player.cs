@@ -64,11 +64,9 @@ internal class Player : IPlayer
 
     public int MaxHealth => health.Maximum;
 
-    public int MedkitCount => inventory.MedkitCount;
 
-    public int ShieldCount => inventory.ShieldCount;
-    public int BombLevel => inventory.BombLevel;
-    public int EnergonCount => inventory.EnergonCount;
+    public PlayerInventoryView Inventory => inventory.View;
+    public int KeyCount => inventory.KeyCount;
     public bool IsShieldActive => shield.IsActive;
     public bool IsInvincible => false;
 
@@ -130,34 +128,22 @@ internal class Player : IPlayer
         return true;
     }
 
-    public bool TryAddItem(ItemKind kind)
-    {
-        switch (kind)
-        {
-            case ItemKind.HealthCell:
-                return health.TryUseHealthCell();
-            case ItemKind.MaxHealthUp:
-                return health.TryUpgrade();
-            default:
-                return inventory.TryCollect(kind);
-        }
-    }
+    public bool TryAddItem(ItemKind kind) => inventory.TryCollect(kind, health);
 
     public bool UseMedkit()
     {
-        if (health.IsFull || !inventory.TryUseMedkit())
+        if (!inventory.TryUseMedkit(health))
         {
             return false;
         }
 
-        health.Restore();
         PlaySound(GameSound.Item);
         return true;
     }
 
     public bool UseShield()
     {
-        if (!shield.TryActivate(inventory))
+        if (!inventory.TryUseShield(shield))
         {
             return false;
         }
@@ -166,7 +152,17 @@ internal class Player : IPlayer
         return true;
     }
 
-    public void DropBomb() => Arsenal.DropBomb(movement.Gravity, BombLevel);
+    public void DropBomb() => Arsenal.DropBomb(movement.Gravity, Inventory.BombLevel);
+    public bool TryUseKey() => inventory.TryUseKey();
+
+    public bool UseBazookaCall() => inventory.TryUseBazookaCall();
+
+    public bool FireBazooka(bool aimUp = false)
+    {
+        if (IsInBallForm || !inventory.TryFireBazooka()) return false;
+        Arsenal.FireBazooka(aimUp);
+        return true;
+    }
 
     public void EnterRoom(
         IReadOnlyList<IBlock> blocks,
