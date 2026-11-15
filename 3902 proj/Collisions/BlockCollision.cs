@@ -43,7 +43,7 @@ namespace TransformersGame.Collisions
         {
             foreach (IBlock block in GetState(gameObject).Blocks)
             {
-                if (BlockCollisionHelper.IntersectsBlock(bounds, block)) return false;
+                if (BlockCollisionOperations.IntersectsBlock(bounds, block)) return false;
             }
             return true;
         }
@@ -75,7 +75,7 @@ namespace TransformersGame.Collisions
             BlockCollisionState state = GetState(gameObject);
             Vector2 previousPosition = position;
             Vector2 desiredPosition = physics.Apply(position, gameTime);
-            position = BlockCollisionHelper.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
+            position = BlockCollisionOperations.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
                 physics.VerticalVelocity, state.Blocks, state.FootInset, out bool isOnGround, out IBlock supportingBlock);
             if (isOnGround || position.Y != desiredPosition.Y)
             {
@@ -93,11 +93,11 @@ namespace TransformersGame.Collisions
             entity.Position = ResolveMovingBlockMovement(entity, width, height, state);
             entity.Position = entity is Player rollingPlayer
                 ? MovePlayerHorizontally(rollingPlayer, horizontalDistance, state.Blocks)
-                : BlockCollisionHelper.MoveHorizontally(entity.Position, width, height, horizontalDistance,
+                : BlockCollisionOperations.MoveHorizontally(entity.Position, width, height, horizontalDistance,
                     worldBounds.Left, worldBounds.Right - width, state.Blocks);
             Vector2 previousPosition = entity.Position;
             Vector2 desiredPosition = physics.Apply(entity.Position, gameTime);
-            entity.Position = BlockCollisionHelper.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
+            entity.Position = BlockCollisionOperations.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
                 physics.VerticalVelocity, state.Blocks, state.FootInset, out bool isOnGround, out IBlock supportingBlock);
             if (isOnGround || entity.Position.Y != desiredPosition.Y)
             {
@@ -135,13 +135,13 @@ namespace TransformersGame.Collisions
         {
             float minimumX = worldBounds.Left;
             float maximumX = worldBounds.Right - player.Width;
-            Vector2 resolved = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
+            Vector2 resolved = BlockCollisionOperations.MoveHorizontally(player.Position, player.Width, player.Height,
                 distance, minimumX, maximumX, blocks, out IBlock hitBlock);
             if (player.IsInBallForm && hitBlock is SupplyCrate crate && crate.TryBreakFromRoll())
             {
                 player.PlaySound(GameSound.CrateBreak);
                 // Finish the movement against the remaining solid blocks.
-                resolved = BlockCollisionHelper.MoveHorizontally(player.Position, player.Width, player.Height,
+                resolved = BlockCollisionOperations.MoveHorizontally(player.Position, player.Width, player.Height,
                     distance, minimumX, maximumX, blocks);
             }
             return resolved;
@@ -149,12 +149,12 @@ namespace TransformersGame.Collisions
 
         public Vector2 MoveHorizontally(IGameObject gameObject, Vector2 position, int width, int height,
             float distance, float minimumX, float maximumX) =>
-            BlockCollisionHelper.MoveHorizontally(position, width, height, distance,
+            BlockCollisionOperations.MoveHorizontally(position, width, height, distance,
                 minimumX, maximumX, GetState(gameObject).Blocks);
 
         public Vector2 MoveVertically(IGameObject gameObject, Vector2 position, int width, int height,
             float distance, float minimumY, float maximumY) =>
-            BlockCollisionHelper.MoveVertically(position, width, height, distance,
+            BlockCollisionOperations.MoveVertically(position, width, height, distance,
                 minimumY, maximumY, GetState(gameObject).Blocks);
 
         public bool HasGroundAhead(IGameObject gameObject, int direction, float distance,
@@ -166,7 +166,7 @@ namespace TransformersGame.Collisions
             Rectangle probe = new Rectangle((int)probeX, (int)(position.Y + height) + 1, 1, 2);
             foreach (IBlock block in GetState(gameObject).Blocks)
             {
-                if (BlockCollisionHelper.IntersectsBlock(probe, block))
+                if (BlockCollisionOperations.IntersectsBlock(probe, block))
                 {
                     return true;
                 }
@@ -213,13 +213,13 @@ namespace TransformersGame.Collisions
             foreach (IBlock block in state.Blocks)
             {
                 if (block is IMovingBlock platform && platform != state.SupportingBlock
-                    && platform.Delta.X != 0 && BlockCollisionHelper.IntersectsBlock(body, platform) && entity is IPlayer)
+                    && platform.Delta.X != 0 && BlockCollisionOperations.IntersectsBlock(body, platform) && entity is IPlayer)
                 {
                     float targetX = platform.Delta.X > 0 ? platform.Bounds.Right : platform.Bounds.Left - width;
                     float targetY = platform.Delta.Y > 0 ? platform.Bounds.Top : platform.Bounds.Bottom - height;
-                    entity.Position = BlockCollisionHelper.MoveHorizontally(entity.Position, width, height,
+                    entity.Position = BlockCollisionOperations.MoveHorizontally(entity.Position, width, height,
                         targetX - entity.Position.X, worldBounds.Left, worldBounds.Right - width, state.Blocks);
-                    entity.Position = BlockCollisionHelper.MoveVertically(entity.Position, width, height,
+                    entity.Position = BlockCollisionOperations.MoveVertically(entity.Position, width, height,
                         targetY - entity.Position.Y, worldBounds.Top, worldBounds.Bottom - height, state.Blocks);
                     body = new Rectangle((int)entity.Position.X, (int)entity.Position.Y, width, height);
                 }
@@ -227,7 +227,7 @@ namespace TransformersGame.Collisions
                 if (state.SupportingBlock is IMovingBlock supportingPlatform
                     && supportingPlatform.Delta != Vector2.Zero)
                 {
-                    entity.Position = BlockCollisionHelper.MoveHorizontally(entity.Position, width,
+                    entity.Position = BlockCollisionOperations.MoveHorizontally(entity.Position, width,
                         height, supportingPlatform.Delta.X, worldBounds.Left, worldBounds.Right - width, state.Blocks);
                     float playerY = entity.Position.Y;
                     if (supportingPlatform.Delta.Y != 0)

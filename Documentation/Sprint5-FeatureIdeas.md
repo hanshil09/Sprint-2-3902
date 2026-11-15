@@ -46,7 +46,7 @@ found in the code and current documentation.
   makes shooting near walls feel fair and keeps the player's position valid.
 - **C# files and systems:** [PlayerArsenal.cs](../3902%20proj/Entities/PlayerArsenal.cs),
   [CollisionManager.cs](../3902%20proj/Collisions/CollisionManager.cs),
-  [BlockCollisionHelper.cs](../3902%20proj/Collisions/BlockCollisionHelper.cs),
+  [BlockCollisionOperations.cs](../3902%20proj/Collisions/BlockCollisionOperations.cs),
   and [ExtendedChecks.cs](../RegressionChecks/ExtendedChecks.cs).
 - **Difficulty:** Easy.
 - **Basic plan:** Route the recoil distance through the existing horizontal

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using TransformersGame.Interfaces;
 
 namespace TransformersGame.Core
@@ -56,18 +55,7 @@ namespace TransformersGame.Core
                 return;
             }
             currentIndex %= gameObjects.Count;
-            if (gameObjects.Count > 0)
-            {
-                gameObjects[currentIndex].Update(gameTime);
-            }
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            if (gameObjects.Count > 0)
-            {
-                gameObjects[currentIndex].Draw(spriteBatch);
-            }
+            gameObjects[currentIndex].Update(gameTime);
         }
 
         private static bool IsDestroyedEnemy(IGameObject gameObject)

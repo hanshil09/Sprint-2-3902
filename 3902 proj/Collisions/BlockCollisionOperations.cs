@@ -6,7 +6,7 @@ using TransformersGame.Interfaces;
 
 namespace TransformersGame.Collisions
 {
-    internal static class BlockCollisionHelper
+    internal static class BlockCollisionOperations
     {
         public static bool TryGetBounds(IGameObject gameObject, out Rectangle bounds)
         {
