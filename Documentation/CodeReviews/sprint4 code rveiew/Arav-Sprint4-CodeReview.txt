@@ -1,0 +1,70 @@
+
+READABILITY REVIEW
+
+Author of Review: Arav Bhagat
+Date of Review: 11-13-2026
+Sprint Number: 4
+Files Being Reviewed: BazookaAbility.cs, BazookaDelivery.cs, and BazookaProjectile.cs (3902 proj/Entities)
+Author of File(s): Arnav
+Time Elapsed: 30
+
+General Notes:
+The split across the three files reads well. BazookaAbility handles input and
+status, BazookaDelivery handles the drop-in animation, and BazookaProjectile is
+the actual shot, so each file does one job and you know where to look. The named
+constants in BazookaDelivery (ApproachSeconds, HandoffSeconds, Duration,
+SpriteSize) make the animation timing easy to follow, and BazookaProjectile is
+tiny and only overrides HitEnemy so its behavior is obvious. Status() is a nice
+single place to read every message the HUD can show for the weapon, and the
+states map cleanly onto the inventory flags.
+
+Improvements:
+A few spots make this harder to read than it needs to be. In BazookaAbility.Call
+the guard is one long chain of five conditions on one line; breaking it up or
+pulling it into a named helper like CanCall would read a lot better. The Draw
+method in BazookaAbility packs a lot of raw numbers into the batch.Draw call
+(-30, +30, +15, new Vector2(32, 16), 60f/64, 30f/32) with no names, so it's hard
+to tell what each offset is for; a couple of named locals or constants would
+help. The 'amount' calculation in BazookaDelivery.Draw is a nested ternary across
+three animation phases; it's correct but dense, and naming the phases would make
+the approach/handoff/retreat split clearer. Also BazookaDelivery still uses the
+fully-qualified System.Collections.Generic.IReadOnlyList in the Start signature
+instead of a using, which is inconsistent with the rest of the file.
+
+CODE QUALITY REVIEW
+
+Author of Review: Arav Bhagat
+Date of Review: 11-13-2026
+Sprint Number: 4
+Files Being Reviewed: BazookaAbility.cs, BazookaDelivery.cs, and BazookaProjectile.cs (3902 proj/Entities)
+Author of File(s): Arnav
+
+Notes:
+The overall design is clean. BazookaAbility delegates the animation to
+BazookaDelivery and the ammo/state to the player inventory instead of tracking
+its own copies, so there's a single source of truth for whether the weapon is
+loaded. BazookaProjectile extending EnergyProjectile and only setting its own
+Damage constant avoids duplicating projectile logic, which is good.
+
+That said there are a few things to flag. The magic constants in the Draw offsets
+and the hard-coded 256 source-rect size and % 2 frame math in BazookaDelivery.Draw
+are tied to the exact spritesheet layout; if the art changes size these break
+silently with no error, so naming them as constants would make that dependency
+explicit. BazookaProjectile picks its facing from velocity.X < 0, which quietly
+assumes the shot always has horizontal velocity, so a purely vertical (aim-up)
+shot would default to facing right. Worth confirming that case looks right. In
+Call(), needsSpace is set from the delivery result but only ever cleared by
+ClearSpaceWarning() or Reset(); it's worth checking the HUD actually calls one of
+those once the player moves, otherwise the "NEED FLAT SPACE" message can get stuck.
+Damage being a private const of 5 is fine for now but it's the kind of tuning
+value that usually wants to live with the other weapon balance numbers.
+
+Hypothetical Change:
+If we added a second called-in weapon (say an air-strike that drops in the same
+way), BazookaDelivery is close to reusable but is named and typed specifically
+for the bazooka handoff. Pulling the approach/handoff/retreat animation into a
+shared DeliveryAnimation that takes the texture, timings and sprite size, with
+the bazooka as one caller, would let a new weapon reuse the whole drop-in without
+copying the lerp and frame logic. A test should cover an aim-up shot's facing,
+calling the bazooka with no flat space nearby, and firing while a delivery is
+still active to confirm the Active guard blocks it.
