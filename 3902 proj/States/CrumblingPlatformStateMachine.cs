@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Core;
+using ArmadilloGame.Core;
 
-namespace TransformersGame.States
+namespace ArmadilloGame.States
 {
     internal enum CrumblingPhase { Ready, Cracking, Missing, Reforming }
 

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal class ProjectileManager : IProjectileManager
     {

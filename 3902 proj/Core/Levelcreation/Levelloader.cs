@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal static class LevelLoader
     {

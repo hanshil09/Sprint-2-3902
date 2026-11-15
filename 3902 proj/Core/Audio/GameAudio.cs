@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal sealed class GameAudio : IDisposable
     {

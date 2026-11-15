@@ -1,11 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
-using TransformersGame.States;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.States;
 
 // Searches real movement trajectories in either playable form; no combat/timed-platform simulation.
 internal static class ParkourCheck

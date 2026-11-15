@@ -1,7 +1,7 @@
 using System;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Controllers
+namespace ArmadilloGame.Controllers
 {
     internal sealed class CompositeController : IController
     {

@@ -1,4 +1,4 @@
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal enum BlockKind
     {

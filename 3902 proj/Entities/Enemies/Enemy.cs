@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
-using TransformersGame.States;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.States;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     internal class Enemy : IEnemy
     {

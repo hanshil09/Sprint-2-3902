@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
+using ArmadilloGame.Entities;
 
-namespace TransformersGame.Behaviors
+namespace ArmadilloGame.Behaviors
 {
     internal class StalkBehavior : GroundBehavior
     {

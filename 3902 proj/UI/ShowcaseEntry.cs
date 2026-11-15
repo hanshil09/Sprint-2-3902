@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.UI
+namespace ArmadilloGame.UI
 {
     // One animated preview in the object showcase (a block, item or enemy sprite with its name).
     internal sealed class ShowcaseEntry : IGameObject

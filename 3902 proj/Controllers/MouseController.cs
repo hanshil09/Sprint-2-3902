@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Controllers
+namespace ArmadilloGame.Controllers
 {
     internal sealed class MouseController : IController
     {

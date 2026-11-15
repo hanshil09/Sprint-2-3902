@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Sprites;
+using ArmadilloGame.Sprites;
 
-namespace TransformersGame.UI
+namespace ArmadilloGame.UI
 {
     internal static class HudFrame
     {

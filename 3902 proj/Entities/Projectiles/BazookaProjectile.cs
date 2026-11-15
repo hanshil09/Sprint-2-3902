@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     internal sealed class BazookaProjectile : EnergyProjectile
     {

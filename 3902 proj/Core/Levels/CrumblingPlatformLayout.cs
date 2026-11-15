@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal static class CrumblingPlatformLayout
     {

@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     // A pickup whose effect is applied by the player's inventory or health (Health Cell, Energon, Bomb Pack...).
     internal sealed class ResourcePickup : IItem

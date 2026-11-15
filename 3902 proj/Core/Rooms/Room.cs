@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal sealed class Room
     {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
-using TransformersGame.Sprites;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Sprites;
 
-namespace TransformersGame.Factories
+namespace ArmadilloGame.Factories
 {
     internal enum ClickPose { WalkFirst, WalkSecond, Handoff, Shutter }
 

@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal class Physics
     {

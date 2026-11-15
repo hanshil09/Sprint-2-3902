@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
-using TransformersGame.Sprites;
-using TransformersGame.States;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Sprites;
+using ArmadilloGame.States;
 
-namespace TransformersGame.UI
+namespace ArmadilloGame.UI
 {
     internal sealed class SelfieCast
     {

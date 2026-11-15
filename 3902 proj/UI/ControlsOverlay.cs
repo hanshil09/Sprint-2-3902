@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.UI
+namespace ArmadilloGame.UI
 {
     internal sealed class ControlsOverlay : IDisposable
     {
@@ -97,7 +97,7 @@ namespace TransformersGame.UI
             {
                 GameState.GameOver => "GAME OVER",
                 GameState.Victory => "MISSION COMPLETE",
-                _ => "TRANSFORMERS DEMO"
+                _ => "Armadillo DEMO"
             };
         }
 

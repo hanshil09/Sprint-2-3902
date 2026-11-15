@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.States
+namespace ArmadilloGame.States
 {
 
     internal sealed class BossTelegraphState : IBossState

@@ -1,12 +1,12 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.UI
+namespace ArmadilloGame.UI
 {
     // T/Y, U/I and O/P cycle through every block/object, item and enemy kind in the game.
     // The preview panel appears for a few seconds whenever a selection changes.

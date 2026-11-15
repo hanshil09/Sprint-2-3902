@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Collisions
+namespace ArmadilloGame.Collisions
 {
     internal readonly record struct SelfieMarks(Point PlayerFeet, Point ClickFeet, Point ClickStart);
 

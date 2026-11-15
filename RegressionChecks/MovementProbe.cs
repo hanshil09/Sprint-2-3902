@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
 // Headless body using the same Physics + CollisionManager split as Player and Bomb.
 internal sealed class MovementProbe : IGameObject

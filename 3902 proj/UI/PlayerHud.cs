@@ -2,11 +2,11 @@ using System;
 using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.UI;
+namespace ArmadilloGame.UI;
 
 internal sealed class PlayerHud
 {

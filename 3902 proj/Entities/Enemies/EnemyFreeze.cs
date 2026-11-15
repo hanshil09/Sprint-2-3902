@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Sprites;
+using ArmadilloGame.Sprites;
 
-namespace TransformersGame.Entities;
+namespace ArmadilloGame.Entities;
 
 internal sealed class EnemyFreeze
 {

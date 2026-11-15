@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Sprites
+namespace ArmadilloGame.Sprites
 {
     // The art can extend past the feet, especially when the selfie stick is raised.
     internal readonly record struct SelfiePose(ISprite Sprite, Point FootOffset)

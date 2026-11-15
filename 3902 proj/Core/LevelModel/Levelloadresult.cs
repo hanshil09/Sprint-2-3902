@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal sealed class LevelLoadResult
     {

@@ -2,12 +2,12 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Commands;
-using TransformersGame.Controllers;
-using TransformersGame.Interfaces;
-using TransformersGame.UI;
+using ArmadilloGame.Commands;
+using ArmadilloGame.Controllers;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.UI;
 
-namespace TransformersGame.States
+namespace ArmadilloGame.States
 {
     // Owns the gallery's input and rendering while Game1 controls transitions.
     internal sealed class GalleryState : IGameState, IDisposable

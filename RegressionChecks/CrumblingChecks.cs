@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
-using TransformersGame.States;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.States;
 
 internal static class CrumblingChecks
 {

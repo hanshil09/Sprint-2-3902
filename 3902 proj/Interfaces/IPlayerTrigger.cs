@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
     // Non-solid level objects that react when the player touches them (spring pads, the goal beacon).
     interface IPlayerTrigger : IGameObject

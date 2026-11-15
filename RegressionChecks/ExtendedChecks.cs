@@ -1,11 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Collisions;
-using TransformersGame.Controllers;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Controllers;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
 internal static class ExtendedChecks
 {

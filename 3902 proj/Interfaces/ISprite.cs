@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
     interface ISprite
     {

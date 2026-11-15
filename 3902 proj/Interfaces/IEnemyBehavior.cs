@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
+using ArmadilloGame.Entities;
 
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
     // A behavior controls how an enemy moves; IEnemyState separately controls its facing and life state.
     interface IEnemyBehavior

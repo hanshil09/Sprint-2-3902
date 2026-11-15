@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
 
-namespace TransformersGame.Entities;
+namespace ArmadilloGame.Entities;
 
 internal sealed class PlayerMovement
 {

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using TransformersGame.Behaviors;
-using TransformersGame.Entities;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Behaviors;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     // Creates items and enemies for a level from their kinds (moved out of Level to keep that class small).
     internal static class EntityFactory

@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Commands;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Commands;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Controllers
+namespace ArmadilloGame.Controllers
 {
     internal static class ControllerFactory
     {

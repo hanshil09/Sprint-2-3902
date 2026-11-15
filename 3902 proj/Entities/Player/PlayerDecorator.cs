@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     
     internal abstract class PlayerDecorator : IPlayer

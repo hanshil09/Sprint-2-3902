@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Collisions;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     // A short, non-colliding delivery animation; gameplay is paused while it runs.
     internal sealed class BazookaDelivery

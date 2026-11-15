@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Behaviors
+namespace ArmadilloGame.Behaviors
 {
     internal abstract class GroundBehavior : IEnemyBehavior
     {

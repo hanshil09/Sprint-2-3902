@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
 internal static class CrateDropChecks
 {

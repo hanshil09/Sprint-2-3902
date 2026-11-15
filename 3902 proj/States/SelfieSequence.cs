@@ -1,6 +1,6 @@
 using System;
 
-namespace TransformersGame.States
+namespace ArmadilloGame.States
 {
     internal enum SelfiePhase { Entering, Handoff, Posing, Capture, Leaving, Finished }
 

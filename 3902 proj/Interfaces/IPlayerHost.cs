@@ -1,6 +1,6 @@
-using TransformersGame.Entities;
+using ArmadilloGame.Entities;
 
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
     interface IPlayerHost
     {

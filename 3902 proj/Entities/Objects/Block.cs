@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
-using TransformersGame.Core;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Core;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     internal class Block : IBlock
     {

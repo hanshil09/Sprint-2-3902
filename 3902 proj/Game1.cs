@@ -4,24 +4,24 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Collisions;
-using TransformersGame.Controllers;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
-using TransformersGame.Sprites;
-using TransformersGame.States;
-using TransformersGame.UI;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Controllers;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Sprites;
+using ArmadilloGame.States;
+using ArmadilloGame.UI;
 
-namespace TransformersGame
+namespace ArmadilloGame
 {
     internal class Game1 : Game, IPlayerHost
     {
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
-        private const string MenuTitle = "Transformers - Press Enter to Start";
-        private const string GameplayTitle = "Transformers - A/D Move, W Jump, X Fire, Tab Map / Fireball, B Barrel Storm, 7 Boomerang, 2 Bomb, 3/4 Items, R Reset, Q Quit";
+        private const string MenuTitle = "Armadillo - Press Enter to Start";
+        private const string GameplayTitle = "Armadillo - A/D Move, W Jump, X Fire, Tab Map / Fireball, B Barrel Storm, 7 Boomerang, 2 Bomb, 3/4 Items, R Reset, Q Quit";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);

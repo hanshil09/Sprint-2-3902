@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal static class LevelParser
     {

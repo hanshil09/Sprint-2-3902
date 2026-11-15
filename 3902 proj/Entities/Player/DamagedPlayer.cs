@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     
     internal class DamagedPlayer : PlayerDecorator

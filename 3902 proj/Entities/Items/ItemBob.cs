@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
      internal sealed class ItemBob
     {

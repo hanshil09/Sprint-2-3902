@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using TransformersGame.Core;
+using ArmadilloGame.Core;
 
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
     internal interface IPlayer : IGameObject
     {

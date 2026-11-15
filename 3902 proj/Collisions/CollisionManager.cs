@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using Collisions;
 using Microsoft.Xna.Framework;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Collisions
+namespace ArmadilloGame.Collisions
 {
     internal class CollisionManager
     {

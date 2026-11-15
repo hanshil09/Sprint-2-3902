@@ -1,8 +1,8 @@
 using System;
-using TransformersGame.Collisions;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     // Loads room files and builds Room objects (extracted from Game1 so it only coordinates the game).
     internal sealed class RoomFactory

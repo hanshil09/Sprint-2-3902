@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Collisions;
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Collisions;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities;
+namespace ArmadilloGame.Entities;
 
 internal class Player : IPlayer
 {

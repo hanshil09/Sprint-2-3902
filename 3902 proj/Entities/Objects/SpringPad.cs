@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
   
     internal sealed class SpringPad : IPlayerTrigger

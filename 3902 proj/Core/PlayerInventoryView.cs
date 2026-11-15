@@ -1,4 +1,4 @@
-namespace TransformersGame.Core;
+namespace ArmadilloGame.Core;
 
 internal readonly record struct PlayerInventoryView(int MedkitCount, int ShieldCount, int BombLevel, int EnergonCount,
     bool HasBazookaCall, int BazookaAmmo)

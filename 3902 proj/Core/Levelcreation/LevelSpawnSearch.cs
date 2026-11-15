@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace TransformersGame.Core;
+namespace ArmadilloGame.Core;
 
 internal static class LevelSpawnSearch
 {

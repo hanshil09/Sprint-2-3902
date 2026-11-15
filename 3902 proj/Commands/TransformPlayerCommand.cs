@@ -1,6 +1,6 @@
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Commands
+namespace ArmadilloGame.Commands
 {
     internal class TransformPlayerCommand : ICommand
     {

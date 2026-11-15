@@ -1,7 +1,7 @@
 using System;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal sealed class RoomManager
     {

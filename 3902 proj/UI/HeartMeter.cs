@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using TransformersGame.Sprites;
+using ArmadilloGame.Sprites;
 
-namespace TransformersGame.UI;
+namespace ArmadilloGame.UI;
 
 // A fixed number of hearts represents the current fraction of maximum health.
 internal static class HeartMeter

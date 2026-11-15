@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using TransformersGame.Entities;
+using ArmadilloGame.Entities;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     // Tracks carried items and coordinates their pickup and use.
     internal sealed class PlayerInventory

@@ -1,6 +1,6 @@
-using TransformersGame.Core;
+using ArmadilloGame.Core;
 
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
     interface IItemDropBlock : IBlock
     {

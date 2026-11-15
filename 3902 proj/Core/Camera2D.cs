@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     // A 2D camera that follows a target and clamps to the room's world bounds.
     // Movement is smoothed with a frame-rate independent lerp so scrolling feels fluid.

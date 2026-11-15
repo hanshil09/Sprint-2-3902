@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.States
+namespace ArmadilloGame.States
 {
         internal sealed class BossRiseState : IBossState
     {

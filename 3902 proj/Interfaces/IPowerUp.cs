@@ -1,4 +1,4 @@
-namespace TransformersGame.Interfaces
+namespace ArmadilloGame.Interfaces
 {
        interface IPowerUp : IItem
     {

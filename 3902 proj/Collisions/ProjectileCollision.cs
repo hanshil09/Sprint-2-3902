@@ -1,10 +1,10 @@
 using System;
 using Collisions;
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Collisions
+namespace ArmadilloGame.Collisions
 {
     internal static class ProjectileCollision
     {

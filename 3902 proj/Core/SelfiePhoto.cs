@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     internal static class SelfiePhoto
     {

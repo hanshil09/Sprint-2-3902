@@ -1,8 +1,8 @@
 using System;
-using TransformersGame.Interfaces;
-using TransformersGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Factories;
 
-namespace TransformersGame.Entities;
+namespace ArmadilloGame.Entities;
 
 internal sealed class FireballSelection
 {

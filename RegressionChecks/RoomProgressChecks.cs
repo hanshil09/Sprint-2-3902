@@ -1,5 +1,5 @@
-using TransformersGame.Core;
-using TransformersGame.Entities;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
 
 internal static class RoomProgressChecks
 {

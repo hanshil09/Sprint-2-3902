@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
 
 namespace Collisions
 {

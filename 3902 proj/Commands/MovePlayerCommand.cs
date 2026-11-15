@@ -1,7 +1,7 @@
-using TransformersGame.Core;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Commands
+namespace ArmadilloGame.Commands
 {
     internal class MovePlayerCommand : ICommand
     {

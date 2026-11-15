@@ -1,6 +1,6 @@
 using System;
 
-namespace TransformersGame.Entities;
+namespace ArmadilloGame.Entities;
 
 internal sealed class PlayerShield
 {

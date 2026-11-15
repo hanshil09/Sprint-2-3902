@@ -1,11 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Core;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
-using TransformersGame.States;
+using ArmadilloGame.Core;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.States;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     internal sealed class CrumblingPlatform : IStandingBlock
     {

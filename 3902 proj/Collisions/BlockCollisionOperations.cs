@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using TransformersGame.Entities;
+using ArmadilloGame.Entities;
 using Microsoft.Xna.Framework;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Collisions
+namespace ArmadilloGame.Collisions
 {
     internal static class BlockCollisionOperations
     {

@@ -2,10 +2,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
-using TransformersGame.Sprites;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Sprites;
 
-namespace TransformersGame.Factories
+namespace ArmadilloGame.Factories
 {
     internal class ProjectileSpriteFactory
     {

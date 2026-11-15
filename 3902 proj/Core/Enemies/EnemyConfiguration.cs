@@ -1,6 +1,6 @@
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     // Groups the values that define an enemy type so Enemy does not need a long parameter list.
     internal sealed class EnemyConfiguration

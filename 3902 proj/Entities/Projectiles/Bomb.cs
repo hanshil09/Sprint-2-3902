@@ -1,13 +1,13 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Factories;
-using TransformersGame.Interfaces;
-using TransformersGame.Core;
-using TransformersGame.Collisions;
+using ArmadilloGame.Factories;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.Core;
+using ArmadilloGame.Collisions;
 using System;
 using System.Collections.Generic;
 
-namespace TransformersGame.Entities
+namespace ArmadilloGame.Entities
 {
     internal class Bomb : IProjectile
     {

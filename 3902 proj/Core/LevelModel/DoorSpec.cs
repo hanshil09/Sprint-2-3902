@@ -1,4 +1,4 @@
-namespace TransformersGame.Core
+namespace ArmadilloGame.Core
 {
     // Describes a door placed in a room. A door either moves relative to the current room
     // (legacy '<' = previous, '>' = next) or targets a specific room index (hub-and-spoke).

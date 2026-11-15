@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using TransformersGame.Core;
+using ArmadilloGame.Core;
 
 internal static class RoomChecks
 {

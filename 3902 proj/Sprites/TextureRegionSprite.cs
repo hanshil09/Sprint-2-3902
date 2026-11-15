@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TransformersGame.Interfaces;
+using ArmadilloGame.Interfaces;
 
-namespace TransformersGame.Sprites
+namespace ArmadilloGame.Sprites
 {
     internal class TextureRegionSprite : ISprite
     {

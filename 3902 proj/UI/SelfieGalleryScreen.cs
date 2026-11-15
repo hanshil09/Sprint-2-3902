@@ -4,9 +4,9 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Core;
+using ArmadilloGame.Core;
 
-namespace TransformersGame.UI;
+namespace ArmadilloGame.UI;
 
 // Browses the selfies saved by SelfiePhoto. Only the visible page is kept in memory.
 internal sealed class SelfieGalleryScreen : IDisposable

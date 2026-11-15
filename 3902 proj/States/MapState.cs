@@ -2,14 +2,14 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TransformersGame.Commands;
-using TransformersGame.Controllers;
-using TransformersGame.Core;
-using TransformersGame.Entities;
-using TransformersGame.Interfaces;
-using TransformersGame.UI;
+using ArmadilloGame.Commands;
+using ArmadilloGame.Controllers;
+using ArmadilloGame.Core;
+using ArmadilloGame.Entities;
+using ArmadilloGame.Interfaces;
+using ArmadilloGame.UI;
 
-namespace TransformersGame.States
+namespace ArmadilloGame.States
 {
     internal sealed class MapState : IGameState
     {
