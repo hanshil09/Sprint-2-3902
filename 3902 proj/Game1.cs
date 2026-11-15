@@ -63,6 +63,7 @@ namespace TransformersGame
         private BazookaAbility bazooka;
 
         // Repeating gameplay background texture.
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "ContentManager owns and disposes loaded assets.")]
         private Texture2D backgroundTexture;
 
         public Game1()

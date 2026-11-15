@@ -25,7 +25,7 @@ namespace TransformersGame.Collisions
             this.viewport = viewport;
             foreach (IBlock block in blocks)
             {
-                if (BlockCollisionHelper.TryGetBounds(block, out Rectangle bounds)) obstacles.Add(bounds);
+                if (BlockCollisionOperations.TryGetBounds(block, out Rectangle bounds)) obstacles.Add(bounds);
                 if (!block.IsSolid) continue;
 
                 solid.Add(block.Bounds);

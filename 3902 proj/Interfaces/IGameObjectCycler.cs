@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace TransformersGame.Interfaces
 {
@@ -17,7 +16,5 @@ namespace TransformersGame.Interfaces
         void Previous();
 
         void Update(GameTime gameTime);
-
-        void Draw(SpriteBatch spriteBatch);
     }
 }

@@ -77,25 +77,43 @@ namespace TransformersGame.Collisions
 
         public void DetectCollision()
         {
+            ProcessProjectileCollisions();
+            ProcessObjectCollisions();
+            CleanupOutOfBoundsProjectiles();
+        }
+
+        private void ProcessProjectileCollisions()
+        {
             foreach (IGameObject gameObject in objects)
             {
-                if (gameObject is not IProjectile projectile || !projectile.IsActive) continue;
-                List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = [];
-                foreach (IGameObject target in objects)
+                if (gameObject is IProjectile projectile && projectile.IsActive)
                 {
-                    if (ReferenceEquals(projectile, target) || IsUnavailable(target)
-                        || !TryGetBounds(target, out Rectangle bounds)) continue;
-                    float impact = CollisionHelper.ImpactTime(projectile, bounds);
-                    if (!float.IsPositiveInfinity(impact)) impacts.Add((target, bounds, impact));
-                }
-                impacts.Sort((a, b) => a.Time.CompareTo(b.Time));
-                foreach (var impact in impacts)
-                {
-                    HandleProjectileCollision(projectile, impact.Bounds, impact.Target);
-                    bool hitWall = BlockCollisionHelper.StopsProjectileTraversal(impact.Target, projectile);
-                    if (!projectile.IsActive || hitWall) break;
+                    ProcessProjectileCollisions(projectile);
                 }
             }
+        }
+
+        private void ProcessProjectileCollisions(IProjectile projectile)
+        {
+            List<(IGameObject Target, Rectangle Bounds, float Time)> impacts = [];
+            foreach (IGameObject target in objects)
+            {
+                if (ReferenceEquals(projectile, target) || IsUnavailable(target)
+                    || !TryGetBounds(target, out Rectangle bounds)) continue;
+                float impact = CollisionHelper.ImpactTime(projectile, bounds);
+                if (!float.IsPositiveInfinity(impact)) impacts.Add((target, bounds, impact));
+            }
+            impacts.Sort((a, b) => a.Time.CompareTo(b.Time));
+            foreach (var impact in impacts)
+            {
+                HandleProjectileCollision(projectile, impact.Bounds, impact.Target);
+                bool hitWall = BlockCollisionOperations.StopsProjectileTraversal(impact.Target, projectile);
+                if (!projectile.IsActive || hitWall) break;
+            }
+        }
+
+        private void ProcessObjectCollisions()
+        {
             for (int i = 0; i < objects.Count; i++)
             {
                 IGameObject objectA = objects[i];
@@ -113,11 +131,13 @@ namespace TransformersGame.Collisions
                     {
                         continue;
                     }
-
                     HandleCollision(objectA, boundsA, objectB, boundsB);
                 }
             }
+        }
 
+        private void CleanupOutOfBoundsProjectiles()
+        {
             foreach (IGameObject gameObject in objects)
             {
                 if (gameObject is IProjectile projectile && projectile.IsActive
@@ -173,7 +193,7 @@ namespace TransformersGame.Collisions
 
         private static bool TryGetBounds(IGameObject gameObject, out Rectangle bounds)
         {
-            return BlockCollisionHelper.TryGetBounds(gameObject, out bounds)
+            return BlockCollisionOperations.TryGetBounds(gameObject, out bounds)
                 || CollisionHelper.TryGetBounds(gameObject, out bounds);
         }
 

@@ -1,5 +1,7 @@
 # Sprint 4 Code Quality Changes
-|Hanshil|
+
+**Hanshil**
+
 | File or folder | Why it improves code quality |
 |---|---|
 | `3902 proj/UI/PlayerHud.cs` | Keeps the counters together. Moving a counter also moves its divider, so there is one position to update. |
@@ -20,5 +22,24 @@
 | `3902 proj/Entities/Player/FireballSelection.cs` | Keeps each shot name and attack together. The map and HUD share the selected shot, and firing uses the existing player attacks. |
 | `3902 proj/Entities/Projectiles/IceProjectile.cs` | Reuses normal projectile movement and collision. It adds only the special effect when Ice hits an enemy. |
 | `3902 proj/Entities/Enemies/Enemy.cs` | Keeps the freeze timer with the enemy it affects. Existing attacks still use the same damage rules. |
+| `3902 proj/Commands/GameActionCommand.cs` | Keeps the general action command in its own file, making it easier to find and update without changing other commands. |
+| `3902 proj/Commands/ToggleMuteCommand.cs` | Separates the mute command so its behavior is easy to locate and maintain. |
+| `3902 proj/Commands/ToggleHelpCommand.cs` | Separates the help command from unrelated game commands, making future updates easier to focus. |
+| `3902 proj/Commands/BarrelStormCommand.cs` | Keeps the Barrel Storm command in its own file so its connection to the ability is easy to find. |
+| `3902 proj/Commands/StartGameCommand.cs` | Separates the start-game command, making it easier to read and update without touching other commands. |
+| `3902 proj/Commands/ResetGameCommand.cs` | Separates the reset command so its behavior is easier to find and maintain. |
+| `3902 proj/Commands/QuitCommand.cs` | Gives the quit command its own file, keeping its small responsibility separate from other commands. |
+| `3902 proj/Commands/DamagePlayerCommand.cs` | Separates the damage command so it can be found and changed without editing unrelated command code. |
+| `3902 proj/Commands/RoomNavigationCommand.cs` | Keeps room navigation in its own file, making next/previous room behavior easier to find and update. |
+| `3902 proj/Commands/GameCommands.cs` | Removed the combined file after moving its nine command classes into their own files. This follows the one-class-per-file guideline while preserving command behavior. |
+| `3902 proj/Commands/MovePlayerCommand.cs` | Keeps movement command behavior in its own file, making it easier to locate, understand, and modify independently. |
+| `3902 proj/Commands/JumpPlayerCommand.cs` | Keeps jump command behavior separate, so it can be understood and changed without searching through other player commands. |
+| `3902 proj/Commands/UseItemCommand.cs` | Separates weapon/item activation from other commands, making its role easier to find and update independently. |
+| `3902 proj/Commands/UseInventoryItemCommand.cs` | Keeps medkit and shield command handling in one focused file, making inventory command changes easier to review. |
+| `3902 proj/Commands/TransformPlayerCommand.cs` | Separates the transform command so its existing player-form behavior is easier to locate and maintain. |
+| `3902 proj/Commands/PlayerCommands.cs` | Removed the combined file after moving its five player command classes into separate files, following the one-class-per-file guideline. |
+| `3902 proj/Core/GameObjectCycler.cs` and `3902 proj/Interfaces/IGameObjectCycler.cs` | Removed the unused `Draw` method and its interface declaration; the showcase already draws entries directly. Also removed a redundant count check after the empty-list case. The cycler and its navigation commands remain because rooms use it for enemies and the T/Y, U/I, and O/P showcase controls. |
+| `3902 proj/Collisions/CollisionManager.cs` | Split `DetectCollision()` into helpers for projectile impacts, object-pair collisions, and out-of-bounds projectile cleanup. Keeping these steps separate makes collision processing easier to read, debug, and maintain while preserving their existing order. |
+| `3902 proj/Collisions/BlockCollisionOperations.cs` | Renamed `BlockCollisionHelper` to show that it contains stateless block-collision operations. The similarly named movement methods in `BlockCollision` delegate to these algorithms, so they were not duplicate implementations and were kept unchanged. |
 | `3902 proj/Core/PlayerInventory.cs`, `3902 proj/Entities/Player/Player.cs`, and `3902 proj/Entities/Player/PlayerShield.cs` | Inventory now handles pickup and item-use rules in one place. Health still handles healing and the shield still handles its timer. Player plays the item sound after successful use. |
-| IPlayer.cs and Core/PlayerInventoryView.cs | The HUD reads item counts through one read-only inventory view. The player still handles item use. |
+| `3902 proj/Interfaces/IPlayer.cs` and `3902 proj/Core/PlayerInventoryView.cs` | The HUD reads item counts through one read-only inventory view. The player still handles item use. |
