@@ -26,10 +26,20 @@ internal sealed class PlayerForm
     public int Height => sprite.Height;
     public float Speed => state.Speed;
 
-    public bool TryTransform()
+    public bool TryTransform(int newHeight, int newWidth)
     {
         IPlayerState previous = state;
-        state.Transform();
+        if(IsVehicle)
+        {
+            Rectangle bounds = new Rectangle((int)player.Position.X, (int)(player.Position.Y + Height - newHeight), newWidth, newHeight);
+            if(collisions.IsSpaceAvailable(player, bounds))
+            {
+                state.Transform();
+            }
+        } else
+        {
+            state.Transform();
+        }
         return state != previous;
     }
 
@@ -38,13 +48,17 @@ internal sealed class PlayerForm
         int oldHeight = Height;
         if (IsVehicle && newState is RobotState)
         {
-            ISprite robotSprite = newState.CreateSprite();
+            ISprite standingSprite = newState.CreateSprite();
+            
             Rectangle bounds = new Rectangle((int)player.Position.X,
-                (int)(player.Position.Y + oldHeight - robotSprite.Height), robotSprite.Width, robotSprite.Height);
+                (int)(player.Position.Y + oldHeight - standingSprite.Height), standingSprite.Width, standingSprite.Height);
             if (!collisions.IsSpaceAvailable(player, bounds))
             {
                 return;
             }
+            
+            //TryTransform(standingSprite.Height, standingSprite.Width);
+            
         }
 
         state = newState;

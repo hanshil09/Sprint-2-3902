@@ -109,7 +109,7 @@ internal class Player : IPlayer
 
     public void Transform()
     {
-        if (form.TryTransform())
+        if (form.TryTransform(Height, Width))
         {
             PlaySound(GameSound.Transform);
         }
