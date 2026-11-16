@@ -1,0 +1,36 @@
+READABILITY REVIEW
+
+Author of Review: Sami Mannan
+Date of Review: 11-16-2026
+Sprint Number: 4
+Files Being Reviewed: BarrelStorm.cs, Camera2D.cs
+Author of File(s): Meera (BarrelStorm), Arav(Camera2D)
+Time Elapsed: 25 minutes
+
+Notes:
+BarrelStorm is very long, mostly because of the other classes that are stored in this file. The variables are distinct and clear, with each one having a descriptive enough 
+name that they don't become easily confused. Some of the method names could be clearer- CancelRoomEffect and Reset don't have enough of a distinction on their own to justify 
+being two separate methods instead of the same one, despite having different uses. Camera2D is very short and clear in what it accomplishes. All the method names are clear 
+distinct, not allowing for any logical overlap. Likewise, the variables are used and named well.
+
+Improvements:
+BarrelStorm, BarrelProjectile, and DustParticle should be separated. This should greatly improve readability of all three classes, since the file won't be as long and 
+everything will look more organized. There's almost excessive overuse of separating parameters on different lines, which is fine for method calls but makes the lines assigning 
+values to variables look needlessly messy. I can't think of much for Camera2D, it's already very coherent.
+
+CODE QUALITY REVIEW
+
+Author of Review: Sami Mannan
+Date of Review: 11-16-2026
+Sprint Number: 4
+Files Being Reviewed: BarrelStorm.cs, Camera2D.cs
+Author of File(s): Meera, Arav
+Time Elapse: 
+
+Notes:
+BarrelStorm is incredibly long and definitely can and should be separated into at least two different files. The cyclomatic complexity across the board is managable and not 
+overdone at any point. There are several unused variables that can be easily removed. Camera2D has little cyclomatic complexity, and no logic in any of the methods 
+is overdone or unnecessary.
+
+Hypothetical Change:
+Mentioned before but merits emphasis: separate this file so that it isn't so long.

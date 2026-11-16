@@ -114,7 +114,7 @@ containing a Bomb Pack. Destroy a supply crate, then touch its released pickup.
 An opened crate cannot be farmed by revisiting the room. Plain crates remain
 empty. Room files use `H` for Health Cell crates, `E` for Energon crates, `Q`
 for a Morph Ball-only Bomb Pack crate, and `C` for empty crates. See
-[supply crates](SupplyCrates.md).
+supply crates.
 
 The lowercase `q` tile is a locked door to room 5; uppercase `Q` is the Morph Ball crate.
 
@@ -138,7 +138,7 @@ The countdown continues after stepping off. Platforms flash, disappear for at
 least three seconds, and show a faded, non-solid preview for 0.6 seconds before
 returning. Restoration waits if the player occupies their space. Main floor
 tiles, crates, and hazards are excluded from selection. New games reroll the
-selection; layouts can repeat by chance. See [crumbling platforms](CrumblingPlatforms.md).
+selection; layouts can repeat by chance.
 
 ## Enemies and weapons
 

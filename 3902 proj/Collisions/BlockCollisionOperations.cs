@@ -90,8 +90,6 @@ namespace ArmadilloGame.Collisions
             float desiredY = desiredPosition.Y;
             isOnGround = false;
             supportingBlock = null;
-            float feetX = previousPosition.X + footInset;
-            float feetWidth = width - 2 * footInset;
             foreach (IBlock block in blocks)
             {
                 Rectangle bounds = block.Bounds;
@@ -100,12 +98,12 @@ namespace ArmadilloGame.Collisions
                     continue;
                 }
 
-                if (verticalVelocity >= 0 && feetWidth > 0
-                    && OverlapsHorizontally(feetX, feetWidth, bounds)
+                if (verticalVelocity >= 0 && width > 2 * footInset
+                    && OverlapsHorizontally(previousPosition.X + footInset, width - 2 * footInset, bounds)
                     && previousPosition.Y + height <= bounds.Top
                     && desiredY + height >= bounds.Top)
                 {
-                    desiredY = Math.Min(desiredY, bounds.Top - height);
+                    desiredY = bounds.Top - height;
                     isOnGround = true;
                     supportingBlock = block;
                 }
@@ -118,6 +116,60 @@ namespace ArmadilloGame.Collisions
             }
             desiredPosition.Y = desiredY;
             return desiredPosition;
+        }
+
+        public static Vector2 RecoverOverlap(Vector2 position, Point size, Rectangle room, IReadOnlyList<IBlock> blocks)
+        {
+            Rectangle body = new Rectangle((int)position.X, (int)position.Y, size.X, size.Y);
+            if (IsClear(body, blocks))
+            {
+                return position;
+            }
+
+            Vector2 best = position;
+            float bestDistance = float.PositiveInfinity;
+            foreach (IBlock block in blocks)
+            {
+                if (!IntersectsBlock(body, block))
+                {
+                    continue;
+                }
+
+                Rectangle bounds = block.Bounds;
+                Vector2[] candidates =
+                {
+                    new Vector2(bounds.Left - size.X, position.Y),
+                    new Vector2(bounds.Right, position.Y),
+                    new Vector2(position.X, bounds.Top - size.Y),
+                    new Vector2(position.X, bounds.Bottom)
+                };
+
+                foreach (Vector2 candidate in candidates)
+                {
+                    Rectangle spot = new Rectangle((int)candidate.X, (int)candidate.Y, size.X, size.Y);
+                    float distance = Vector2.DistanceSquared(position, candidate);
+                    if (distance < bestDistance && room.Contains(spot) && IsClear(spot, blocks))
+                    {
+                        best = candidate;
+                        bestDistance = distance;
+                    }
+                }
+            }
+
+            return best;
+        }
+
+        private static bool IsClear(Rectangle body, IReadOnlyList<IBlock> blocks)
+        {
+            foreach (IBlock block in blocks)
+            {
+                if (IntersectsBlock(body, block))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static bool IntersectsBlock(Rectangle bounds, IBlock block)
