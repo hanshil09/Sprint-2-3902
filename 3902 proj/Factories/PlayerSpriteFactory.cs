@@ -46,8 +46,8 @@ namespace TransformersGame.Factories
         // Ball: 2 frames
         private static readonly Rectangle[] BallFrames =
         {
-            new Rectangle(646, 102, 58, 58),
-            new Rectangle(724, 102, 58, 58)
+            new Rectangle(646, 100, 58, 58),
+            new Rectangle(724, 100, 58, 58)
         };
 
         private static readonly PlayerSpriteFactory instance =
