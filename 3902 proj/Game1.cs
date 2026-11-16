@@ -688,7 +688,23 @@ namespace ArmadilloGame
             (int From, int To) id =
                 (roomManager.ActiveRoomIndex, target);
 
-            if (door.IsLocked && !unlockedDoors.Contains(id))
+            if (door.LockedBehind && !unlockedDoors.Contains(id))
+            {
+                // The door was locked behind the player on entry. Passing back through requires
+                // holding a key but does not spend one.
+                if (Player.KeyCount <= 0)
+                {
+                    audio.Play(GameSound.Item);
+                    return;
+                }
+
+                door.LockedBehind = false;
+                door.IsLocked = false;
+                unlockedDoors.Add(id);
+                // Persist so the door stays open (not relocked) on later entries to this level.
+                roomManager.ActiveRoom.Level.UnlockDoorTo(target);
+            }
+            else if (door.IsLocked && !unlockedDoors.Contains(id))
             {
                 if (!Player.TryUseKey())
                 {
@@ -699,6 +715,8 @@ namespace ArmadilloGame
 
                 unlockedDoors.Add(id);
                 door.IsLocked = false;
+                // Persist so this door stays open when its room is rebuilt (e.g. back in the hub).
+                roomManager.ActiveRoom.Level.UnlockDoorTo(target);
             }
 
             GoToRoom(target);

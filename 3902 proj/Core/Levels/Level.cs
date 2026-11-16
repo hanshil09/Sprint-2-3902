@@ -63,8 +63,15 @@ namespace ArmadilloGame.Core
             }
             foreach (Placement<DoorSpec> placement in data.Doors)
             {
-                doors.Add(new Door(CellPosition(placement.Column, placement.Row), placement.Kind,
-                    BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind.Direction, placement.Kind.IsLocked)));
+                Door door = new Door(CellPosition(placement.Column, placement.Row), placement.Kind,
+                    BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind.Direction, false),
+                    BlockSpriteFactory.Instance.CreateDoorSprite(placement.Kind.Direction, true));
+                // Keep a door that was already unlocked this game open when the room is rebuilt.
+                if (door.TargetRoomIndex.HasValue && Progress.IsDoorUnlocked(door.TargetRoomIndex.Value))
+                {
+                    door.IsLocked = false;
+                }
+                doors.Add(door);
             }
             PlacePlayerStart();
         }
@@ -74,6 +81,18 @@ namespace ArmadilloGame.Core
         public IReadOnlyList<IItem> Items => items;
 
         public Vector2 PlayerStart { get; private set; }
+
+        // Permanently unlocks the door leading to the given room (recorded in progress so it stays
+        // open when the room is rebuilt) and opens it in the current room if present.
+        public void UnlockDoorTo(int targetRoomIndex)
+        {
+            Progress.RecordDoorUnlocked(targetRoomIndex);
+            Door door = doors.Find(d => d.TargetRoomIndex == targetRoomIndex);
+            if (door != null)
+            {
+                door.IsLocked = false;
+            }
+        }
 
         // Return beside the matching hub door when there is space.
         public Vector2 ArrivalFrom(int fromRoomIndex)
@@ -100,6 +119,25 @@ namespace ArmadilloGame.Core
         }
 
         public string Name => data.Name;
+
+        // Locks the door leading back to the given room behind the player on their FIRST entry, so the
+        // way out is barred until they produce a key. Once the player has unlocked it, the door stays
+        // open on later entries. Marked LockedBehind so passing back through only requires holding a
+        // key, not spending one.
+        public void LockReturnDoor(int toRoomIndex)
+        {
+            if (Progress.IsDoorUnlocked(toRoomIndex))
+            {
+                return;
+            }
+            Door door = doors.Find(d => d.TargetRoomIndex == toRoomIndex);
+            if (door == null)
+            {
+                return;
+            }
+            door.IsLocked = true;
+            door.LockedBehind = true;
+        }
 
         public float Gravity => data.Gravity;
 

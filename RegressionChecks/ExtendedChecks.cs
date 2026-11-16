@@ -136,7 +136,7 @@ internal static class ExtendedChecks
         var testPlayer = new StubPlayer { Position = new Vector2(100, 100) };
         int doorDirection = 0;
         collisions = new CollisionManager(960, 540, null, door => doorDirection = door.Direction);
-        collisions.BuildTree(new List<IGameObject> { testPlayer, new Door(new Vector2(100, 100), DoorSpec.Relative(-1), new StubSprite()) });
+        collisions.BuildTree(new List<IGameObject> { testPlayer, new Door(new Vector2(100, 100), DoorSpec.Relative(-1), new StubSprite(), new StubSprite()) });
         collisions.DetectCollision();
         Check("door overlap requests previous room", doorDirection == -1);
         var enemyShot = new EnemyProjectile(new Vector2(105, 105), new Vector2(105, 105), new StubSprite());

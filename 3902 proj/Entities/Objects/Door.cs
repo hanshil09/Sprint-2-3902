@@ -7,14 +7,16 @@ namespace ArmadilloGame.Entities
 {
     internal sealed class Door : IGameObject
     {
-        private readonly ISprite sprite;
+        private readonly ISprite lockedSprite;
+        private readonly ISprite unlockedSprite;
 
-        public Door(Vector2 position, DoorSpec spec, ISprite sprite)
+        public Door(Vector2 position, DoorSpec spec, ISprite unlockedSprite, ISprite lockedSprite)
         {
             Position = position;
             Spec = spec;
             IsLocked = spec.IsLocked;
-            this.sprite = sprite;
+            this.unlockedSprite = unlockedSprite;
+            this.lockedSprite = lockedSprite;
         }
 
         public DoorSpec Spec { get; }
@@ -28,9 +30,17 @@ namespace ArmadilloGame.Entities
         // Starts from the spec but can be cleared once the player spends a key (unlock stays open).
         public bool IsLocked { get; set; }
 
+        // True when this door was locked behind the player on entry. Passing back through it requires
+        // holding a key but does not spend one, unlike a door the player unlocks for the first time.
+        public bool LockedBehind { get; set; }
+
         public Vector2 Position { get; set; }
-        public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
-        public void Update(GameTime gameTime) => sprite.Update(gameTime);
-        public void Draw(SpriteBatch spriteBatch) => sprite.Draw(spriteBatch, Position);
+        public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, unlockedSprite.Width, unlockedSprite.Height);
+        public void Update(GameTime gameTime)
+        {
+            unlockedSprite.Update(gameTime);
+            lockedSprite.Update(gameTime);
+        }
+        public void Draw(SpriteBatch spriteBatch) => (IsLocked ? lockedSprite : unlockedSprite).Draw(spriteBatch, Position);
     }
 }
