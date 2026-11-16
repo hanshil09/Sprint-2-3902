@@ -4,7 +4,7 @@ Author of the code review: Hanshil Solanki
 Date of the code review: November 9, 2026
 Sprint number: 4
 Name of the .cs file being reviewed: PlayerHud.cs, HeartMeter.cs, and Game1.cs
-Author of the .cs file being reviewed: Hanshil Solanki (original HUD) and Shreya (visual update)
+Author of the .cs file being reviewed: Shreya (visual update)
 Number of minutes taken to complete the review: 40 mins
 
 Changes reviewed:
