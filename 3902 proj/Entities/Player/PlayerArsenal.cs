@@ -58,7 +58,7 @@ namespace ArmadilloGame.Entities
 
             // Recoil always pushes the player in the direction opposite of the shot.
             float recoil = player.FacingLeft ? ShotRecoilDistance : -ShotRecoilDistance;
-            player.Position = new Vector2(player.Position.X + recoil, player.Position.Y);
+            collisionManager.MovePlayerRecoil(player, recoil);
         }
 
         public void FireShotgun(bool aimUp)

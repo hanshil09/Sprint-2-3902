@@ -191,12 +191,12 @@ namespace ArmadilloGame.Entities
 
         public void Jump(float speed)
         {
-            collisionManager.TryJump(this, physics, speed);
+            collisionManager.TryGroundedJump(this, physics, speed);
         }
 
         public void ApplyGravity(GameTime gameTime)
         {
-            Position = collisionManager.UpdateVerticalMovement(this, physics, Position,
+            Position = collisionManager.ApplyGravityAndResolveVerticalCollisions(this, physics, Position,
                 Width, Height, gameTime);
         }
 

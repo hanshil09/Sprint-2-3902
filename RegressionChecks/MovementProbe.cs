@@ -33,11 +33,11 @@ internal sealed class MovementProbe : IGameObject
 
     public Vector2 Apply(Vector2 position, int width, int height, GameTime time)
     {
-        Position = collisions.UpdateVerticalMovement(this, physics, position, width, height, time);
+        Position = collisions.ApplyGravityAndResolveVerticalCollisions(this, physics, position, width, height, time);
         return Position;
     }
 
-    public void Jump(float speed) => collisions.TryJump(this, physics, speed);
+    public void Jump(float speed) => collisions.TryGroundedJump(this, physics, speed);
     public void Launch(float speed) => collisions.Launch(this, physics, speed);
 
     public Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance, float minimum, float maximum) =>

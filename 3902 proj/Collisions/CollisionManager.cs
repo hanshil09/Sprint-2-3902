@@ -44,18 +44,24 @@ namespace ArmadilloGame.Collisions
         public bool IsSpaceAvailable(IGameObject gameObject, Rectangle bounds) =>
             worldBounds.Contains(bounds) && blockCollision.IsSpaceAvailable(gameObject, bounds);
 
-        public bool TryJump(IGameObject gameObject, Physics physics, float speed) =>
-            blockCollision.TryJump(gameObject, physics, speed);
+        public bool TryGroundedJump(IGameObject gameObject, Physics physics, float speed) =>
+            blockCollision.TryGroundedJump(gameObject, physics, speed);
 
         public void Launch(IGameObject gameObject, Physics physics, float speed) =>
             blockCollision.Launch(gameObject, physics, speed);
 
-        public Vector2 UpdateVerticalMovement(IGameObject gameObject, Physics physics, Vector2 position,
+        public Vector2 ApplyGravityAndResolveVerticalCollisions(IGameObject gameObject, Physics physics, Vector2 position,
             int width, int height, GameTime gameTime) =>
-            blockCollision.UpdateVerticalMovement(gameObject, physics, position, width, height, gameTime);
+            blockCollision.ApplyGravityAndResolveVerticalCollisions(gameObject, physics, position, width, height, gameTime);
 
-        public void UpdateMovement(IGameObject entity, int width, int height, Physics physics, GameTime gameTime, float horizontalDistance) =>
-            blockCollision.UpdateMovement(entity, width, height, physics, gameTime, horizontalDistance);
+        public void ResolveFrameMovement(IGameObject entity, int width, int height, Physics physics, GameTime gameTime, float horizontalDistance) =>
+            blockCollision.ResolveFrameMovement(entity, width, height, physics, gameTime, horizontalDistance);
+
+        public void MovePlayerRecoil(IPlayer player, float distance)
+        {
+            player.Position = MoveHorizontally(player, player.Position, player.Width, player.Height,
+                distance, worldBounds.Left, worldBounds.Right - player.Width);
+        }
 
         public Vector2 MoveHorizontally(IGameObject gameObject, Vector2 position, int width, int height,
             float distance, float minimumX, float maximumX) =>
@@ -167,7 +173,7 @@ namespace ArmadilloGame.Collisions
 
         private void HandlePlayerContact(IPlayer player, IGameObject other)
         {
-            if (BlockCollision.HandlePlayerContact(player, other, DamagePlayer))
+            if (BlockContact.HandlePlayerContact(player, other, DamagePlayer))
             {
                 return;
             }

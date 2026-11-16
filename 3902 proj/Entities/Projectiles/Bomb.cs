@@ -70,7 +70,7 @@ namespace ArmadilloGame.Entities
             PreviousPosition = Position;
             if (!hasExploded)
             {
-                Position = collisionManager.UpdateVerticalMovement(this, physics, Position,
+                Position = collisionManager.ApplyGravityAndResolveVerticalCollisions(this, physics, Position,
                     sprite.Width, sprite.Height, gameTime);
             }
             timer -= gameTime.ElapsedGameTime.TotalMilliseconds;

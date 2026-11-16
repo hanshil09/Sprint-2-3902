@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Collisions;
 using Microsoft.Xna.Framework;
 using ArmadilloGame.Core;
 using ArmadilloGame.Entities;
@@ -48,7 +47,7 @@ namespace ArmadilloGame.Collisions
             return true;
         }
 
-        public bool TryJump(IGameObject gameObject, Physics physics, float speed)
+        public bool TryGroundedJump(IGameObject gameObject, Physics physics, float speed)
         {
             BlockCollisionState state = GetState(gameObject);
             if (!state.IsOnGround)
@@ -57,7 +56,7 @@ namespace ArmadilloGame.Collisions
             }
             physics.Jump(speed);
             state.IsOnGround = false;
-            state.SupportingBlock = null;
+            // Apply the platform's next movement before resolving the takeoff.
             return true;
         }
 
@@ -69,7 +68,7 @@ namespace ArmadilloGame.Collisions
             state.SupportingBlock = null;
         }
 
-        public Vector2 UpdateVerticalMovement(IGameObject gameObject, Physics physics, Vector2 position,
+        public Vector2 ApplyGravityAndResolveVerticalCollisions(IGameObject gameObject, Physics physics, Vector2 position,
             int width, int height, GameTime gameTime)
         {
             BlockCollisionState state = GetState(gameObject);
@@ -86,11 +85,17 @@ namespace ArmadilloGame.Collisions
             return position;
         }
 
-        public void UpdateMovement(IGameObject entity, int width, int height, Physics physics, GameTime gameTime, float horizontalDistance)
+        public void ResolveFrameMovement(IGameObject entity, int width, int height, Physics physics, GameTime gameTime, float horizontalDistance)
         {
             BlockCollisionState state = GetState(entity);
             bool wasOnGround = state.LastOnGround;
-            entity.Position = ResolveMovingBlockMovement(entity, width, height, state);
+            if (entity is IPlayer)
+            {
+                entity.Position = MovingPlatformCollision.ResolvePlayerPosition(entity.Position, new Point(width, height),
+                    worldBounds, state.Blocks, state.SupportingBlock);
+                entity.Position = BlockCollisionOperations.RecoverOverlap(entity.Position, new Point(width, height),
+                    worldBounds, state.Blocks);
+            }
             entity.Position = entity is Player rollingPlayer
                 ? MovePlayerHorizontally(rollingPlayer, horizontalDistance, state.Blocks)
                 : BlockCollisionOperations.MoveHorizontally(entity.Position, width, height, horizontalDistance,
@@ -98,7 +103,7 @@ namespace ArmadilloGame.Collisions
             Vector2 previousPosition = entity.Position;
             Vector2 desiredPosition = physics.Apply(entity.Position, gameTime);
             entity.Position = BlockCollisionOperations.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
-                physics.VerticalVelocity, state.Blocks, state.FootInset, out bool isOnGround, out IBlock supportingBlock);
+                physics.VerticalVelocity, state.Blocks, 0, out bool isOnGround, out IBlock supportingBlock);
             if (isOnGround || entity.Position.Y != desiredPosition.Y)
             {
                 physics.VerticalVelocity = 0;
@@ -172,70 +177,6 @@ namespace ArmadilloGame.Collisions
                 }
             }
             return false;
-        }
-
-        public static bool HandlePlayerContact(IPlayer player, IGameObject other, Action<IPlayer> damagePlayer)
-        {
-            if (other is Block block && block.IsHazard)
-            {
-                damagePlayer(player);
-            }
-            return other is IBlock;
-        }
-
-        public static bool HandleProjectileImpact(IProjectile projectile, Rectangle targetBounds, IBlock block)
-        {
-            if (!projectile.IsActive || !CollisionHelper.SweptIntersects(projectile, targetBounds))
-            {
-                return false;
-            }
-
-            switch (projectile)
-            {
-                case Bomb bomb when bomb.Bounds.Intersects(targetBounds) && bomb.IsExploding
-                    && block is Block crate
-                    && (crate.Kind != BlockKind.MorphBallCrate || bomb.CanDestroyMorphBallCrates):
-                    crate.Destroy();
-                    break;
-                case IPlayerWeapon weapon when block.IsSolid:
-                    weapon.HitSolid(block);
-                    break;
-                case EnemyProjectile shot when block.IsSolid:
-                    shot.Deactivate();
-                    break;
-            }
-            return true;
-        }
-
-        private Vector2 ResolveMovingBlockMovement(IGameObject entity, int width, int height, BlockCollisionState state)
-        {
-            Rectangle body = new Rectangle((int)entity.Position.X, (int)entity.Position.Y, width, height);
-            foreach (IBlock block in state.Blocks)
-            {
-                if (block is IMovingBlock platform && platform != state.SupportingBlock
-                    && platform.Delta.X != 0 && BlockCollisionOperations.IntersectsBlock(body, platform) && entity is IPlayer)
-                {
-                    float targetX = platform.Delta.X > 0 ? platform.Bounds.Right : platform.Bounds.Left - width;
-                    float targetY = platform.Delta.Y > 0 ? platform.Bounds.Top : platform.Bounds.Bottom - height;
-                    entity.Position = BlockCollisionOperations.MoveHorizontally(entity.Position, width, height,
-                        targetX - entity.Position.X, worldBounds.Left, worldBounds.Right - width, state.Blocks);
-                    body = new Rectangle((int)entity.Position.X, (int)entity.Position.Y, width, height);
-                }
-
-                if (state.SupportingBlock is IMovingBlock supportingPlatform
-                    && supportingPlatform.Delta != Vector2.Zero)
-                {
-                    entity.Position = BlockCollisionOperations.MoveHorizontally(entity.Position, width,
-                        height, supportingPlatform.Delta.X, worldBounds.Left, worldBounds.Right - width, state.Blocks);
-                    float playerY = entity.Position.Y;
-                    if (supportingPlatform.Delta.Y != 0)
-                    {
-                        playerY = supportingPlatform.Bounds.Top - height;
-                    }
-                    entity.Position = new Vector2(entity.Position.X, playerY);
-                }
-            }
-            return entity.Position;
         }
 
         private BlockCollisionState GetState(IGameObject gameObject)
