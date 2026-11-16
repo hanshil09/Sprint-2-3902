@@ -599,11 +599,11 @@ namespace ArmadilloGame
 
             collisionManager.DetectCollision();
 
-            if (pendingDoor != null && Player.Health > 0)
+            Door touchedDoor = pendingDoor;
+            pendingDoor = null;
+            if (touchedDoor != null && Player.Health > 0)
             {
-                Door door = pendingDoor;
-                pendingDoor = null;
-                UseDoor(door);
+                UseDoor(touchedDoor);
             }
 
             CheckForGameEnd();

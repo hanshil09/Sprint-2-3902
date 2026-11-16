@@ -75,6 +75,30 @@ namespace ArmadilloGame.Core
 
         public Vector2 PlayerStart { get; private set; }
 
+        // Return beside the matching hub door when there is space.
+        public Vector2 ArrivalFrom(int fromRoomIndex)
+        {
+            Door door = doors.Find(d => d.TargetRoomIndex == fromRoomIndex);
+            if (door == null)
+            {
+                return PlayerStart;
+            }
+
+            ISprite sprite = PlayerSpriteFactory.Instance.CreateStandingRobotSprite(Direction.Right);
+            const int gap = 8;
+            int y = door.Bounds.Bottom - sprite.Height;
+            List<Rectangle> solids = SolidBlockBounds();
+            foreach (Door hubDoor in doors)
+            {
+                solids.Add(hubDoor.Bounds);
+            }
+
+            Rectangle bounds = WorldBounds;
+            int rightStart = door.Bounds.Right + gap;
+            Rectangle rightSide = new Rectangle(rightStart, bounds.Top, bounds.Right - rightStart, bounds.Height);
+            return LevelSpawnSearch.Find(new Vector2(rightStart, y), sprite.Width, sprite.Height, rightSide, solids);
+        }
+
         public string Name => data.Name;
 
         public float Gravity => data.Gravity;
@@ -104,7 +128,8 @@ namespace ArmadilloGame.Core
                     continue;
                 }
                 Point size = EntityFactory.SpawnSize(placement.Kind);
-                Vector2 start = LevelSpawnSearch.Find(CellPosition(placement.Column, placement.Row), size.X, size.Y, occupied);
+                Vector2 start = LevelSpawnSearch.Find(CellPosition(placement.Column, placement.Row),
+                    size.X, size.Y, WorldBounds, occupied);
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
                     ? new Boss(start, player, projectiles)
                     : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player,
@@ -244,8 +269,10 @@ namespace ArmadilloGame.Core
         private void PlacePlayerStart()
         {
             ISprite playerSprite = PlayerSpriteFactory.Instance.CreateStandingRobotSprite(Direction.Right);
-            PlayerStart = LevelSpawnSearch.Find(CellPosition(data.PlayerColumn, data.PlayerRow),
-                playerSprite.Width, playerSprite.Height, SolidBlockBounds());
+            Vector2 requested = CellPosition(data.PlayerColumn, data.PlayerRow);
+            requested.Y += TileSize - playerSprite.Height;
+            PlayerStart = LevelSpawnSearch.Find(requested,
+                playerSprite.Width, playerSprite.Height, WorldBounds, SolidBlockBounds());
             playerSpawnBounds = new Rectangle((int)PlayerStart.X, (int)PlayerStart.Y, playerSprite.Width, playerSprite.Height);
         }
 
