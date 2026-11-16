@@ -7,7 +7,7 @@ namespace ArmadilloGame.Entities;
 internal sealed class PlayerMovement
 {
     private const float JumpSpeed = 650f;
-    private const float KnockbackSpeed = 300f;
+    private const float KnockbackSpeed = 250f;
 
     private readonly Player player;
     private readonly CollisionManager collisions;
