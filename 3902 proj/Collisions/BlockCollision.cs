@@ -219,8 +219,6 @@ namespace ArmadilloGame.Collisions
                     float targetY = platform.Delta.Y > 0 ? platform.Bounds.Top : platform.Bounds.Bottom - height;
                     entity.Position = BlockCollisionOperations.MoveHorizontally(entity.Position, width, height,
                         targetX - entity.Position.X, worldBounds.Left, worldBounds.Right - width, state.Blocks);
-                    entity.Position = BlockCollisionOperations.MoveVertically(entity.Position, width, height,
-                        targetY - entity.Position.Y, worldBounds.Top, worldBounds.Bottom - height, state.Blocks);
                     body = new Rectangle((int)entity.Position.X, (int)entity.Position.Y, width, height);
                 }
 
