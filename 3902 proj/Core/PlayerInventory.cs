@@ -21,13 +21,13 @@ namespace ArmadilloGame.Core
                 [ItemKind.ShieldBattery] = () => ShieldCount++,
                 [ItemKind.Energon] = () => EnergonCount++,
                 [ItemKind.Key] = () => KeyCount++,
-                [ItemKind.BazookaCall] = () => HasBazookaCall = true,
+                [ItemKind.ShotgunCall] = () => HasShotgunCall = true,
                 [ItemKind.BombPack] = () => BombLevel = Math.Min(MaximumBombLevel, BombLevel + 1)
             };
         }
 
         public PlayerInventoryView View => new PlayerInventoryView(MedkitCount, ShieldCount, BombLevel, EnergonCount,
-            HasBazookaCall, BazookaAmmo);
+            HasShotgunCall, ShotgunAmmo);
 
         public int MedkitCount { get; private set; }
 
@@ -39,29 +39,29 @@ namespace ArmadilloGame.Core
 
         public int KeyCount { get; private set; }
 
-        public bool HasBazookaCall { get; private set; }
-        public int BazookaAmmo { get; private set; }
-        public bool BazookaLoaded => BazookaAmmo > 0;
+        public bool HasShotgunCall { get; private set; }
+        public int ShotgunAmmo { get; private set; }
+        public bool ShotgunLoaded => ShotgunAmmo > 0;
 
-        public bool TryUseBazookaCall()
+        public bool TryUseShotgunCall()
         {
-            if (!HasBazookaCall || BazookaLoaded) return false;
-            HasBazookaCall = false;
-            BazookaAmmo = 3;
+            if (!HasShotgunCall || ShotgunLoaded) return false;
+            HasShotgunCall = false;
+            ShotgunAmmo = 3;
             return true;
         }
 
-        public bool TryFireBazooka()
+        public bool TryFireShotgun()
         {
-            if (!BazookaLoaded) return false;
-            BazookaAmmo--;
+            if (!ShotgunLoaded) return false;
+            ShotgunAmmo--;
             return true;
         }
 
         // Returns false for unsupported items or an upgrade already at its cap.
         public bool TryCollect(ItemKind kind)
         {
-            if (kind == ItemKind.BazookaCall && (HasBazookaCall || BazookaLoaded))
+            if (kind == ItemKind.ShotgunCall && (HasShotgunCall || ShotgunLoaded))
             {
                 return false;
             }

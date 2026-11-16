@@ -53,7 +53,7 @@ namespace ArmadilloGame.Core
                 bool isMorphBallCrate = data.Blocks.Any(block =>
                     block.Column == drop.Column && block.Row == drop.Row
                     && block.Kind == BlockKind.MorphBallCrate);
-                if (isMorphBallCrate || drop.Kind == ItemKind.BazookaCall)
+                if (isMorphBallCrate || drop.Kind == ItemKind.ShotgunCall)
                 {
                     continue;
                 }

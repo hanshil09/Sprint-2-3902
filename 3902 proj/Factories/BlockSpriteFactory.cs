@@ -19,7 +19,7 @@ namespace ArmadilloGame.Factories
         private Texture2D blockSpriteSheet;
         private Texture2D objectSpriteSheet;
         private Texture2D additionalItemSprites;
-        private Texture2D bazookaBarrel;
+        private Texture2D ShotgunBarrel;
 
         private BlockSpriteFactory()
         {
@@ -38,7 +38,7 @@ namespace ArmadilloGame.Factories
             blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             additionalItemSprites = content.Load<Texture2D>("Sprites/additionalItemSprites");
-            bazookaBarrel = content.Load<Texture2D>("Sprites/bazooka-barrel");
+            ShotgunBarrel = content.Load<Texture2D>("Sprites/Shotgun-barrel");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)
@@ -69,7 +69,7 @@ namespace ArmadilloGame.Factories
 
         public ISprite CreateSupplyCrateSprite(ItemKind kind, bool requiresMorphBall = false, bool reinforced = false)
         {
-            if (kind == ItemKind.BazookaCall)
+            if (kind == ItemKind.ShotgunCall)
             {
                 return new TextureRegionSprite(
                     additionalItemSprites,

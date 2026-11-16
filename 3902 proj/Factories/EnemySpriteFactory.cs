@@ -65,7 +65,7 @@ namespace ArmadilloGame.Factories
 
         public void LoadAllTextures(ContentManager content)
         {
-            enemySpriteSheet = content.Load<Texture2D>("Sprites/metroidEnemyDemo");
+            enemySpriteSheet = content.Load<Texture2D>("Sprites/enemySprites");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
         }
 

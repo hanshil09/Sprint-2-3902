@@ -60,7 +60,7 @@ namespace ArmadilloGame
 
         private readonly GameAudio audio = new GameAudio();
         private BarrelStorm barrelStorm;
-        private BazookaAbility bazooka;
+        private ShotgunAbility Shotgun;
 
         // Repeating gameplay background texture.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "ContentManager owns and disposes loaded assets.")]
@@ -157,22 +157,22 @@ namespace ArmadilloGame
             }
         }
 
-        public void CallBazooka()
+        public void CallShotgun()
         {
             if (gameState == GameState.Gameplay)
             {
-                bazooka.Call(
+                Shotgun.Call(
                     Player,
                     camera.ViewBounds,
                     ActiveRoom.Level.Blocks);
             }
         }
 
-        public void FireBazooka()
+        public void FireShotgun()
         {
             if (gameState == GameState.Gameplay)
             {
-                bazooka.Fire(Player);
+                Shotgun.Fire(Player);
             }
         }
 
@@ -233,9 +233,9 @@ namespace ArmadilloGame
             // Load the repeating background.
             backgroundTexture = Content.Load<Texture2D>("Sprites/Brown");
 
-            bazooka = new BazookaAbility(
-                Content.Load<Texture2D>("Sprites/bazooka-helper"),
-                Content.Load<Texture2D>("Sprites/bazooka-weapon"));
+            Shotgun = new ShotgunAbility(
+                Content.Load<Texture2D>("Sprites/Shotgun-helper"),
+                Content.Load<Texture2D>("Sprites/Shotgun-weapon"));
 
             audio.Load(Content);
 
@@ -390,7 +390,7 @@ namespace ArmadilloGame
             room.Draw(spriteBatch);
             barrelStorm.DrawParticles(spriteBatch);
             Player.Draw(spriteBatch);
-            bazooka.Draw(spriteBatch, Player);
+            Shotgun.Draw(spriteBatch, Player);
 
             spriteBatch.End();
 
@@ -458,7 +458,7 @@ namespace ArmadilloGame
 
             controlsOverlay.DrawSmallText(
                 spriteBatch,
-                bazooka.Status(Player),
+                Shotgun.Status(Player),
                 440,
                 100,
                 true);
@@ -484,7 +484,7 @@ namespace ArmadilloGame
 
         private void InitializeGameObjects()
         {
-            bazooka.Reset();
+            Shotgun.Reset();
             selfieNeedsSpace = false;
 
             roomManager?.Unload();
@@ -549,7 +549,7 @@ namespace ArmadilloGame
         {
             gameplayController.Update();
 
-            if (State == GameState.Gameplay && !bazooka.Active)
+            if (State == GameState.Gameplay && !Shotgun.Active)
             {
                 UpdateGameplay(gameTime);
             }
@@ -557,11 +557,11 @@ namespace ArmadilloGame
 
         private void UpdateActiveGameplay(GameTime gameTime)
         {
-            bazooka.SetAim(Keyboard.GetState());
+            Shotgun.SetAim(Keyboard.GetState());
 
-            if (bazooka.Active)
+            if (Shotgun.Active)
             {
-                bazooka.Update(gameTime);
+                Shotgun.Update(gameTime);
                 return;
             }
 
@@ -706,7 +706,7 @@ namespace ArmadilloGame
 
         private void SwitchRoom(System.Action switchRoom)
         {
-            bazooka.ClearSpaceWarning();
+            Shotgun.ClearSpaceWarning();
 
             barrelStorm.CancelRoomEffect();
 

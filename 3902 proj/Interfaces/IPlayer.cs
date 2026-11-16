@@ -52,9 +52,9 @@ namespace ArmadilloGame.Interfaces
 
         bool UseShield();
 
-        bool UseBazookaCall();
+        bool UseShotgunCall();
 
-        bool FireBazooka(bool aimUp = false);
+        bool FireShotgun(bool aimUp = false);
 
         // Spends one key to open a locked door; returns false when the player has none.
         bool TryUseKey();

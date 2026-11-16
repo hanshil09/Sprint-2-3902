@@ -7,16 +7,16 @@ using ArmadilloGame.Interfaces;
 
 namespace ArmadilloGame.Entities
 {
-    internal sealed class BazookaAbility
+    internal sealed class ShotgunAbility
     {
-        private readonly BazookaDelivery delivery;
+        private readonly ShotgunDelivery delivery;
         private readonly Texture2D weapon;
         private bool aimUp;
         private bool needsSpace;
 
-        public BazookaAbility(Texture2D helper, Texture2D weapon)
+        public ShotgunAbility(Texture2D helper, Texture2D weapon)
         {
-            delivery = new BazookaDelivery(helper);
+            delivery = new ShotgunDelivery(helper);
             this.weapon = weapon;
         }
 
@@ -30,14 +30,14 @@ namespace ArmadilloGame.Entities
 
         public void Call(IPlayer player, Rectangle view, IReadOnlyList<IBlock> blocks)
         {
-            if (Active || player.IsInBallForm || !player.Inventory.HasBazookaCall || player.Inventory.BazookaLoaded) return;
+            if (Active || player.IsInBallForm || !player.Inventory.HasShotgunCall || player.Inventory.ShotgunLoaded) return;
             needsSpace = !delivery.Start(player, view, blocks);
-            if (!needsSpace) player.UseBazookaCall();
+            if (!needsSpace) player.UseShotgunCall();
         }
 
         public void Fire(IPlayer player)
         {
-            if (!Active) player.FireBazooka(aimUp);
+            if (!Active) player.FireShotgun(aimUp);
         }
 
         public void Update(GameTime time) => delivery.Update(time);
@@ -53,15 +53,15 @@ namespace ArmadilloGame.Entities
 
         public string Status(IPlayer player)
         {
-            if (Active) return "BAZOOKA DELIVERY...";
-            if (player.Inventory.BazookaLoaded) return $"BAZOOKA: {player.Inventory.BazookaAmmo} - 9 / SHIFT+9";
-            if (player.Inventory.HasBazookaCall) return needsSpace ? "BAZOOKA: NEED FLAT SPACE" : "BAZOOKA CALL: press 8";
-            return "BAZOOKA: empty";
+            if (Active) return "Shotgun DELIVERY...";
+            if (player.Inventory.ShotgunLoaded) return $"Shotgun: {player.Inventory.ShotgunAmmo} - 9 / SHIFT+9";
+            if (player.Inventory.HasShotgunCall) return needsSpace ? "Shotgun: NEED FLAT SPACE" : "Shotgun CALL: press 8";
+            return "Shotgun: empty";
         }
 
         public void Draw(SpriteBatch batch, IPlayer player)
         {
-            if (player.Inventory.BazookaLoaded && !player.IsInBallForm && !Active)
+            if (player.Inventory.ShotgunLoaded && !player.IsInBallForm && !Active)
             {
                 bool left = player.Facing == Direction.Left;
                 int x = (int)player.Position.X + (left ? -30 : player.Width - 30);

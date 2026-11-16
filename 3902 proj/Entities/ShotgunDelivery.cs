@@ -6,7 +6,7 @@ using ArmadilloGame.Interfaces;
 namespace ArmadilloGame.Entities
 {
     // A short, non-colliding delivery animation; gameplay is paused while it runs.
-    internal sealed class BazookaDelivery
+    internal sealed class ShotgunDelivery
     {
         private const float ApproachSeconds = 0.8f;
         private const float HandoffSeconds = 0.7f;
@@ -18,7 +18,7 @@ namespace ArmadilloGame.Entities
         private Vector2 destination;
         private bool fromRight;
 
-        public BazookaDelivery(Texture2D texture)
+        public ShotgunDelivery(Texture2D texture)
         {
             this.texture = texture;
         }

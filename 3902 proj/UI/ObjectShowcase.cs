@@ -121,7 +121,7 @@ namespace ArmadilloGame.UI
                 ItemKind.TurboBoost => "Turbo Boost",
                 ItemKind.Energon => "Energon Cube",
                 ItemKind.BombPack => "Bomb Pack",
-                ItemKind.BazookaCall => "Bazooka Call",
+                ItemKind.ShotgunCall => "Shotgun Call",
                 ItemKind.MaxHealthUp => "Max Health Up",
                 _ => kind.ToString()
             };

@@ -111,7 +111,7 @@
 /processorParam:Version=3.8.5.1
 /build:Sprites/additionalItemSprites.png
 
-#begin Sprites/bazooka-barrel.png
+#begin Sprites/Shotgun-barrel.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -122,9 +122,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:Sprites/bazooka-barrel.png
+/build:Sprites/Shotgun-barrel.png
 
-#begin Sprites/bazooka-call.png
+#begin Sprites/Shotgun-call.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -135,9 +135,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:Sprites/bazooka-call.png
+/build:Sprites/Shotgun-call.png
 
-#begin Sprites/bazooka-helper.png
+#begin Sprites/Shotgun-helper.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -148,9 +148,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:Sprites/bazooka-helper.png
+/build:Sprites/Shotgun-helper.png
 
-#begin Sprites/bazooka-weapon.png
+#begin Sprites/Shotgun-weapon.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -161,7 +161,7 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:Sprites/bazooka-weapon.png
+/build:Sprites/Shotgun-weapon.png
 
 #begin Sprites/blocks.png
 /importer:TextureImporter
@@ -267,7 +267,7 @@
 /processorParam:Version=3.8.5.1
 /build:Sprites/key.png
 
-#begin Sprites/metroidEnemyDemo.png
+#begin Sprites/enemySprites.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -278,7 +278,7 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:Sprites/metroidEnemyDemo.png
+/build:Sprites/enemySprites.png
 
 #begin Sprites/reinforced-energon.png
 /importer:TextureImporter

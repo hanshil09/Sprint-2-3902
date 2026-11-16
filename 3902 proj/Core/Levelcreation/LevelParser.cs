@@ -40,7 +40,7 @@ namespace ArmadilloGame.Core
         {
             ['H'] = ItemKind.HealthCell,
             ['E'] = ItemKind.Energon,
-            ['j'] = ItemKind.BazookaCall,
+            ['j'] = ItemKind.ShotgunCall,
             ['k'] = ItemKind.Key,
             ['Q'] = ItemKind.BombPack,
             ['R'] = ItemKind.Energon

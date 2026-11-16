@@ -23,8 +23,8 @@ namespace ArmadilloGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
             RegisterActionCommands(keyboardController, player);
             keyboardController.RegisterSinglePressCommand(Keys.X, new GameActionCommand(game.FireSelectedShot));
-            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.CallBazooka), Keys.D8, Keys.NumPad8);
-            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.FireBazooka), Keys.D9, Keys.NumPad9);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.CallShotgun), Keys.D8, Keys.NumPad8);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.FireShotgun), Keys.D9, Keys.NumPad9);
             RegisterCycleCommands(keyboardController, blocks, items, enemies);
             keyboardController.RegisterSinglePressCommand(Keys.F1, new ToggleHelpCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.H, new ToggleHelpCommand(game));

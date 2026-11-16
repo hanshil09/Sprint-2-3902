@@ -1,7 +1,7 @@
 namespace ArmadilloGame.Core;
 
 internal readonly record struct PlayerInventoryView(int MedkitCount, int ShieldCount, int BombLevel, int EnergonCount,
-    bool HasBazookaCall, int BazookaAmmo)
+    bool HasShotgunCall, int ShotgunAmmo)
 {
-    public bool BazookaLoaded => BazookaAmmo > 0;
+    public bool ShotgunLoaded => ShotgunAmmo > 0;
 }

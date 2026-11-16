@@ -20,7 +20,7 @@ namespace ArmadilloGame.Factories
 
         private Texture2D itemSpriteSheet;
         private Texture2D objectSpriteSheet;
-        private Texture2D bazookaCall;
+        private Texture2D ShotgunCall;
         private Texture2D keySprite;
 
         private ItemSpriteFactory()
@@ -39,15 +39,15 @@ namespace ArmadilloGame.Factories
         {
             itemSpriteSheet = content.Load<Texture2D>("Sprites/items");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
-            bazookaCall = content.Load<Texture2D>("Sprites/bazooka-call");
+            ShotgunCall = content.Load<Texture2D>("Sprites/Shotgun-call");
             keySprite = content.Load<Texture2D>("Sprites/key");
         }
 
         public ISprite CreateItemSprite(ItemKind kind)
         {
-            if (kind == ItemKind.BazookaCall)
+            if (kind == ItemKind.ShotgunCall)
             {
-                return new TextureRegionSprite(bazookaCall, new Rectangle(0, 0, 32, 32), ItemSize, ItemSize, Color.White);
+                return new TextureRegionSprite(ShotgunCall, new Rectangle(0, 0, 32, 32), ItemSize, ItemSize, Color.White);
             }
             if (kind == ItemKind.Key)
             {

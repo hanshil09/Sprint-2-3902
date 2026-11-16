@@ -155,12 +155,12 @@ internal class Player : IPlayer
     public void DropBomb() => Arsenal.DropBomb(movement.Gravity, Inventory.BombLevel);
     public bool TryUseKey() => inventory.TryUseKey();
 
-    public bool UseBazookaCall() => inventory.TryUseBazookaCall();
+    public bool UseShotgunCall() => inventory.TryUseShotgunCall();
 
-    public bool FireBazooka(bool aimUp = false)
+    public bool FireShotgun(bool aimUp = false)
     {
-        if (IsInBallForm || !inventory.TryFireBazooka()) return false;
-        Arsenal.FireBazooka(aimUp);
+        if (IsInBallForm || !inventory.TryFireShotgun()) return false;
+        Arsenal.FireShotgun(aimUp);
         return true;
     }
 

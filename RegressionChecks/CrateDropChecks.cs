@@ -19,7 +19,7 @@ internal static class CrateDropChecks
     {
         CheckReinforcedCrate();
         CheckReinforcedLayout();
-        CheckBazookaBarrel();
+        CheckShotgunBarrel();
         Console.WriteLine($"{passed} crate-drop checks passed.");
     }
 
@@ -30,11 +30,11 @@ internal static class CrateDropChecks
         Console.WriteLine("PASS: " + name);
     }
 
-    private static void CheckBazookaBarrel()
+    private static void CheckShotgunBarrel()
     {
         LevelParseResult parsed = LevelParser.Parse(new[] { "name: barrel", "[tiles]", "P...j", "GGGGG" });
-        Check("red barrel parses as a bazooka call container",
-            parsed.Success && parsed.Data.CrateDrops.Single().Kind == ItemKind.BazookaCall);
+        Check("red barrel parses as a Shotgun call container",
+            parsed.Success && parsed.Data.CrateDrops.Single().Kind == ItemKind.ShotgunCall);
         var progress = new RoomProgress();
         var level = new Level(parsed.Data, roomProgress: progress);
         SupplyCrate barrel = level.Blocks.OfType<SupplyCrate>().Single();
@@ -48,7 +48,7 @@ internal static class CrateDropChecks
         Check("shooting the barrel releases exactly one call", barrel.IsDestroyed && level.Items.Count == 1);
         var player = new Player(barrel.Position, level.Blocks, new ProjectileManager());
         Check("player collects the call and cannot carry a duplicate",
-            level.CollectItems(player).Count == 1 && !player.TryAddItem(ItemKind.BazookaCall));
+            level.CollectItems(player).Count == 1 && !player.TryAddItem(ItemKind.ShotgunCall));
         var revisit = new Level(parsed.Data, roomProgress: progress);
         Check("collected barrel call stays gone after revisiting",
             revisit.Items.Count == 0 && revisit.Blocks.OfType<SupplyCrate>().Single().IsDestroyed);
