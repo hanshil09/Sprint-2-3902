@@ -101,20 +101,20 @@ namespace ArmadilloGame.Factories
                 EnemyWidth, EnemyHeight, tint, IdleFrameTime, effects);
         }
 
-        public ISprite CreateBossSprite(BossPose pose, Color tint)
+        public ISprite CreateBossSprite(BossPose pose, Color tint, int size = BossSize)
         {
             return pose switch
             {
-                BossPose.Attack => Still(SpriteAtlas.BossAttack, tint),
-                BossPose.Enraged => new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossEnraged, BossSize, BossSize, tint, BossFrameTime / 2),
-                BossPose.Defeated => Still(SpriteAtlas.BossDefeated, tint),
-                _ => new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossIdle, BossSize, BossSize, tint, BossFrameTime)
+                BossPose.Attack => Still(SpriteAtlas.BossAttack, tint, size),
+                BossPose.Enraged => new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossEnraged, size, size, tint, BossFrameTime / 2),
+                BossPose.Defeated => Still(SpriteAtlas.BossDefeated, tint, size),
+                _ => new AnimatedSprite(objectSpriteSheet, SpriteAtlas.BossIdle, size, size, tint, BossFrameTime)
             };
         }
 
-        private ISprite Still(Rectangle frame, Color tint)
+        private ISprite Still(Rectangle frame, Color tint, int size)
         {
-            return new TextureRegionSprite(objectSpriteSheet, frame, BossSize, BossSize, tint);
+            return new TextureRegionSprite(objectSpriteSheet, frame, size, size, tint);
         }
 
         private static bool ArtFacesLeft(EnemyKind kind)

@@ -6,16 +6,15 @@ using ArmadilloGame.Interfaces;
 namespace ArmadilloGame.States
 {
        internal sealed class BossDefeatedState : IBossState
-    {
-        private const double DestructionSeconds = 1.8;
-        private const float SinkSpeed = 40f;
-
-        private readonly Boss boss;
-        private double timer;
+       {
+           private readonly Boss boss;
+           private readonly BossConfiguration configuration;
+           private double timer;
 
         public BossDefeatedState(Boss boss)
         {
             this.boss = boss;
+            configuration = boss.Configuration;
             boss.SetPose(BossPose.Defeated);
         }
 
@@ -23,8 +22,8 @@ namespace ArmadilloGame.States
         {
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timer += elapsed;
-            boss.MoveToward(new Vector2(boss.Position.X, Boss.FloorY), SinkSpeed, elapsed);
-            if (timer >= DestructionSeconds)
+            boss.MoveToward(new Vector2(boss.Position.X, configuration.FloorY), configuration.SinkSpeed, elapsed);
+            if (timer >= configuration.DestructionSeconds)
             {
                 boss.Finish();
             }

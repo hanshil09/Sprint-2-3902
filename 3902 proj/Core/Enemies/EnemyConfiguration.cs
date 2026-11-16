@@ -5,11 +5,12 @@ namespace ArmadilloGame.Core
     // Groups the values that define an enemy type so Enemy does not need a long parameter list.
     internal sealed class EnemyConfiguration
     {
-        public EnemyConfiguration(EnemyKind kind, EnemyStats stats, IEnemyBehavior behavior)
+        public EnemyConfiguration(EnemyKind kind, EnemyStats stats, IEnemyBehavior behavior, int startingHealth = 1)
         {
             Kind = kind;
             Stats = stats;
             Behavior = behavior;
+            StartingHealth = startingHealth;
         }
 
         public EnemyKind Kind { get; }
@@ -17,5 +18,7 @@ namespace ArmadilloGame.Core
         public EnemyStats Stats { get; }
 
         public IEnemyBehavior Behavior { get; }
+
+        public int StartingHealth { get; }
     }
 }
