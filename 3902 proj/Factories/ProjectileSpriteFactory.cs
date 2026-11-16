@@ -97,8 +97,8 @@ namespace ArmadilloGame.Factories
 
         public void LoadAllTextures(ContentManager content)
         {
-            //rightSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
-            //leftSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
+            rightSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet");
+            leftSpriteSheet = content.Load<Texture2D>("Sprites/transformer-platformer-spritesheet-left");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             directionalFireballSheet = content.Load<Texture2D>("Sprites/fireballDirectional");
             explosionSpriteSheet = content.Load<Texture2D>("Sprites/explosionSprites");
