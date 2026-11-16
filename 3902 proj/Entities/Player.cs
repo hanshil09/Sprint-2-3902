@@ -178,7 +178,7 @@ namespace TransformersGame.Entities
                     shieldTimeRemaining = System.Math.Min(
                         MaximumShieldTime,
                         shieldTimeRemaining + ShieldDuration);
-
+ 
                     return true;
 
                 case ItemKind.MaxHealthUp:

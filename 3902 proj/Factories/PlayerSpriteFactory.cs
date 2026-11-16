@@ -10,7 +10,7 @@ namespace TransformersGame.Factories
     internal class PlayerSpriteFactory
     {
         private const int PlayerWidth = 68;
-        private const int PlayerHeight = 80;
+        private const int PlayerHeight = 92;
 
         private const int BallWidth = 58;
         private const int BallHeight = 58;
@@ -46,8 +46,8 @@ namespace TransformersGame.Factories
         // Ball: 2 frames
         private static readonly Rectangle[] BallFrames =
         {
-            new Rectangle(646, 78, 76, 80),
-            new Rectangle(724, 78, 76, 80)
+            new Rectangle(646, 102, 58, 58),
+            new Rectangle(724, 102, 58, 58)
         };
 
         private static readonly PlayerSpriteFactory instance =
