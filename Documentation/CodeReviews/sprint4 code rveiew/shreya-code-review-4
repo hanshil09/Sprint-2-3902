@@ -1,0 +1,42 @@
+READABILITY REVIEW
+
+Author of code review: Shreya Aradhya
+Date of code review: November 16, 2026
+Sprint number: 4
+Name of the .cs file being reviewed: BlockCollision.cs, Physics.cs, PlayerCollision.cs
+Author of the .cs file being reviewed: Sami Mannan
+Number of minutes taken to complete the review: ~45 minutes
+
+Specific comments on what is readable and what is not:
+What I noticed was readable:
+    PlayerCollision is easy and straightforward to follow because HandleContact uses a switch statement to separate the different types of contact, including doors and enemies. HandleEnemyContact also keeps enemy behavior separate, making it easy to understand what happens when the player touches an enemy.
+    Physics.cs is relatively simple. The methods Jump, Launch, SetGravity, and Apply all have a clear purpose, and keeping gravity and vertical velocity together makes it fairly easy to understand how the player's vertical movement is handled.
+    BlockCollision uses many descriptive method names such as IsOnGround, TryJump, HasGroundAhead, and ResolveMovingBlockMovement. These names make it easier to locate specific collision operations.
+
+
+    What I noticed could be improved:
+    BlockCollision is quite large and contains several different responsibilities, including player movement, enemy ledge detection, moving platform movement, hazard contact, and projectile impacts. Although the individual methods are fairly  easy to understand, it can be difficult to identify where a particular type of collision behavior belongs.
+    UpdateMovement is one of the longer methods and handles several operations in sequence, like moving platforms, horizontal movement, gravity, vertical collision, and ground-state updates. Splitting some of these operations into smaller helper methods could make the overall process easier to follow.
+    Some methods in BlockCollision have similar overlapping responsibilities, such as UpdateVerticalMovement and UpdateMovement. It could be helpful to make their specific uses clearer so that someone working on the collision system can better understand when each method should be called.
+
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Shreya Aradhya
+Date of code review: November 16, 2026
+Sprint number: 4
+Name of the .cs file being reviewed: BlockCollision.cs, Physics.cs, PlayerCollision.cs
+Author of the .cs file being reviewed: Sami Mannan
+
+Specific comments on code quality:
+What I noticed:
+    The separation between Physics, BlockCollision, and PlayerCollision is good because each class handles a different part of the movement and collision system. Physics handles gravity and velocity, BlockCollision resolves movement against level geometry, and PlayerCollision handles interactions between the player and game objects.
+    BlockCollision is reusable across game objects because of its use of IGameObject and the ConditionalWeakTable that stores collision states. This means different objects can  use the same collision system while maintaining their own supporting blocks and ground state.
+    PlayerCollision keeps contact behavior outside of the player's movement logic. It also checks whether an enemy has been destroyed before handling contact, so destroyed enemies can not continue to damage the player.
+    Physics is a centralized way to apply gravity and launch objects. SetGravity also resets vertical velocity when gravity changes, which helps prevent existing movement from carrying over when the object's physics settings are updated.
+
+
+Hypothetical change:
+  If we wanted to add a new type of moving platform interaction in a future sprint, I think the existing BlockCollision system would need to be altered a bit. ResolveMovingBlockMovement currently handles both moving platforms that push an object and platforms that the player is standing on. As we continue to add more platform behaviors, it might become difficult to maintain all of these interactions within one method.
+  I would consider further separating the different moving platform interactions into smaller methods, like handling platforms that carry the player and platforms that collide with or push the player. This would make it easier to add new platform behaviors without making the main movement update very complicated. I would also test these interactions with jumping, knockback, and falling to make sure that the player's position and supporting platform state remain consistent. We have faced collision bugs in the past so we have to be careful moving forward.
