@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.Xna.Framework;
 using ArmadilloGame.Core;
 using ArmadilloGame.Entities;
@@ -5,16 +6,10 @@ using ArmadilloGame.Interfaces;
 
 namespace ArmadilloGame.States
 {
-      internal sealed class BossHoverState : IBossState
+    internal sealed class BossHoverState : IBossState
     {
-        private const float PatrolLeft = 96f;
-        private const float PatrolRight = 768f;
-        private static readonly float[] PatrolSpeeds = { 0f, 80f, 110f, 150f };
-        private static readonly double[] FireIntervals = { 0, 1.8, 1.6, 1.3 };
-        private static readonly double[] SlamIntervals = { 0, 0, 5.0, 3.2 };
-        private const int RingShotCount = 10;
-
         private readonly Boss boss;
+        private readonly BossConfiguration configuration;
         private double fireTimer;
         private double slamTimer;
         private int patrolDirection = 1;
@@ -23,8 +18,9 @@ namespace ArmadilloGame.States
         public BossHoverState(Boss boss)
         {
             this.boss = boss;
-            fireTimer = FireIntervals[boss.Phase];
-            slamTimer = SlamIntervals[boss.Phase];
+            configuration = boss.Configuration;
+            fireTimer = configuration.FireIntervals[boss.Phase];
+            slamTimer = configuration.SlamIntervals[boss.Phase];
             boss.SetPose(boss.Phase == 3 ? BossPose.Enraged : BossPose.Idle);
         }
 
@@ -36,7 +32,7 @@ namespace ArmadilloGame.States
             if (fireTimer <= 0)
             {
                 FireVolley();
-                fireTimer = FireIntervals[boss.Phase];
+                fireTimer = configuration.FireIntervals[boss.Phase];
             }
             slamTimer -= elapsed;
             if (boss.Phase >= 2 && slamTimer <= 0)
@@ -47,16 +43,17 @@ namespace ArmadilloGame.States
 
         private void Patrol(float elapsed)
         {
-            if (boss.Position.X <= PatrolLeft)
+            if (boss.Position.X <= configuration.PatrolLeft)
             {
                 patrolDirection = 1;
             }
-            else if (boss.Position.X >= PatrolRight)
+            else if (boss.Position.X >= configuration.PatrolRight)
             {
                 patrolDirection = -1;
             }
-            float x = boss.Position.X + patrolDirection * PatrolSpeeds[boss.Phase] * elapsed;
-            boss.MoveToward(new Vector2(x, Boss.HoverY), PatrolSpeeds[boss.Phase] * 2, elapsed);
+            float speed = configuration.PatrolSpeeds[boss.Phase];
+            float x = boss.Position.X + patrolDirection * speed * elapsed;
+            boss.MoveToward(new Vector2(x, configuration.HoverY), speed * 2, elapsed);
         }
 
         // Aimed three-shot volleys; when enraged every other volley is a full ring.
@@ -65,11 +62,11 @@ namespace ArmadilloGame.States
             volleyCount++;
             if (boss.Phase == 3 && volleyCount % 2 == 0)
             {
-                boss.FireRing(RingShotCount, volleyCount * 9f);
+                boss.FireRing(configuration.RingShotCount, volleyCount * configuration.RingRotationPerVolley);
             }
             else
             {
-                boss.FireAtTarget(-14f, 0f, 14f);
+                boss.FireAtTarget(configuration.FireAngleOffsets.ToArray());
             }
         }
     }

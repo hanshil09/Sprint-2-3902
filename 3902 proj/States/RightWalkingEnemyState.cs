@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using ArmadilloGame.Core;
 using ArmadilloGame.Entities;
 using ArmadilloGame.Interfaces;
 
@@ -11,7 +12,7 @@ namespace ArmadilloGame.States
         public RightWalkingEnemyState(Enemy enemy)
         {
             this.enemy = enemy;
-            enemy.Sprite = enemy.RightSprite;
+            enemy.Sprite = enemy.GetDirectionalSprite(Direction.Right);
         }
 
         public int Facing

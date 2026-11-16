@@ -1,5 +1,11 @@
 using ArmadilloGame.Core;
 
+if (args.Contains("--boss"))
+{
+    BossChecks.Run();
+    return;
+}
+
 if (args.Contains("--selfie"))
 {
     SelfieChecks.Run();
