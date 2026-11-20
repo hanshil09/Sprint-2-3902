@@ -25,7 +25,7 @@ namespace ArmadilloGame.States
         private readonly Color background;
         private readonly Color roomColor;
 
-        public MapState(GraphicsDevice graphics, SpriteFont font, FireballSelection fireballs,
+        public MapState(GraphicsDevice graphics, SpriteFont font, WeaponSelection weapons,
             RoomFactory rooms, Action close, Action toggleMute, Func<RoomManager> roomManager,
             Func<IPlayer> player, Color background, Color roomColor)
         {
@@ -37,7 +37,7 @@ namespace ArmadilloGame.States
             this.player = player;
             this.background = background;
             this.roomColor = roomColor;
-            screen = new RoomMapScreen(font, fireballs);
+            screen = new RoomMapScreen(font, weapons);
         }
 
         public void Open(int roomIndex)
@@ -53,7 +53,7 @@ namespace ArmadilloGame.States
         public void Update(GameTime gameTime)
         {
             controller.Update();
-            if (active) screen.UpdateNavigation(rooms);
+            if (active) screen.UpdateNavigation(rooms, player());
         }
 
         public void Draw(SpriteBatch batch)

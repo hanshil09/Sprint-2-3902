@@ -87,6 +87,11 @@ namespace ArmadilloGame.Entities
             }
         }
 
+        // Too heavy to shove.
+        public void ApplyKnockback(int direction, float distance)
+        {
+        }
+
         // Moves toward a point at a fixed speed; returns true once it arrives.
         public bool MoveToward(Vector2 destination, float speed, float elapsed)
         {

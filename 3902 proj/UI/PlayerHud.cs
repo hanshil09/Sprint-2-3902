@@ -54,12 +54,12 @@ internal sealed class PlayerHud
         this.portraitTexture = portraitTexture;
     }
 
-    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, FireballSelection fireballs)
+    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, WeaponSelection weapons)
     {
         Rectangle panel = new Rectangle(PanelLeft, PanelTop, PanelWidth, PanelHeight);
         HudFrame.Draw(spriteBatch, panel, portraitTexture, AccentColor);
         DrawHealth(spriteBatch, player);
-        DrawInventory(spriteBatch, player, fireballs);
+        DrawInventory(spriteBatch, player, weapons);
         DrawRoomStatus(spriteBatch, player, roomName, roomStatus);
     }
 
@@ -77,7 +77,7 @@ internal sealed class PlayerHud
     private static readonly CounterStyle Gems = new("PINK GEMS", GemsLeft, GemColor, GemColor, HudIcon.GemIcon);
     private static readonly CounterStyle BombPacks = new("BOMB PACKS", BombPacksLeft, PowerColor, PowerColor, HudIcon.BombIcon);
 
-    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, FireballSelection fireballs)
+    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, WeaponSelection weapons)
     {
         DrawCounter(spriteBatch, Medkits, player.Inventory.MedkitCount.ToString(CultureInfo.InvariantCulture));
         string shieldStatus = player.Inventory.ShieldCount.ToString(CultureInfo.InvariantCulture);
@@ -92,10 +92,15 @@ internal sealed class PlayerHud
         DrawCounter(spriteBatch, Gems, player.Inventory.EnergonCount.ToString(CultureInfo.InvariantCulture));
         DrawCounter(spriteBatch, BombPacks, $"{player.Inventory.BombLevel}/{PlayerInventory.MaximumBombLevel}");
         DrawDivider(spriteBatch, FireballLeft);
-        DrawText(spriteBatch, "FIREBALL", FireballLeft, LabelY, PowerColor, LabelScale);
-        ISprite preview = fireballs.SelectedPreview;
+        DrawText(spriteBatch, "WEAPON", FireballLeft, LabelY, PowerColor, LabelScale);
+        ISprite preview = weapons.SelectedPreview;
         preview.Draw(spriteBatch, new Vector2(FireballLeft, ValueY - (preview.Height - PreviewAlignmentHeight) / 2));
-        DrawText(spriteBatch, fireballs.SelectedName, FireballLeft + preview.Width + IconTextSpacing,
+        string label = weapons.SelectedName;
+        if (!player.WeaponHasUnlimitedAmmo(weapons.SelectedKind))
+        {
+            label += $" x{player.WeaponAmmo(weapons.SelectedKind)}";
+        }
+        DrawText(spriteBatch, label, FireballLeft + preview.Width + IconTextSpacing,
             ValueY, TextColor, CountScale);
     }
 

@@ -21,26 +21,32 @@ namespace ArmadilloGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.Tab, new GameActionCommand(game.OpenMap));
             RegisterMovementCommands(keyboardController, player);
             keyboardController.RegisterSinglePressCommand(Keys.M, new ToggleMuteCommand(game));
-            RegisterActionCommands(keyboardController, player);
-            keyboardController.RegisterSinglePressCommand(Keys.X, new GameActionCommand(game.FireSelectedShot));
-            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.CallShotgun), Keys.D8, Keys.NumPad8);
-            keyboardController.RegisterSinglePressCommand(new GameActionCommand(game.FireShotgun), Keys.D9, Keys.NumPad9);
-            RegisterCycleCommands(keyboardController, blocks, items, enemies);
+            RegisterWeaponCommands(keyboardController, game);
             keyboardController.RegisterSinglePressCommand(Keys.F1, new ToggleHelpCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.H, new ToggleHelpCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.B, new BarrelStormCommand(game));
-            keyboardController.RegisterSinglePressCommand(Keys.PageUp, new RoomNavigationCommand(game, false));
-            keyboardController.RegisterSinglePressCommand(Keys.PageDown, new RoomNavigationCommand(game, true));
-            keyboardController.RegisterSinglePressCommand(Keys.E, new DamagePlayerCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
+            // F12 toggles the dev-only keys so they do not clutter normal play.
+            keyboardController.RegisterSinglePressCommand(Keys.F12, new GameActionCommand(game.ToggleDevMode));
 
+            // Left-click fires the equipped weapon. Right-click is unused for now.
             MouseController mouseController = new MouseController(
-                new RoomNavigationCommand(game, false),
-                new RoomNavigationCommand(game, true));
+                new GameActionCommand(game.FireSelectedShot),
+                new GameActionCommand(() => { }));
 
             return new CompositeController(keyboardController, mouseController);
+        }
+
+        // Dev-only shortcuts (object cycling, room skipping, self-damage), gated behind dev mode.
+        public static IController CreateDevController(Game1 game, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)
+        {
+            KeyboardController keyboard = new KeyboardController();
+            RegisterCycleCommands(keyboard, blocks, items, enemies);
+            keyboard.RegisterSinglePressCommand(Keys.PageUp, new RoomNavigationCommand(game, false));
+            keyboard.RegisterSinglePressCommand(Keys.PageDown, new RoomNavigationCommand(game, true));
+            keyboard.RegisterSinglePressCommand(Keys.E, new DamagePlayerCommand(game));
+            return keyboard;
         }
 
         private static void RegisterMovementCommands(KeyboardController keyboardController, IPlayer player)
@@ -48,16 +54,19 @@ namespace ArmadilloGame.Controllers
             keyboardController.RegisterCommand(new MovePlayerCommand(player, Direction.Left), Keys.A, Keys.Left);
             keyboardController.RegisterCommand(new MovePlayerCommand(player, Direction.Right), Keys.D, Keys.Right);
             keyboardController.RegisterCommand(new MovePlayerCommand(player, Direction.Down), Keys.S, Keys.Down);
-            keyboardController.RegisterSinglePressCommand(new JumpPlayerCommand(player), Keys.W, Keys.Up, Keys.J);
+            keyboardController.RegisterSinglePressCommand(new JumpPlayerCommand(player), Keys.W, Keys.Up, Keys.Space);
         }
 
-        private static void RegisterActionCommands(KeyboardController keyboardController, IPlayer player)
+        // Shift transforms to/from ball form; 1-4 equip weapons; C/V use medkit and shield.
+        private static void RegisterWeaponCommands(KeyboardController keyboardController, Game1 game)
         {
-            keyboardController.RegisterSinglePressCommand(new TransformPlayerCommand(player), Keys.Space);
-            keyboardController.RegisterSinglePressCommand(new UseItemCommand(player, 2), Keys.D2, Keys.NumPad2);
-            keyboardController.RegisterSinglePressCommand(new UseInventoryItemCommand(player, ItemKind.Medkit), Keys.D3, Keys.NumPad3);
-            keyboardController.RegisterSinglePressCommand(new UseInventoryItemCommand(player, ItemKind.Shield), Keys.D4, Keys.NumPad4);
-            keyboardController.RegisterSinglePressCommand(new UseItemCommand(player, 7), Keys.D7, Keys.NumPad7);
+            keyboardController.RegisterSinglePressCommand(new TransformPlayerCommand(game.Player), Keys.LeftShift, Keys.RightShift);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(() => game.SelectWeapon(0)), Keys.D1, Keys.NumPad1);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(() => game.SelectWeapon(1)), Keys.D2, Keys.NumPad2);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(() => game.SelectWeapon(2)), Keys.D3, Keys.NumPad3);
+            keyboardController.RegisterSinglePressCommand(new GameActionCommand(() => game.SelectWeapon(3)), Keys.D4, Keys.NumPad4);
+            keyboardController.RegisterSinglePressCommand(new UseInventoryItemCommand(game.Player, ItemKind.Medkit), Keys.C);
+            keyboardController.RegisterSinglePressCommand(new UseInventoryItemCommand(game.Player, ItemKind.Shield), Keys.V);
         }
 
         private static void RegisterCycleCommands(KeyboardController keyboardController, IGameObjectCycler blocks, IGameObjectCycler items, IGameObjectCycler enemies)

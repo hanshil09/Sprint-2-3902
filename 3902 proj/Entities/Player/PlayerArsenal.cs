@@ -128,6 +128,14 @@ namespace ArmadilloGame.Entities
                 player.IsInBallForm, () => player.PlaySound(GameSound.Explosion)));
         }
 
+        public void ThrowMolotov(float gravity)
+        {
+            ISprite sprite = ProjectileSpriteFactory.Instance.CreateBombSprite();
+            player.PlaySound(GameSound.Shoot);
+            projectiles.Add(new MolotovProjectile(MuzzlePosition(sprite), (int)Direction, sprite,
+                blocks, gravity, collisionManager, () => player.PlaySound(GameSound.Explosion)));
+        }
+
         private float Direction => player.FacingLeft ? -1f : 1f;
 
         private Vector2 Forward(float speed) => new Vector2(Direction * speed, 0);

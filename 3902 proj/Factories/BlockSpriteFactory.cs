@@ -20,7 +20,6 @@ namespace ArmadilloGame.Factories
         private Texture2D objectSpriteSheet;
         private Texture2D additionalItemSprites;
         private Texture2D castleTileset;
-        private Texture2D ShotgunBarrel;
 
         private BlockSpriteFactory()
         {
@@ -40,7 +39,6 @@ namespace ArmadilloGame.Factories
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             additionalItemSprites = content.Load<Texture2D>("Sprites/additionalItemSprites");
             castleTileset = content.Load<Texture2D>("Sprites/castle-tileset");
-            ShotgunBarrel = content.Load<Texture2D>("Sprites/Shotgun-barrel");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)

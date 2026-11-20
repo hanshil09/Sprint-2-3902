@@ -18,6 +18,7 @@ namespace ArmadilloGame.Collisions
         private Rectangle worldBounds;
         private readonly BlockCollision blockCollision;
         private List<IGameObject> objects = new List<IGameObject>();
+        private readonly RollHitTracker rollHits = new RollHitTracker();
 
         public CollisionManager(int maxWidth, int maxHeight, Action damagePlayer = null, Action<Door> enterDoor = null)
         {
@@ -83,8 +84,10 @@ namespace ArmadilloGame.Collisions
 
         public void DetectCollision()
         {
+            rollHits.BeginFrame();
             ProcessProjectileCollisions();
             ProcessObjectCollisions();
+            rollHits.EndFrame();
             CleanupOutOfBoundsProjectiles();
         }
 
@@ -177,7 +180,7 @@ namespace ArmadilloGame.Collisions
             {
                 return;
             }
-            PlayerCollision.HandleContact(player, other, enterDoor, DamagePlayer);
+            PlayerCollision.HandleContact(player, other, enterDoor, DamagePlayer, rollHits);
         }
 
         private void HandleProjectileCollision(IProjectile projectile, Rectangle targetBounds, IGameObject target)

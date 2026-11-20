@@ -40,19 +40,32 @@ namespace ArmadilloGame.UI
                 DrawText(spriteBatch, $"The Warlord is defeated and the beacon is lit. Energon collected: {player.Inventory.EnergonCount}", left + 30, top + 66, PowerColor, 0.55f);
             }
             DrawText(spriteBatch, "Climb to the GOLD exit. Defeat the boss in the last room, then touch the beacon.", left + 30, top + 92, TextColor, 0.52f);
+
             bool ended = screen != GameState.StartMenu;
-            DrawKeyLine(spriteBatch, ended ? "R" : "ENTER", ended ? "Reset to start menu" : "Start game", left + 30, top + 124);
-            DrawKeyLine(spriteBatch, "A / D or arrows", "Move left / right", left + 30, top + 156);
-            DrawKeyLine(spriteBatch, "W / UP / J", "Jump between platforms", left + 30, top + 184);
-            DrawKeyLine(spriteBatch, "X / TAB", "Fire selected shot / choose fireball and view map", left + 30, top + 212);
-            DrawKeyLine(spriteBatch, "7", "Throw boomerang", left + 30, top + 240);
-            DrawKeyLine(spriteBatch, "2", "Drop a bomb (unlimited; Bomb Packs make the blast bigger)", left + 30, top + 268);
-            DrawKeyLine(spriteBatch, "3  /  4", "Use a stored medkit  /  shield", left + 30, top + 296);
-            DrawKeyLine(spriteBatch, "SPACE", "Switch robot / vehicle form", left + 30, top + 324);
-            DrawKeyLine(spriteBatch, "B", "Barrel Storm (falling barrels, damages enemies, 14-second cooldown)", left + 30, top + 352);
-            DrawKeyLine(spriteBatch, "T/Y  U/I  O/P", "Preview every block, item and enemy", left + 30, top + 380);
-            DrawKeyLine(spriteBatch, "F1 / H   M", "Show controls / mute all audio", left + 30, top + 408);
-            DrawKeyLine(spriteBatch, "Q / ESC", "Quit game", left + 30, top + 436);
+            int x = left + 30;
+            int y = top + 128;
+            const int row = 27;
+
+            DrawSection(spriteBatch, "GET STARTED", x, ref y);
+            DrawKeyLine(spriteBatch, ended ? "R" : "ENTER", ended ? "Reset to start menu" : "Start game", x, y); y += row;
+
+            y += 6;
+            DrawSection(spriteBatch, "MOVE", x, ref y);
+            DrawKeyLine(spriteBatch, "A / D or arrows", "Move left / right", x, y); y += row;
+            DrawKeyLine(spriteBatch, "W / UP / SPACE", "Jump", x, y); y += row;
+            DrawKeyLine(spriteBatch, "SHIFT", "Switch to / from ball form", x, y); y += row;
+
+            y += 6;
+            DrawSection(spriteBatch, "FIGHT", x, ref y);
+            DrawKeyLine(spriteBatch, "1 / 2 / 3 / 4", "Equip boomerang / pistol / shotgun / molotov", x, y); y += row;
+            DrawKeyLine(spriteBatch, "LEFT CLICK", "Fire the equipped weapon", x, y); y += row;
+            DrawKeyLine(spriteBatch, "Ball form", "Roll into enemies for knockback damage", x, y); y += row;
+
+            y += 6;
+            DrawSection(spriteBatch, "ITEMS & SYSTEM", x, ref y);
+            DrawKeyLine(spriteBatch, "C / V", "Use a stored medkit / shield", x, y); y += row;
+            DrawKeyLine(spriteBatch, "TAB", "Map and weapon loadout", x, y); y += row;
+            DrawKeyLine(spriteBatch, "F1 / H   M   Q / ESC", "Help / mute / quit", x, y); y += row;
         }
 
         public void DrawGameplayHelp(SpriteBatch spriteBatch, IPlayer player, string objective)
@@ -61,6 +74,34 @@ namespace ArmadilloGame.UI
             {
                 DrawHelp(spriteBatch, player, objective);
             }
+        }
+
+        // A small panel listing the dev-only testing keys, shown while dev mode is on.
+        public void DrawDevControls(SpriteBatch spriteBatch, Viewport viewport)
+        {
+            const int width = 360;
+            const int height = 170;
+            int left = viewport.Width - width - 16;
+            int top = viewport.Height - height - 16;
+            Rectangle panel = new Rectangle(left, top, width, height);
+            spriteBatch.Draw(pixel, panel, new Color(10, 12, 20, 235));
+            DrawPanel(spriteBatch, panel);
+            DrawText(spriteBatch, "DEV MODE - F12 TO CLOSE", left + 18, top + 14, HeadingColor, 0.62f);
+
+            int x = left + 18;
+            int y = top + 44;
+            const int row = 24;
+            DrawDevLine(spriteBatch, "T / Y", "Cycle block preview", x, y); y += row;
+            DrawDevLine(spriteBatch, "U / I", "Cycle item preview", x, y); y += row;
+            DrawDevLine(spriteBatch, "O / P", "Cycle enemy preview", x, y); y += row;
+            DrawDevLine(spriteBatch, "PG UP / DN", "Previous / next room", x, y); y += row;
+            DrawDevLine(spriteBatch, "E", "Damage the player", x, y);
+        }
+
+        private void DrawDevLine(SpriteBatch spriteBatch, string key, string action, int x, int y)
+        {
+            DrawText(spriteBatch, key, x, y, AccentColor, 0.5f);
+            DrawText(spriteBatch, action, x + 130, y, TextColor, 0.5f);
         }
 
         public void DrawPanel(SpriteBatch spriteBatch, Rectangle bounds)
@@ -103,22 +144,26 @@ namespace ArmadilloGame.UI
 
         private void DrawHelp(SpriteBatch spriteBatch, IPlayer player, string objective)
         {
-            Rectangle panel = new Rectangle(16, 104, 800, 414);
+            Rectangle panel = new Rectangle(16, 104, 800, 360);
             spriteBatch.Draw(pixel, panel, new Color(10, 12, 20, 245));
             DrawPanel(spriteBatch, panel);
             DrawText(spriteBatch, "HELP - F1 / H TO CLOSE", 34, 118, HeadingColor, 0.9f);
-            DrawHelpLine(spriteBatch, "MOVE", "A / D or arrows     W / UP / J jump     S / DOWN face", 151);
-            DrawHelpLine(spriteBatch, "FIRE", "X fire   Shift+X aim up   TAB choose shot   7 boomerang", 179);
-            DrawHelpLine(spriteBatch, "ITEMS", "2 bomb     3 medkit (full heal)     4 shield (5 seconds)", 207);
-            DrawHelpLine(spriteBatch, "ABILITY", "B Barrel Storm (9 falling barrels; 14-second cooldown)", 235);
-            DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.Inventory.MedkitCount}   Shields {player.Inventory.ShieldCount}   Blast Lv {player.Inventory.BombLevel}   Energon {player.Inventory.EnergonCount}", 263);
-            DrawHelpLine(spriteBatch, "SHOW", "T/Y blocks   U/I items   O/P enemies   SPACE transform", 291);
-            DrawHelpLine(spriteBatch, "ROOM", "LEFT / RIGHT CLICK or PAGE UP / DOWN", 319);
-            DrawHelpLine(spriteBatch, "SYSTEM", "F2 selfie  F3 gallery  8 call  9 fire  SHIFT+9 up  M mute", 347);
-            DrawHelpLine(spriteBatch, "CRUMBLE", "Coral 0.9s   Gold 1.5s   Purple 2.3s   Flash, fall, return", 375);
-            DrawHelpLine(spriteBatch, "CRATES", "Green: Health   Gold: Energon   Orange-red: Morph Ball bomb", 403);
-            DrawHelpLine(spriteBatch, "CRATES", "Metal cases: roll into them   Green / gold: shoot or bomb", 431);
-            DrawHelpLine(spriteBatch, "GOAL", objective, 459);
+            DrawHelpLine(spriteBatch, "MOVE", "A / D or arrows    W / UP / SPACE jump    SHIFT ball form", 151);
+            DrawHelpLine(spriteBatch, "WEAPONS", "1 boomerang   2 pistol   3 shotgun   4 molotov", 179);
+            DrawHelpLine(spriteBatch, "FIRE", "LEFT CLICK fires   roll into enemies in ball form", 207);
+            DrawHelpLine(spriteBatch, "ITEMS", "C medkit (full heal)    V shield (5 seconds)", 235);
+            DrawHelpLine(spriteBatch, "STATUS", $"Medkits {player.Inventory.MedkitCount}   Shields {player.Inventory.ShieldCount}   Energon {player.Inventory.EnergonCount}", 263);
+            DrawHelpLine(spriteBatch, "SYSTEM", "TAB map / loadout   M mute   F2 selfie   F3 gallery", 291);
+            DrawHelpLine(spriteBatch, "DEV", "F12 toggles dev testing keys", 319);
+            DrawHelpLine(spriteBatch, "CRATES", "Green: Health   Gold: Energon   Orange-red: Morph Ball bomb", 347);
+            DrawHelpLine(spriteBatch, "CRATES", "Metal cases: roll into them   Green / gold: shoot or bomb", 375);
+            DrawHelpLine(spriteBatch, "GOAL", objective, 403);
+        }
+
+        private void DrawSection(SpriteBatch spriteBatch, string title, int x, ref int y)
+        {
+            DrawText(spriteBatch, title, x, y, PowerColor, 0.52f);
+            y += 22;
         }
 
         private void DrawHelpLine(SpriteBatch spriteBatch, string label, string text, int y)
@@ -127,10 +172,10 @@ namespace ArmadilloGame.UI
             DrawText(spriteBatch, text, 112, y, TextColor, 0.5f);
         }
 
-        private void DrawKeyLine(SpriteBatch spriteBatch, string key, string action, int x, int y)
+        private void DrawKeyLine(SpriteBatch spriteBatch, string key, string action, int x, int y, int labelWidth = 220)
         {
             DrawText(spriteBatch, key, x, y, AccentColor, 0.62f);
-            DrawText(spriteBatch, action, x + 220, y, TextColor, 0.62f);
+            DrawText(spriteBatch, action, x + labelWidth, y, TextColor, 0.62f);
         }
 
         private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)

@@ -21,7 +21,7 @@ namespace ArmadilloGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Armadillo - Press Enter to Start";
-        private const string GameplayTitle = "Armadillo - A/D Move, W Jump, X Fire, Tab Map / Fireball, B Barrel Storm, 7 Boomerang, 2 Bomb, 3/4 Items, R Reset, Q Quit";
+        private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, F12 Dev";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
@@ -40,11 +40,13 @@ namespace ArmadilloGame
         private GameplayState gameplayState;
         private MenuState menuState;
         private IController gameplayController;
+        private IController devController;
+        private bool devMode;
         private CollisionManager collisionManager;
         private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
         private PlayerHud playerHud;
-        private readonly FireballSelection fireballs = new FireballSelection();
+        private readonly WeaponSelection weapons = new WeaponSelection();
         private MapState mapState;
         private IController selfieShortcut;
         private SelfieState selfieState;
@@ -147,13 +149,16 @@ namespace ArmadilloGame
         {
             if (gameState == GameState.Gameplay)
             {
-                KeyboardState keyboard = Keyboard.GetState();
+                weapons.Fire(Player);
+            }
+        }
 
-                bool angled =
-                    keyboard.IsKeyDown(Keys.LeftShift) ||
-                    keyboard.IsKeyDown(Keys.RightShift);
-
-                fireballs.Fire(Player, angled);
+        // Equips weapon slot 0-3 when its weapon is unlocked.
+        public void SelectWeapon(int index)
+        {
+            if (gameState == GameState.Gameplay)
+            {
+                weapons.Select(index, Player);
             }
         }
 
@@ -244,7 +249,7 @@ namespace ArmadilloGame
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
 
-            fireballs.LoadPreviews();
+            weapons.LoadPreviews();
 
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
@@ -293,7 +298,7 @@ namespace ArmadilloGame
             mapState = new MapState(
                 GraphicsDevice,
                 uiFont,
-                fireballs,
+                weapons,
                 roomFactory,
                 CloseMap,
                 ToggleMute,
@@ -433,7 +438,7 @@ namespace ArmadilloGame
                 Player,
                 room.Level.Name,
                 roomStatus,
-                fireballs);
+                weapons);
 
             controlsOverlay.DrawSmallText(
                 spriteBatch,
@@ -456,19 +461,12 @@ namespace ArmadilloGame
                 100,
                 false);
 
-            controlsOverlay.DrawSmallText(
-                spriteBatch,
-                Shotgun.Status(Player),
-                440,
-                100,
-                true);
-
             if (roomManager.ActiveRoomIndex == 0 &&
                 room.Level.HasIntactReinforcedCrate)
             {
                 controlsOverlay.DrawSmallText(
                     spriteBatch,
-                    "SPACE to transform. Roll into the blue crate.",
+                    "SHIFT to transform. Roll into the blue crate.",
                     26,
                     98,
                     false);
@@ -480,6 +478,11 @@ namespace ArmadilloGame
                 spriteBatch,
                 Player,
                 room.Objective);
+
+            if (devMode)
+            {
+                controlsOverlay.DrawDevControls(spriteBatch, GraphicsDevice.Viewport);
+            }
         }
 
         private void InitializeGameObjects()
@@ -491,7 +494,6 @@ namespace ArmadilloGame
             roomManager = null;
 
             roomFactory.StartNewGame();
-            fireballs.Select(0);
 
             Level initialLevel = roomFactory.LoadLevel(0);
 
@@ -511,6 +513,9 @@ namespace ArmadilloGame
                 collisionManager);
 
             ((Player)player).SoundRequested += audio.Play;
+
+            // Default to the boomerang now that the player (weapon loadout) exists.
+            weapons.Select(0, player);
 
             Room initialRoom = RoomFactory.CreateRoom(
                 initialLevel,
@@ -549,11 +554,20 @@ namespace ArmadilloGame
         {
             gameplayController.Update();
 
+            if (devMode)
+            {
+                devController.Update();
+            }
+
             if (State == GameState.Gameplay && !Shotgun.Active)
             {
                 UpdateGameplay(gameTime);
             }
         }
+
+        public void ToggleDevMode() => devMode = !devMode;
+
+        public bool IsDevMode => devMode;
 
         private void UpdateActiveGameplay(GameTime gameTime)
         {
@@ -767,6 +781,12 @@ namespace ArmadilloGame
             gameplayController = ControllerFactory.CreateGameplayController(
                 this,
                 Player,
+                showcase.Blocks,
+                showcase.Items,
+                showcase.Enemies);
+
+            devController = ControllerFactory.CreateDevController(
+                this,
                 showcase.Blocks,
                 showcase.Items,
                 showcase.Enemies);

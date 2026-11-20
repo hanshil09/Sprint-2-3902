@@ -244,6 +244,12 @@ sealed class StubPlayer : IPlayer
     public bool UseShield() => false;
     public bool UseShotgunCall() => false;
     public bool FireShotgun(bool aimUp = false) => false;
+    public bool IsWeaponUnlocked(WeaponKind kind) => kind == WeaponKind.Boomerang;
+    public int WeaponAmmo(WeaponKind kind) => 0;
+    public bool WeaponHasUnlimitedAmmo(WeaponKind kind) => WeaponLoadout.HasUnlimitedAmmo(kind);
+    public void UnlockWeapon(WeaponKind kind) { }
+    public void AddWeaponAmmo(WeaponKind kind, int amount) { }
+    public bool FireWeapon(WeaponKind kind) => false;
     public bool TryUseKey() => false;
     public void Move(Direction direction) { }
     public void Jump() { }
@@ -269,6 +275,8 @@ sealed class StubEnemy : IEnemy
     public bool IsDestroyed => Hits > 0;
     public int Hits { get; private set; }
     public void TakeDamage(int amount) => Hits += amount;
+    public int KnockbackDirection { get; private set; }
+    public void ApplyKnockback(int direction, float distance) => KnockbackDirection = direction;
     public void Update(GameTime time) { }
     public void Draw(SpriteBatch batch) { }
 }

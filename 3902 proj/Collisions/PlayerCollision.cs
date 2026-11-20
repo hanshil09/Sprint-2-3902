@@ -6,8 +6,11 @@ namespace ArmadilloGame.Collisions
 {
     internal static class PlayerCollision
     {
+        private const int RollDamage = 1;
+        private const float RollKnockbackDistance = 24f;
+
         public static void HandleContact(IPlayer player, IGameObject other, Action<Door> enterDoor,
-            Action<IPlayer> damagePlayer)
+            Action<IPlayer> damagePlayer, RollHitTracker rollHits)
         {
             switch (other)
             {
@@ -18,14 +21,19 @@ namespace ArmadilloGame.Collisions
                     trigger.OnPlayerContact(player);
                     break;
                 case IEnemy enemy when !enemy.IsDestroyed:
-                    HandleEnemyContact(player, enemy, damagePlayer);
+                    HandleEnemyContact(player, enemy, damagePlayer, rollHits);
                     break;
             }
         }
 
-        private static void HandleEnemyContact(IPlayer player, IEnemy enemy, Action<IPlayer> damagePlayer)
+        private static void HandleEnemyContact(IPlayer player, IEnemy enemy, Action<IPlayer> damagePlayer,
+            RollHitTracker rollHits)
         {
-            if (player.IsInvincible)
+            if (player.IsInBallForm)
+            {
+                HandleRollContact(player, enemy, rollHits);
+            }
+            else if (player.IsInvincible)
             {
                 enemy.TakeDamage(1);
             }
@@ -33,6 +41,19 @@ namespace ArmadilloGame.Collisions
             {
                 damagePlayer(player);
             }
+        }
+
+        // Rolling damages and shoves the enemy once per contact (non-chainable).
+        private static void HandleRollContact(IPlayer player, IEnemy enemy, RollHitTracker rollHits)
+        {
+            if (rollHits == null || !rollHits.TryRegisterHit(enemy))
+            {
+                return;
+            }
+            float playerCenterX = player.Position.X + player.Width / 2f;
+            int direction = enemy.Bounds.Center.X >= playerCenterX ? 1 : -1;
+            enemy.TakeDamage(RollDamage);
+            enemy.ApplyKnockback(direction, RollKnockbackDistance);
         }
     }
 }

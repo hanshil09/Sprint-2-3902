@@ -16,6 +16,7 @@ internal class Player : IPlayer
     private readonly PlayerInventory inventory = new PlayerInventory();
     private readonly PlayerHealth health = new PlayerHealth();
     private readonly PlayerShield shield = new PlayerShield();
+    private readonly WeaponLoadout weapons = new WeaponLoadout();
 
     private readonly PlayerForm form;
 
@@ -154,6 +155,37 @@ internal class Player : IPlayer
 
     public void DropBomb() => Arsenal.DropBomb(movement.Gravity, Inventory.BombLevel);
     public bool TryUseKey() => inventory.TryUseKey();
+
+    public bool IsWeaponUnlocked(WeaponKind kind) => weapons.IsUnlocked(kind);
+    public int WeaponAmmo(WeaponKind kind) => weapons.Ammo(kind);
+    public bool WeaponHasUnlimitedAmmo(WeaponKind kind) => WeaponLoadout.HasUnlimitedAmmo(kind);
+    public void UnlockWeapon(WeaponKind kind) => weapons.Unlock(kind);
+    public void AddWeaponAmmo(WeaponKind kind, int amount) => weapons.AddAmmo(kind, amount);
+
+    // Fires the given weapon when it is unlocked and loaded, spending one shot.
+    public bool FireWeapon(WeaponKind kind)
+    {
+        if (IsInBallForm || !weapons.TryConsume(kind))
+        {
+            return false;
+        }
+        switch (kind)
+        {
+            case WeaponKind.Boomerang:
+                Arsenal.ThrowBoomerang();
+                break;
+            case WeaponKind.Pistol:
+                Arsenal.FireShot(false);
+                break;
+            case WeaponKind.Shotgun:
+                Arsenal.FireShotgun(false);
+                break;
+            case WeaponKind.Molotov:
+                Arsenal.ThrowMolotov(movement.Gravity);
+                break;
+        }
+        return true;
+    }
 
     public bool UseShotgunCall() => inventory.TryUseShotgunCall();
 

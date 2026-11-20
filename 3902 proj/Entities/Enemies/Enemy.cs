@@ -213,6 +213,16 @@ namespace ArmadilloGame.Entities
             }
         }
 
+        // Collisions stop the shove at walls.
+        public void ApplyKnockback(int direction, float distance)
+        {
+            if (IsDestroyed || direction == 0 || distance <= 0)
+            {
+                return;
+            }
+            MoveBy(System.Math.Sign(direction) * distance);
+        }
+
         public void LaunchProjectile()
         {
             Vector2 center = Center;
