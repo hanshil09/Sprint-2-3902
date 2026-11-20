@@ -18,8 +18,12 @@ namespace ArmadilloGame
 {
     internal class Game1 : Game, IPlayerHost
     {
+        // Virtual resolution the whole game renders at; scaled up to the window below.
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
+        private const int WindowWidth = 1280;
+        private const int WindowHeight = 720;
+        private const double DoorCooldownDurationMs = 600;
         private const string MenuTitle = "Armadillo - Press Enter to Start";
         private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, ` Dev";
 
@@ -35,6 +39,8 @@ namespace ArmadilloGame
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
+        // Everything renders into this 960x540 target, then it is scaled up to the window.
+        private RenderTarget2D sceneTarget;
         private GameState gameState;
         private IGameState currentState;
         private GameplayState gameplayState;
@@ -56,6 +62,10 @@ namespace ArmadilloGame
         private Camera2D camera;
         private IPlayer player;
         private Door pendingDoor;
+
+        // After using a door, ignore door contacts briefly so spawning on top of
+        // another door does not immediately send the player through it.
+        private double doorCooldownMs;
 
         // Targeted locked doors the player has already opened.
         private readonly System.Collections.Generic.HashSet<(int From, int To)> unlockedDoors = new();
@@ -222,9 +232,11 @@ namespace ArmadilloGame
 
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferWidth = ScreenWidth;
-            graphics.PreferredBackBufferHeight = ScreenHeight;
+            graphics.PreferredBackBufferWidth = WindowWidth;
+            graphics.PreferredBackBufferHeight = WindowHeight;
             graphics.ApplyChanges();
+
+            Core.ScreenScale.Configure(ScreenWidth, ScreenHeight, WindowWidth, WindowHeight);
 
             gameState = GameState.StartMenu;
 
@@ -234,6 +246,8 @@ namespace ArmadilloGame
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            sceneTarget = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
 
             // Load the repeating background.
             backgroundTexture = Content.Load<Texture2D>("Sprites/Brown");
@@ -354,6 +368,9 @@ namespace ArmadilloGame
                 spriteBatch?.Dispose();
                 spriteBatch = null;
 
+                sceneTarget?.Dispose();
+                sceneTarget = null;
+
                 graphics?.Dispose();
                 graphics = null;
             }
@@ -363,7 +380,16 @@ namespace ArmadilloGame
 
         protected override void Draw(GameTime gameTime)
         {
+            // Render the game at virtual resolution, then scale the result up to the window.
+            GraphicsDevice.SetRenderTarget(sceneTarget);
             currentState.Draw(spriteBatch);
+
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            spriteBatch.Draw(sceneTarget, new Rectangle(0, 0, WindowWidth, WindowHeight), Color.White);
+            spriteBatch.End();
+
             base.Draw(gameTime);
         }
 
@@ -543,6 +569,7 @@ namespace ArmadilloGame
                 roomManager.ActiveRoom.Level.WorldBounds);
 
             pendingDoor = null;
+            doorCooldownMs = 0;
             unlockedDoors.Clear();
 
             menuState.Open(false);
@@ -615,7 +642,12 @@ namespace ArmadilloGame
 
             Door touchedDoor = pendingDoor;
             pendingDoor = null;
-            if (touchedDoor != null && Player.Health > 0)
+
+            if (doorCooldownMs > 0)
+            {
+                doorCooldownMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+            else if (touchedDoor != null && Player.Health > 0)
             {
                 UseDoor(touchedDoor);
             }
@@ -745,6 +777,10 @@ namespace ArmadilloGame
             selfieNeedsSpace = false;
 
             switchRoom();
+
+            // Arm the door cooldown so the player does not re-trigger a door on arrival.
+            doorCooldownMs = DoorCooldownDurationMs;
+            pendingDoor = null;
 
             collisionManager.SetWorldBounds(
                 roomManager.ActiveRoom.Level.WorldBounds);

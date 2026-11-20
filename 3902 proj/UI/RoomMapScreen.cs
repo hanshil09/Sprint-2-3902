@@ -50,19 +50,20 @@ internal sealed class RoomMapScreen
     public void UpdateNavigation(RoomFactory factory, IPlayer player)
     {
         MouseState mouse = Mouse.GetState();
+        Point mousePosition = Core.ScreenScale.ToVirtual(mouse.Position);
         if (mouse.LeftButton == ButtonState.Pressed && previousLeftButton == ButtonState.Released)
         {
-            if (PreviousButton.Contains(mouse.Position) && previewIndex > 0)
+            if (PreviousButton.Contains(mousePosition) && previewIndex > 0)
             {
                 ShowRoom(factory, previewIndex - 1);
             }
-            else if (NextButton.Contains(mouse.Position) && previewIndex < factory.RoomCount - 1)
+            else if (NextButton.Contains(mousePosition) && previewIndex < factory.RoomCount - 1)
             {
                 ShowRoom(factory, previewIndex + 1);
             }
             else
             {
-                SelectWeapon(mouse.Position, player);
+                SelectWeapon(mousePosition, player);
             }
         }
 

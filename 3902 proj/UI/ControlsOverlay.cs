@@ -66,6 +66,7 @@ namespace ArmadilloGame.UI
             DrawSection(spriteBatch, "ITEMS & SYSTEM", x, ref y);
             DrawKeyLine(spriteBatch, "C / V", "Use a stored medkit / shield", x, y); y += row;
             DrawKeyLine(spriteBatch, "TAB", "Map and weapon loadout", x, y); y += row;
+            DrawKeyLine(spriteBatch, "`  (backtick)", "Toggle dev testing controls", x, y); y += row;
             DrawKeyLine(spriteBatch, "F1 / H   M   Q / ESC", "Help / mute / quit", x, y); y += row;
         }
 

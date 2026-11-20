@@ -147,13 +147,9 @@ internal sealed class PlayerHud
         }
     }
 
-    // Draw a second copy one pixel to the right to give HUD text a heavier weight.
     private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)
     {
-        Vector2 position = new Vector2(x, y);
-        spriteBatch.DrawString(font, text, position, color,
-            0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-        spriteBatch.DrawString(font, text, position + Vector2.UnitX, color,
+        spriteBatch.DrawString(font, text, new Vector2(x, y), color,
             0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
     }
 }
