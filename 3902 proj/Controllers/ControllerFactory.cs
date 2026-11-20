@@ -27,8 +27,8 @@ namespace ArmadilloGame.Controllers
             keyboardController.RegisterSinglePressCommand(Keys.R, new ResetGameCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Q, new QuitCommand(game));
             keyboardController.RegisterSinglePressCommand(Keys.Escape, new QuitCommand(game));
-            // F12 toggles the dev-only keys so they do not clutter normal play.
-            keyboardController.RegisterSinglePressCommand(Keys.F12, new GameActionCommand(game.ToggleDevMode));
+            // ` (backtick/tilde) toggles the dev-only keys so they do not clutter normal play.
+            keyboardController.RegisterSinglePressCommand(Keys.OemTilde, new GameActionCommand(game.ToggleDevMode));
 
             // Left-click fires the equipped weapon. Right-click is unused for now.
             MouseController mouseController = new MouseController(

@@ -21,7 +21,7 @@ namespace ArmadilloGame
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const string MenuTitle = "Armadillo - Press Enter to Start";
-        private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, F12 Dev";
+        private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, ` Dev";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
