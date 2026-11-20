@@ -41,7 +41,7 @@ namespace ArmadilloGame.Core
             }
             if (random != null)
             {
-                CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random, blockFactory.ReinforcedSupply);
+                //CrumblingPlatformLayout.Apply(blocks, data, CellPosition, random, blockFactory.ReinforcedSupply);
             }
             LevelObjects levelObjects = new LevelObjects(data.Objects, CellPosition, data.Gravity);
             blocks.AddRange(levelObjects.Platforms);
