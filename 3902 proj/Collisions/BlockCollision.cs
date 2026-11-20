@@ -201,7 +201,7 @@ namespace ArmadilloGame.Collisions
                     weapon.HitSolid(block);
                     break;
                 case EnemyProjectile shot when block.IsSolid:
-                    shot.Deactivate();
+                    shot.Deactivate(); 
                     break;
             }
             return true;
@@ -212,6 +212,7 @@ namespace ArmadilloGame.Collisions
             Rectangle body = new Rectangle((int)entity.Position.X, (int)entity.Position.Y, width, height);
             foreach (IBlock block in state.Blocks)
             {
+                
                 if (block is IMovingBlock platform && platform != state.SupportingBlock
                     && platform.Delta.X != 0 && BlockCollisionOperations.IntersectsBlock(body, platform) && entity is IPlayer)
                 {
