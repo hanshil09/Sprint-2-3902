@@ -40,7 +40,9 @@ namespace ArmadilloGame.Core
             {
                 Console.WriteLine(message);
             }
-            return new Level(loaded.Data, new Random(roomSeeds[roomIndex]), roomProgress[roomIndex]);
+            // Difficulty ramps from 0 in the first room to 1 in the last.
+            float difficultyTier = RoomCount > 1 ? (float)roomIndex / (RoomCount - 1) : 0f;
+            return new Level(loaded.Data, new Random(roomSeeds[roomIndex]), roomProgress[roomIndex], difficultyTier);
         }
 
         public static Room CreateRoom(Level level, IPlayer player, IProjectileManager projectiles,

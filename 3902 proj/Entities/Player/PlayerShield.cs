@@ -4,7 +4,7 @@ namespace ArmadilloGame.Entities;
 
 internal sealed class PlayerShield
 {
-    private const double DurationMilliseconds = 5000;
+    private const double DurationMilliseconds = 15000;
     private double remainingMilliseconds;
 
     public bool IsActive => remainingMilliseconds > 0;

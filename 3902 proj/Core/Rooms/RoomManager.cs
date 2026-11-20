@@ -49,9 +49,10 @@ namespace ArmadilloGame.Core
             ActiveRoomIndex = -1;
             previousRoom?.Unload();
 
-            // Back in the hub (room 0): stand beside the door of the room just left, not at the hub start.
-            // Spokes always start at their own spawn so their return door can't skip the level.
-            Vector2 spawn = roomIndex == 0 ? nextRoom.Level.ArrivalFrom(previousIndex) : nextRoom.Level.PlayerStart;
+            // Arrive beside the door that leads back to the room just left, so re-entering a
+            // room puts the player where they came in. Falls back to the level's start when there
+            // is no matching door (e.g. the very first spawn).
+            Vector2 spawn = nextRoom.Level.ArrivalFrom(previousIndex);
 
             // Entering a non-hub level locks the door back to the hub behind the player. The hub (room 0)
             // never locks, so the player can always leave a level once they hold a key.

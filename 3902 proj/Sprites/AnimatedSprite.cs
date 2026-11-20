@@ -11,17 +11,22 @@ namespace ArmadilloGame.Sprites
         private readonly Color tint;
         private readonly double millisecondsPerFrame;
         private readonly SpriteEffects effects;
+        // When true each frame is drawn at its true aspect, scaled to the logical height and
+        // bottom-center anchored, so animation frames of different sizes do not squish or jitter.
+        private readonly bool preserveAspect;
         private int currentFrame;
         private int totalFrames;
         private double timeSinceLastFrame;
 
-        public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint, double millisecondsPerFrame = 90, SpriteEffects effects = SpriteEffects.None)
+        public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint,
+            double millisecondsPerFrame = 90, SpriteEffects effects = SpriteEffects.None, bool preserveAspect = false)
         {
             this.texture = texture;
             this.frames = frames;
             this.tint = tint;
             this.millisecondsPerFrame = millisecondsPerFrame;
             this.effects = effects;
+            this.preserveAspect = preserveAspect;
             Width = width;
             Height = height;
             currentFrame = 0;
@@ -45,9 +50,11 @@ namespace ArmadilloGame.Sprites
 
         public void Draw(SpriteBatch spriteBatch, Vector2 location)
         {
-            Rectangle sourceRectangle = frames[currentFrame];
-            Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, Width, Height);
-            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, tint, 0f, Vector2.Zero, effects, 0f);
+            Rectangle source = frames[currentFrame];
+            Rectangle destination = preserveAspect
+                ? SpriteDraw.BottomCenterFit(source, location, Width, Height)
+                : new Rectangle((int)location.X, (int)location.Y, Width, Height);
+            spriteBatch.Draw(texture, destination, source, tint, 0f, Vector2.Zero, effects, 0f);
         }
     }
 }

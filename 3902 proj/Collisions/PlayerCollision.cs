@@ -7,6 +7,7 @@ namespace ArmadilloGame.Collisions
     internal static class PlayerCollision
     {
         private const int RollDamage = 1;
+        private const int ShieldedRollDamage = 3;
         private const float RollKnockbackDistance = 24f;
 
         public static void HandleContact(IPlayer player, IGameObject other, Action<Door> enterDoor,
@@ -52,7 +53,8 @@ namespace ArmadilloGame.Collisions
             }
             float playerCenterX = player.Position.X + player.Width / 2f;
             int direction = enemy.Bounds.Center.X >= playerCenterX ? 1 : -1;
-            enemy.TakeDamage(RollDamage);
+            int damage = player.IsShieldActive ? ShieldedRollDamage : RollDamage;
+            enemy.TakeDamage(damage);
             enemy.ApplyKnockback(direction, RollKnockbackDistance);
         }
     }

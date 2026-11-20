@@ -12,35 +12,39 @@ namespace ArmadilloGame.Factories
         private const int PlayerWidth = 68;
         private const int PlayerHeight = 80;
 
-        private const int BallSize = 36;
+        // The ball form is exactly one block wide/tall so it fits level geometry cleanly.
+        private const int BallSize = 32;
 
         private const double IdleFrameTime = 250;
         private const double RunFrameTime = 83;
         private const double RollFrameTime = 90;
 
+        // Source rects cropped tight to the character (black/purple/white padding excluded) so the
+        // art renders without a letterbox or squish. Frames vary in size; the sprite classes scale
+        // each to the logical PlayerWidth x PlayerHeight box, bottom-center anchored.
         // Idle: 3 frames
         private static readonly Rectangle[] IdleFrames =
         {
-            new Rectangle(4, 58, 70, 100),
-            new Rectangle(76, 58, 70, 100),
-            new Rectangle(148, 58, 70, 100)
+            new Rectangle(8, 64, 62, 92),
+            new Rectangle(80, 66, 62, 90),
+            new Rectangle(154, 68, 60, 88)
         };
 
         // Run: 3 frames
         private static readonly Rectangle[] RunFrames =
         {
-            new Rectangle(220, 58, 86, 100),
-            new Rectangle(308, 58, 88, 100),
-            new Rectangle(398, 58, 86, 100)
+            new Rectangle(222, 64, 80, 88),
+            new Rectangle(310, 66, 80, 86),
+            new Rectangle(410, 64, 70, 88)
         };
 
         // Shoot: 1 frame
         private static readonly Rectangle ShootFrame =
-            new Rectangle(486, 58, 74, 100);
+            new Rectangle(490, 62, 66, 94);
 
         // Jump: 1 frame
         private static readonly Rectangle JumpFrame =
-            new Rectangle(562, 58, 82, 100);
+            new Rectangle(566, 62, 74, 96);
 
         // Crop each ball frame to its visible pixels so collision matches the sprite.
         private static readonly Rectangle[] BallFrames =
@@ -82,7 +86,8 @@ namespace ArmadilloGame.Factories
                 PlayerHeight,
                 Color.White,
                 IdleFrameTime,
-                GetFlipEffect(facing == Direction.Left));
+                GetFlipEffect(facing == Direction.Left),
+                preserveAspect: true);
         }
 
         public ISprite CreateRunningRobotSprite(bool facingLeft)
@@ -94,7 +99,8 @@ namespace ArmadilloGame.Factories
                 PlayerHeight,
                 Color.White,
                 RunFrameTime,
-                GetFlipEffect(facingLeft));
+                GetFlipEffect(facingLeft),
+                preserveAspect: true);
         }
 
         public ISprite CreateShootingRobotSprite(bool facingLeft)
@@ -105,7 +111,8 @@ namespace ArmadilloGame.Factories
                 PlayerWidth,
                 PlayerHeight,
                 Color.White,
-                GetFlipEffect(facingLeft));
+                GetFlipEffect(facingLeft),
+                preserveAspect: true);
         }
 
         public ISprite CreateJumpingRobotSprite(bool facingLeft)
@@ -116,7 +123,8 @@ namespace ArmadilloGame.Factories
                 PlayerWidth,
                 PlayerHeight,
                 Color.White,
-                GetFlipEffect(facingLeft));
+                GetFlipEffect(facingLeft),
+                preserveAspect: true);
         }
 
         public ISprite CreateBallSprite(bool facingLeft)

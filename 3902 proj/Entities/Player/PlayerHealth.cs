@@ -4,17 +4,17 @@ namespace ArmadilloGame.Entities;
 
 internal sealed class PlayerHealth
 {
-    private const int StartingHealth = 100;
-    private const int MaximumHealthCap = 200;
+    private const int StartingHealth = 50;
+    private const int MaximumHealthCap = 100;
     private const int UpgradeAmount = 20;
     private const int HealthCellAmount = 10;
-    private const int DamageAmount = 3;
+    public const int DamageAmount = 3;
 
     public int Current { get; private set; } = StartingHealth;
     public int Maximum { get; private set; } = StartingHealth;
     public bool IsFull => Current == Maximum;
 
-    public void TakeDamage() => Current = Math.Max(0, Current - DamageAmount);
+    public void TakeDamage(int amount) => Current = Math.Max(0, Current - Math.Max(0, amount));
 
     public void Restore() => Heal(Maximum);
 

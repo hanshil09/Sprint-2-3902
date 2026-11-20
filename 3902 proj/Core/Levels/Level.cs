@@ -25,10 +25,11 @@ namespace ArmadilloGame.Core
         private readonly List<IPlayerTrigger> triggers;
         private Rectangle playerSpawnBounds;
 
-        public Level(LevelData data, Random random = null, RoomProgress roomProgress = null)
+        public Level(LevelData data, Random random = null, RoomProgress roomProgress = null, float difficultyTier = 0f)
         {
             ArgumentNullException.ThrowIfNull(data);
             this.data = data;
+            DifficultyTier = difficultyTier;
             Progress = roomProgress ?? new RoomProgress();
             objs = new List<IGameObject>();
             blocks = new List<IBlock>();
@@ -141,6 +142,9 @@ namespace ArmadilloGame.Core
 
         public float Gravity => data.Gravity;
 
+        // 0 for the first room up to 1 for the hardest; scales enemy health.
+        public float DifficultyTier { get; }
+
         internal RoomProgress Progress { get; }
 
         // World-space pixel bounds of the whole room. The grid is anchored to the bottom of a
@@ -170,7 +174,7 @@ namespace ArmadilloGame.Core
                     size.X, size.Y, WorldBounds, occupied);
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
                     ? new Boss(start, player, projectiles)
-                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind), player,
+                    : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind, DifficultyTier), player,
                         projectiles, Gravity, collisionManager);
                 cycler.Add(enemy);
                 occupied.Add(new Rectangle((int)start.X, (int)start.Y, size.X, size.Y));

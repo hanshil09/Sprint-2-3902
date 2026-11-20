@@ -118,12 +118,15 @@ internal class Player : IPlayer
 
     public bool TakeDamage()
     {
-        if (IsShieldActive)
+        int amount = PlayerHealth.DamageAmount;
+
+        // The shield only helps while rolling: half damage in ball form, no effect otherwise.
+        if (IsShieldActive && IsInBallForm)
         {
-            return false;
+            amount = (amount + 1) / 2;
         }
 
-        health.TakeDamage();
+        health.TakeDamage(amount);
         movement.ApplyKnockback();
 
         return true;
