@@ -1,0 +1,53 @@
+READABILITY REVIEW
+
+Author of the code review: Ashwinameera Selvakumar
+Date of the code review: November 16, 2026
+Sprint number: 5
+Name of the .cs file(s) being reviewed: 3902 proj/Collisions/SelfieStage.cs,
+3902 proj/Controllers/ControllerFactory.cs, 3902 proj/Core/Audio/GameAudio.cs,
+3902 proj/Core/GameState.cs, 3902 proj/Core/SelfiePhoto.cs,
+3902 proj/Entities/Player/PlayerDecorator.cs, 3902 proj/Factories/SelfieSpriteFactory.cs,
+3902 proj/Game1.cs, 3902 proj/Interfaces/IGameState.cs,
+3902 proj/Interfaces/IEnemy.cs, 3902 proj/Interfaces/IPlayer.cs,
+3902 proj/Sprites/SelfiePose.cs, 3902 proj/Sprites/TextureRegionSprite.cs,
+3902 proj/States/GalleryState.cs, 3902 proj/States/GameplayState.cs,
+3902 proj/States/SelfieSequence.cs, 3902 proj/States/SelfieState.cs,
+3902 proj/UI/SelfieCast.cs, 3902 proj/UI/SelfieGalleryScreen.cs,
+3902 proj/UI/SelfieScreen.cs, RegressionChecks/SelfieChecks.cs
+Author of the .cs file(s) being reviewed: Arnav Kumar
+Number of minutes taken to complete the review: Not tracked (exact minutes unavailable)
+
+Specific comments on what is readable and what is not:
+
+What I noticed was readable:
+SelfieSequence uses named phases such as Entering, Handoff, Posing, Capture, and Leaving, so the order of the scene is easy to understand. SelfieStage keeps the search for safe, supported space separate from drawing the scene, and SelfieChecks cover several stage layouts and sequence timings. SelfieCast prepares the player, photographer, and enemy poses, while SelfieSpriteFactory keeps sprite-sheet frames and foot positions together. The gallery also separates page navigation from drawing and disposes textures when changing pages.
+
+What I noticed could be improved:
+The shutter action is split between SelfieScreen.Draw, which captures the photo and returns a Boolean, and SelfieState.Draw, which uses that result to play the sound. A named capture callback or event could make this one-time action easier to follow than a Boolean return from a drawing method. Also, SelfiePhoto.ListPhotos returns an empty list when folder access fails, so the gallery can show its “No selfies yet” message even when it could not read the folder. Returning a status that distinguishes an empty folder from a read error would make that situation clearer.
+
+
+CODE QUALITY REVIEW
+
+Author of the code review: Ashwinameera Selvakumar
+Date of the code review: November 16, 2026
+Sprint number: 5
+Name of the .cs file(s) being reviewed: 3902 proj/Collisions/SelfieStage.cs,
+3902 proj/Controllers/ControllerFactory.cs, 3902 proj/Core/Audio/GameAudio.cs,
+3902 proj/Core/GameState.cs, 3902 proj/Core/SelfiePhoto.cs,
+3902 proj/Entities/Player/PlayerDecorator.cs, 3902 proj/Factories/SelfieSpriteFactory.cs,
+3902 proj/Game1.cs, 3902 proj/Interfaces/IGameState.cs,
+3902 proj/Interfaces/IEnemy.cs, 3902 proj/Interfaces/IPlayer.cs,
+3902 proj/Sprites/SelfiePose.cs, 3902 proj/Sprites/TextureRegionSprite.cs,
+3902 proj/States/GalleryState.cs, 3902 proj/States/GameplayState.cs,
+3902 proj/States/SelfieSequence.cs, 3902 proj/States/SelfieState.cs,
+3902 proj/UI/SelfieCast.cs, 3902 proj/UI/SelfieGalleryScreen.cs,
+3902 proj/UI/SelfieScreen.cs, RegressionChecks/SelfieChecks.cs
+Author of the .cs file(s) being reviewed: Arnav Kumar
+
+Specific comments on code quality:
+
+What I noticed:
+The feature has clear responsibilities across its main parts: SelfieSequence tracks timing, SelfieStage finds a safe place for the scene, SelfieCast prepares the poses, and SelfieScreen draws and captures the photo. SelfiePhoto saves and lists image files, while SelfieGalleryScreen handles browsing; the gallery loads only the current page and releases its textures when that page changes. Game1 controls when the selfie or gallery state opens, and ControllerFactory assigns the F2 and F3 shortcuts. SelfieChecks cover the sequence, stage placement, and available room layouts, which helps protect the feature as it changes.
+
+Hypothetical change:
+If we added another photographer pose, the sprite frame and foot position could be added in SelfieSpriteFactory. If the new pose also needed a new point in the scene timing, SelfieSequence and SelfieCast would need updates, along with a sequence check in SelfieChecks. The current separation makes a simple visual addition fairly local, but ClickPose values are used as array indexes, so the enum order and frame arrays would need to stay matched.

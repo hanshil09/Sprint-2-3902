@@ -62,11 +62,11 @@ internal sealed class PlayerMovement
             distance = direction * speed * speedScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        collisions.UpdateMovement(player, player.Width, player.Height, physics, gameTime, distance);
+        collisions.ResolveFrameMovement(player, player.Width, player.Height, physics, gameTime, distance);
     }
 
-    public bool TryJump() => collisions.TryJump(player, physics, JumpSpeed);
+    public bool TryJump() => collisions.TryGroundedJump(player, physics, JumpSpeed);
     public void Bounce(float speed) => collisions.Launch(player, physics, speed);
-    public void ApplyKnockback() => collisions.TryJump(player, physics, KnockbackSpeed);
+    public void ApplyKnockback() => collisions.TryGroundedJump(player, physics, KnockbackSpeed);
     public void SetGravity(float gravity) => physics.SetGravity(gravity);
 }

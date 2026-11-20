@@ -18,6 +18,7 @@ namespace ArmadilloGame.Entities
         private float progress;
         private int direction = 1;
         private double pauseRemaining;
+        private (float Progress, int Direction, double Pause) previousPath;
 
         public MovingPlatform(Vector2 start, int tileCount, Vector2 travel, float speed, ISprite tileSprite)
         {
@@ -40,6 +41,7 @@ namespace ArmadilloGame.Entities
         public void Update(GameTime gameTime)
         {
             Vector2 before = Position;
+            previousPath = (progress, direction, pauseRemaining);
             double elapsed = gameTime.ElapsedGameTime.TotalSeconds;
             if (pauseRemaining > 0)
             {
@@ -50,6 +52,13 @@ namespace ArmadilloGame.Entities
                 Advance((float)elapsed);
             }
             Delta = Position - before;
+        }
+
+        public void UndoMovement()
+        {
+            Position -= Delta;
+            Delta = Vector2.Zero;
+            (progress, direction, pauseRemaining) = previousPath;
         }
 
         public void Draw(SpriteBatch spriteBatch)

@@ -6,18 +6,16 @@ namespace ArmadilloGame.Core;
 
 internal static class LevelSpawnSearch
 {
-    private const int ScreenWidth = 960;
-    private const int ScreenHeight = 540;
-
     // Nearest free position to the requested one, searched on a 16-pixel grid.
-    public static Vector2 Find(Vector2 requested, int width, int height, IReadOnlyList<Rectangle> occupied)
+    public static Vector2 Find(Vector2 requested, int width, int height, Rectangle roomBounds,
+        IReadOnlyList<Rectangle> occupied)
     {
         const int searchStep = 16;
         float bestDistance = float.MaxValue;
         Vector2? best = null;
-        for (int y = 0; y <= ScreenHeight - height; y += searchStep)
+        for (int y = roomBounds.Top; y <= roomBounds.Bottom - height; y += searchStep)
         {
-            for (int x = 0; x <= ScreenWidth - width; x += searchStep)
+            for (int x = roomBounds.Left; x <= roomBounds.Right - width; x += searchStep)
             {
                 Rectangle candidate = new Rectangle(x, y, width, height);
                 float distance = Vector2.DistanceSquared(new Vector2(x, y), requested);

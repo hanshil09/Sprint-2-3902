@@ -56,6 +56,14 @@ namespace ArmadilloGame.Interfaces
 
         bool FireShotgun(bool aimUp = false);
 
+        // Weapon loadout: unlock state, ammo, and firing the selected weapon.
+        bool IsWeaponUnlocked(WeaponKind kind);
+        int WeaponAmmo(WeaponKind kind);
+        bool WeaponHasUnlimitedAmmo(WeaponKind kind);
+        void UnlockWeapon(WeaponKind kind);
+        void AddWeaponAmmo(WeaponKind kind, int amount);
+        bool FireWeapon(WeaponKind kind);
+
         // Spends one key to open a locked door; returns false when the player has none.
         bool TryUseKey();
 

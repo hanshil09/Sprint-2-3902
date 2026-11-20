@@ -74,7 +74,7 @@ internal sealed class SelfieGalleryScreen : IDisposable
             }
             else
             {
-                OpenPhotoAt(mouse.Position);
+                OpenPhotoAt(Core.ScreenScale.ToVirtual(mouse.Position));
             }
         }
 

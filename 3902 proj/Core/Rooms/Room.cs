@@ -8,8 +8,8 @@ namespace ArmadilloGame.Core
 {
     internal sealed class Room
     {
-        // Enemies already credited with a key drop this room lifetime, keyed by their stable spawn order.
-        private readonly HashSet<int> droppedEnemies = new();
+        // Only one key drops per room lifetime; this flags once that key has been handed out.
+        private bool keyDropped;
 
         public Room(Level level, IProjectileManager projectiles, GameObjectCycler enemies)
         {
@@ -44,9 +44,8 @@ namespace ArmadilloGame.Core
         {
             Level.Update(gameTime);
             IReadOnlyList<IGameObject> enemies = Enemies.Objects;
-            for (int index = 0; index < enemies.Count; index++)
+            foreach (IGameObject enemy in enemies)
             {
-                IGameObject enemy = enemies[index];
                 bool destroyed = enemy is IEnemy combatant && combatant.IsDestroyed;
                 if (!destroyed)
                 {
@@ -54,7 +53,7 @@ namespace ArmadilloGame.Core
                 }
                 else
                 {
-                    TryDropKey(index, enemy);
+                    TryDropKey(enemy);
                 }
                 if (enemy is Boss boss && boss.IsDefeated)
                 {
@@ -65,20 +64,34 @@ namespace ArmadilloGame.Core
             Level.Goal?.SetUnlocked(Level.Progress.BossDefeated || !HasLiveBoss());
         }
 
-        // Drops a key from a defeated enemy the first time it is seen destroyed. The spawn order index
-        // gives each enemy a stable id so a key the player already picked up is not spawned again.
-        private void TryDropKey(int index, IGameObject enemy)
+        // Drops the single level key when the last living enemy is defeated. Only one key exists per
+        // room, and it appears at the final enemy's position. The drop id keeps the key from
+        // re-spawning once the player has collected it, even after leaving and returning to the room.
+        private void TryDropKey(IGameObject enemy)
         {
-            if (!droppedEnemies.Add(index))
+            if (keyDropped || HasLiveEnemy())
             {
                 return;
             }
-            string dropId = index.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            keyDropped = true;
+            const string dropId = "room";
             if (Level.HasSpawnedEnemyDrop(dropId))
             {
                 return;
             }
             Level.SpawnKeyDrop(enemy.Position, dropId);
+        }
+
+        private bool HasLiveEnemy()
+        {
+            foreach (IGameObject enemy in Enemies.Objects)
+            {
+                if (enemy is IEnemy combatant && !combatant.IsDestroyed)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void Draw(SpriteBatch spriteBatch)

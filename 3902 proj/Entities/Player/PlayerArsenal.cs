@@ -58,7 +58,7 @@ namespace ArmadilloGame.Entities
 
             // Recoil always pushes the player in the direction opposite of the shot.
             float recoil = player.FacingLeft ? ShotRecoilDistance : -ShotRecoilDistance;
-            player.Position = new Vector2(player.Position.X + recoil, player.Position.Y);
+            collisionManager.MovePlayerRecoil(player, recoil);
         }
 
         public void FireShotgun(bool aimUp)
@@ -126,6 +126,14 @@ namespace ArmadilloGame.Entities
             projectiles.Add(new Bomb(new Vector2(x, y), bomb, blocks, gravity,
                 () => ProjectileSpriteFactory.Instance.CreateExplosionSprite(blastLevel), collisionManager,
                 player.IsInBallForm, () => player.PlaySound(GameSound.Explosion)));
+        }
+
+        public void ThrowMolotov(float gravity)
+        {
+            ISprite sprite = ProjectileSpriteFactory.Instance.CreateBombSprite();
+            player.PlaySound(GameSound.Shoot);
+            projectiles.Add(new MolotovProjectile(MuzzlePosition(sprite), (int)Direction, sprite,
+                blocks, gravity, collisionManager, () => player.PlaySound(GameSound.Explosion)));
         }
 
         private float Direction => player.FacingLeft ? -1f : 1f;

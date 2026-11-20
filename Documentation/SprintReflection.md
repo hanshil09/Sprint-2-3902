@@ -1,26 +1,27 @@
-# Sprint 3 Reflection
+# Sprint 4 Reflection
 
 ## Sprint outcome
 
-This sprint, we added connected rooms, room switching, collision handling, a boss, more items, and interactive platforms. We also added room checks and worked on code warnings and reviews. Splitting the work between team members helped us build different parts of the game at the same time. The combined game still needs more playtesting.
+We added Command Hub, key-based room progression, and a Tab screen for previewing rooms and choosing a fireball. The HUD shows the equipped shot and live health and inventory values. We also added Ice attacks, more weapon options, and selfie mode and its gallery. Room progress now tracks collected pickups and opened crates during a run.
 
-## Burndown discussion
+## Code quality and testing
 
-![Sprint 3 remaining and completed tasks, October 15–26](burndown_chart.png)
+We moved item-use rules into PlayerInventory and grouped the HUD inventory values behind one read-only property. We separated spawn search and crate setup from Level. We also moved slider and elevator rules and block contacts out of BlockCollision. Clearer names such as TryGroundedJump make it easier to see what each method does.
 
-The chart covers October 15–26. The green line shows unfinished tasks, and the purple line shows completed tasks. We started with 22 open tasks and ended with all 22 marked complete. Progress was recorded around October 18–20, followed by a flat period and a large final change on October 26.
+The Strict code build and 54 crumbling-platform checks passed after the collision changes. Those checks cover part of the collision work. Getting hit on a rising elevator and riding a slider into a wall still need direct playtesting.
 
-Some tasks were already finished, but team members forgot to mark them complete on the board until October 26. The final drop does not mean all the work happened that day. Flat sections also do not mean nobody was working. This chart shows task updates, not Git commits, and it does not have an ideal-progress line.
+## Team process and burndown
 
-## Team process
+Team members worked on different features in parallel. When collision changes touched the same files, we compared the edits before combining them. We kept the team’s knockback tuning and transformation check alongside the platform changes.
 
-Separate branches helped us work without constantly changing each other's files. Room checks helped us catch mistakes such as extra enemies or unreachable exits. Code reviews helped us discuss what was clear and what needed improvement.
+![Sprint 4 burndown showing ideal and actual tasks remaining](Sprint4-Burndown.png)
 
-However, late board updates made it hard to see our real progress. Changes to shared files also needed careful merging and testing. Marking every task complete on the board does not prove that every part of the game is bug-free.
+The dashed line shows an ideal pace from 15 tasks remaining to zero. The solid line shows actual work remaining, calculated by subtracting completed tasks from the 15 tracked tasks. Seven tasks remained on November 12, and the board showed zero remaining on November 16.
 
 ## Next sprint
 
-- Update the board when a task is finished, rather than waiting until the end.
-- Keep tasks small, with one clear owner and a clear way to check completion.
-- Merge working changes earlier and run the checks after merging.
-- Finish reviews earlier and leave time for a full team playtest.
+For Sprint 5, we plan to update shooting and attack progression, redesign levels, improve door and key logic, and add ammo and inventory changes. We also plan to refresh enemy sprites and behavior, redesign the HUD and menus, and improve the Wild West audio. See the [Sprint 5 plan](Sprint5-FeatureIdeas.md).
+
+- Merge shared changes earlier and run the affected checks after each merge.
+- Test platform collisions in gameplay, especially where elevators or sliders meet walls and ceilings.
+- Keep the task board current so it reflects progress as work is completed.

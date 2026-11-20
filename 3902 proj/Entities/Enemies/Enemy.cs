@@ -11,12 +11,12 @@ namespace ArmadilloGame.Entities
 {
     internal class Enemy : IEnemy
     {
-        private const int StartingHealth = 1;
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private readonly CollisionManager collisionManager;
         private readonly Physics physics;
         private readonly IProjectileManager projectiles;
+        private readonly Dictionary<Direction, ISprite> directionalSprites;
         private int health;
         private readonly EnemyFreeze freeze = new EnemyFreeze();
 
@@ -34,29 +34,30 @@ namespace ArmadilloGame.Entities
             this.collisionManager.SetBlocks(this, blocks);
             this.projectiles = projectiles;
             physics = new Physics(gravity);
-            health = StartingHealth;
-            LeftSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true);
-            RightSprite = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, false);
+            health = configuration.StartingHealth;
+            directionalSprites = new Dictionary<Direction, ISprite>
+            {
+                [Direction.Left] = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, true),
+                [Direction.Right] = EnemySpriteFactory.Instance.CreateEnemySprite(Kind, Tint, false)
+            };
             State = new LeftWalkingEnemyState(this);
         }
 
         public ISprite Sprite { get; set; }
 
-        public ISprite LeftSprite { get; private set; }
-
-        public ISprite RightSprite { get; private set; }
+        public ISprite GetDirectionalSprite(Direction direction) => directionalSprites[direction];
 
         public IEnemyState State { get; set; }
 
-        public IEnemyBehavior Behavior { get; private set; }
+        public IEnemyBehavior Behavior { get; }
 
-        public EnemyStats Stats { get; private set; }
+        public EnemyStats Stats { get; }
 
-        public IPlayer Target { get; private set; }
+        public IPlayer Target { get; }
 
-        public EnemyKind Kind { get; private set; }
+        public EnemyKind Kind { get; }
 
-        public Color Tint { get; private set; }
+        public Color Tint { get; }
 
         public Vector2 Position { get; set; }
 
@@ -64,7 +65,7 @@ namespace ArmadilloGame.Entities
 
         public bool IsDestroyed => State is DestroyedEnemyState;
 
-        public Vector2 Home { get; private set; }
+        public Vector2 Home { get; }
 
         public int Facing
         {
@@ -190,12 +191,12 @@ namespace ArmadilloGame.Entities
 
         public void Jump(float speed)
         {
-            collisionManager.TryJump(this, physics, speed);
+            collisionManager.TryGroundedJump(this, physics, speed);
         }
 
         public void ApplyGravity(GameTime gameTime)
         {
-            Position = collisionManager.UpdateVerticalMovement(this, physics, Position,
+            Position = collisionManager.ApplyGravityAndResolveVerticalCollisions(this, physics, Position,
                 Width, Height, gameTime);
         }
 
@@ -210,6 +211,16 @@ namespace ArmadilloGame.Entities
             {
                 State.BeDestroyed();
             }
+        }
+
+        // Collisions stop the shove at walls.
+        public void ApplyKnockback(int direction, float distance)
+        {
+            if (IsDestroyed || direction == 0 || distance <= 0)
+            {
+                return;
+            }
+            MoveBy(System.Math.Sign(direction) * distance);
         }
 
         public void LaunchProjectile()

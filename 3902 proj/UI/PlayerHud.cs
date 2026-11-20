@@ -33,6 +33,8 @@ internal sealed class PlayerHud
     private const float LabelScale = 0.52f;
     private const float CountScale = 0.65f;
     private const float RoomStatusScale = 0.42f;
+    // The HUD font is baked at 48pt and drawn smaller so it stays crisp through the window upscale.
+    private const float FontSupersample = 20f / 48f;
     private static readonly Color HeadingColor = new Color(255, 225, 177);
 
     private static readonly Color TextColor = new Color(226, 201, 164);
@@ -54,12 +56,12 @@ internal sealed class PlayerHud
         this.portraitTexture = portraitTexture;
     }
 
-    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, FireballSelection fireballs)
+    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, WeaponSelection weapons)
     {
         Rectangle panel = new Rectangle(PanelLeft, PanelTop, PanelWidth, PanelHeight);
         HudFrame.Draw(spriteBatch, panel, portraitTexture, AccentColor);
         DrawHealth(spriteBatch, player);
-        DrawInventory(spriteBatch, player, fireballs);
+        DrawInventory(spriteBatch, player, weapons);
         DrawRoomStatus(spriteBatch, player, roomName, roomStatus);
     }
 
@@ -77,7 +79,7 @@ internal sealed class PlayerHud
     private static readonly CounterStyle Gems = new("PINK GEMS", GemsLeft, GemColor, GemColor, HudIcon.GemIcon);
     private static readonly CounterStyle BombPacks = new("BOMB PACKS", BombPacksLeft, PowerColor, PowerColor, HudIcon.BombIcon);
 
-    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, FireballSelection fireballs)
+    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, WeaponSelection weapons)
     {
         DrawCounter(spriteBatch, Medkits, player.Inventory.MedkitCount.ToString(CultureInfo.InvariantCulture));
         string shieldStatus = player.Inventory.ShieldCount.ToString(CultureInfo.InvariantCulture);
@@ -92,10 +94,15 @@ internal sealed class PlayerHud
         DrawCounter(spriteBatch, Gems, player.Inventory.EnergonCount.ToString(CultureInfo.InvariantCulture));
         DrawCounter(spriteBatch, BombPacks, $"{player.Inventory.BombLevel}/{PlayerInventory.MaximumBombLevel}");
         DrawDivider(spriteBatch, FireballLeft);
-        DrawText(spriteBatch, "FIREBALL", FireballLeft, LabelY, PowerColor, LabelScale);
-        ISprite preview = fireballs.SelectedPreview;
+        DrawText(spriteBatch, "WEAPON", FireballLeft, LabelY, PowerColor, LabelScale);
+        ISprite preview = weapons.SelectedPreview;
         preview.Draw(spriteBatch, new Vector2(FireballLeft, ValueY - (preview.Height - PreviewAlignmentHeight) / 2));
-        DrawText(spriteBatch, fireballs.SelectedName, FireballLeft + preview.Width + IconTextSpacing,
+        string label = weapons.SelectedName;
+        if (!player.WeaponHasUnlimitedAmmo(weapons.SelectedKind))
+        {
+            label += $" x{player.WeaponAmmo(weapons.SelectedKind)}";
+        }
+        DrawText(spriteBatch, label, FireballLeft + preview.Width + IconTextSpacing,
             ValueY, TextColor, CountScale);
     }
 
@@ -106,7 +113,7 @@ internal sealed class PlayerHud
         HudIcon.Draw(spriteBatch, style.Icon, new Point(style.Left, ValueY + 1), style.IconColor);
 
         Point iconSize = HudIcon.Size(style.Icon);
-        float textHeight = font.MeasureString(value).Y * CountScale;
+        float textHeight = font.MeasureString(value).Y * CountScale * FontSupersample;
         int textY = ValueY + (int)Math.Round((iconSize.Y - textHeight) / 2f);
         DrawText(spriteBatch, value, style.Left + iconSize.X + IconTextSpacing, textY,
             valueColor ?? TextColor, CountScale);
@@ -142,13 +149,9 @@ internal sealed class PlayerHud
         }
     }
 
-    // Draw a second copy one pixel to the right to give HUD text a heavier weight.
     private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)
     {
-        Vector2 position = new Vector2(x, y);
-        spriteBatch.DrawString(font, text, position, color,
-            0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-        spriteBatch.DrawString(font, text, position + Vector2.UnitX, color,
-            0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, text, new Vector2(x, y), color,
+            0f, Vector2.Zero, scale * FontSupersample, SpriteEffects.None, 0f);
     }
 }

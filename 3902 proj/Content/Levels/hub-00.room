@@ -1,44 +1,27 @@
-# Room 0: Central Command Hub. The player spawns on the ground floor and reaches the themed
-# rooms through doors. Only door '1' (-> room 1) is unlocked at the start; every other room is
-# locked by default and needs a key. Locked door letters map to room indices:
+# Room 0: Central Command Hub. One screen tall, scrolls sideways. Each themed room's door sits on
+# its own platform built from that room's block, forming an easy parkour line that climbs from
+# the desert step on the left to the fortress tower on the right (every rise is 2-3 tiles).
+# Only door '1' (-> room 1) starts unlocked; the rest need a key. Locked door letters:
 #   L -> 2, N -> 3, O -> 4, q -> 5, T -> 6, U -> 7 (the fortress).
 # Keys are dropped by defeated enemies and sit in end-of-level crates, so the player clears the
 # open room first, then spends keys to unlock the rest.
-# Layout: a two-tier command deck tower. Each door sits on its own platform reachable by jumping.
 name: Command Hub
 gravity: 1400
 [tiles]
-................................
-................................
-................................
-..............................U.
-................................
-...........GGGGGGGGG......GGGGGG
-................................
-..............................T.
-................................
-.............GGGGGGGGG....GGGGGG
-................................
-..............................q.
-................................
-...........GGGGGGGGG......GGGGGG
-................................
-..............................O.
-................................
-.............GGGGGGGGG....GGGGGG
-................................
-..............................N.
-................................
-...........GGGGGGGGG......GGGGGG
-................................
-..............................L.
-................................
-.............GGGGGGGGG....GGGGGG
-................................
-..............................1.
-................................
-...........GGGGGGGGG......GGGGGG
-................................
-.....P..........................
-................................
-GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+M..............................................................M
+M..............................................................M
+M..............................................................M
+M..............................................................M
+M..............................................................M
+M.........................................................U....M
+M..............................................................M
+M...................................q.................BBBBBBBBBM
+M......................................................BBBBBBBBM
+M....................N............WWWWW.....T....BB....BBBBBBBBM
+M...........................O..........................BBBBBBBBM
+M............L.....SSSSS..................YYYYY........BBBBBBBBM
+M.....1....................MMMM........................BBBBBBBBM
+M..P........AAAA...........MMMM........................BBBBBBBBM
+M....WWWW...AAAA...........MMMM.........SS.............BBBBBBBBM
+MGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGM

@@ -19,7 +19,7 @@ namespace ArmadilloGame.Factories
         private Texture2D blockSpriteSheet;
         private Texture2D objectSpriteSheet;
         private Texture2D additionalItemSprites;
-        private Texture2D ShotgunBarrel;
+        private Texture2D castleTileset;
 
         private BlockSpriteFactory()
         {
@@ -38,7 +38,7 @@ namespace ArmadilloGame.Factories
             blockSpriteSheet = content.Load<Texture2D>("Sprites/blocks2");
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             additionalItemSprites = content.Load<Texture2D>("Sprites/additionalItemSprites");
-            ShotgunBarrel = content.Load<Texture2D>("Sprites/Shotgun-barrel");
+            castleTileset = content.Load<Texture2D>("Sprites/castle-tileset");
         }
 
         public ISprite CreateBlockSprite(BlockKind kind)
@@ -104,16 +104,16 @@ namespace ArmadilloGame.Factories
             return new TextureRegionSprite(blockSpriteSheet, frame, BlockSize, BlockSize, tint);
         }
 
+        // Door frames from the castle tileset: a planked closed door and a dark open archway.
+        private static readonly Rectangle ClosedDoorFrame = new Rectangle(30, 150, 20, 28);
+        private static readonly Rectangle OpenDoorFrame = new Rectangle(78, 150, 20, 28);
+
+        // Renders a door. Locked doors use the closed planked frame; unlocked doors use the open
+        // archway. Direction is kept for signature compatibility with existing callers.
         public ISprite CreateDoorSprite(int direction, bool locked = false)
         {
-            Rectangle frame = new Rectangle(130, 4, 22, 28);
-
-            return new TextureRegionSprite(
-                additionalItemSprites,
-                frame,
-                48,
-                64,
-                locked ? new Color(255, 120, 120) : Color.White);
+            Rectangle frame = locked ? ClosedDoorFrame : OpenDoorFrame;
+            return new TextureRegionSprite(castleTileset, frame, 48, 64, Color.White);
         }
 
         public ISprite CreatePlatformTileSprite(bool elevator)

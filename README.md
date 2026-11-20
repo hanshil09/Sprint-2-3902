@@ -1,108 +1,48 @@
-# Sprint 3 — Armadillo Platformer
+# Sprint 4 — Armadillo Platformer
 
-A MonoGame platformer with seven rooms, a boss, multiple weapons and pickups,
-moving platforms, supply crates, and crumbling platforms. Reach each gold exit;
-defeat the Warlord and touch the final beacon to finish.
+Start in Command Hub, collect keys to unlock rooms, and defeat the Warlord.
+Touch the final beacon to win.
 
-## Run
+## Run the game
 
-Install the .NET 9 SDK, then run from the repository root:
+Install the .NET 9 SDK and run this from the repository root:
 
 ```powershell
 dotnet run --project "3902 proj/3902 proj.csproj"
 ```
 
-## Basic controls
+## Controls
 
-| Keys | Action |
+| Key | Action |
 |---|---|
 | Enter | Start |
-| A/D or arrows | Move |
+| A / D or Left / Right | Move |
 | W / Up / J | Jump |
-| Space | Transform; roll into blue crates to break them |
-| F3 | Open the selfie gallery. Click a photo to enlarge it, use Left / Right to change page, and press F3 or Esc to return. |
-| Tab | Pause and open the room preview. Click a fireball to equip it or use the arrows to browse rooms. Press Tab or Esc to resume. |
-| X | Fire the equipped fireball in robot form |
-| Shift + X | Aim Standard, Orb, Piercing, or Ice diagonally upward. Spread keeps its usual pattern. |
-| 2 | Drop bomb |
-| B | Activate Barrel Storm (14-second cooldown) |
-| 8 / 9 | Call the bazooka helper / fire; hold Shift, W, or Up with 9 to aim upward |
-| 3 / 4 | Use medkit / shield |
-| 7 | Throw boomerang in robot form |
-| Left / right mouse click or Page Up / Page Down | Previous / next room during gameplay (testing) |
-| F1 / H | Full controls |
-| M | Mute / unmute all game audio (music and sound effects) |
-| R | Reset to menu |
-| Q / Escape | Quit outside the room preview |
+| Space | Switch forms |
+| Tab | Pause, preview rooms, and select a fireball |
+| X / Shift + X | Fire / aim a compatible shot upward |
+| 2 / 3 / 4 / 7 | Bomb / med kit / shield / boomerang |
+| F1 / H | Show all controls |
+| M / R / Q | Mute / reset / quit |
 
-Ice freezes regular enemies and the boss for five seconds. The blue bar
-shows how much time is left, and follow-up attacks deal normal damage.
+See the [gameplay guide](Documentation/GameplayGuide.md) for the other controls,
+room and weapon details, and credits.
 
-Shoot the red wooden barrel in Desert Outpost and collect its rocket token.
-In robot form, press 8 to call the red delivery robot. After the handoff,
-press 9 to fire a direct-hit shot for five damage, or hold Shift, W, or Up while pressing 9 to aim up. Three shots are loaded. The token or loaded ammo
-persist across rooms; another token cannot be collected until the ammo is used.
-A new game clears both. Gameplay pauses briefly during delivery.
+## Sprint 4 documentation
 
-See the [gameplay guide](Documentation/GameplayGuide.md) for all weapons,
-pickups, room details, limitations, and artwork credits.
+- [Reflection and burndown chart](Documentation/SprintReflection.md)
+- [Code reviews](Documentation/CodeReviews/sprint4%20code%20rveiew)
+- [Code quality changes](Documentation/CodeQuality/Sprint4-CodeQuality.md)
+- [Strict .NET analyzer results](Documentation/CodeAnalyzer/Sprint4-Results.md)
+- [Automated regression checks](RegressionChecks/README.md)
 
-## Known bugs and limitations
+The team also playtested the game manually.
 
-- Normal-shot recoil changes position directly without wall collision
-  resolution; firing beside a wall can cause overlap.
-- Normal shots do not aim downward; use Shift + X to aim compatible weapons
-  diagonally upward.
-- Revisiting a room respawns regular enemies, but collected pickups and opened
-  crates stay cleared. Uncollected crate drops and defeated-boss progress persist;
-  moving and crumbling platform phases reset. Player inventory/upgrades persist.
-- Automated route checks model simplified static geometry, not full combat or
-  every randomized crumbling-platform route. Manual gameplay and balance
-  testing is still needed.
-- When Player is hit with a projectile while on a platform moving upwards,
-  they fall through the platform. This is a collision error.
+## Possible bugs
 
-## Tools and development process
-
-- **Static analysis:** built-in .NET Roslyn analyzers, with a Strict build using
-  `latest-all` and warnings treated as errors to catch code-quality problems.
-- **Automated regression checks:** a basic room suite plus optional focused
-  suites for combat/physics, crumbling platforms, supply crates, and pickups.
-- **Team workflow:** Git branches and merges, GitHub task tracking, peer code
-  reviews.
-- **Code metrics:** the analyzer summary records an October 19 retrospective
-  comparison of production source-file and line counts. These measure project
-  size, not complexity or proof of quality; no continuous complexity history
-  is claimed.
+- Returning to the hub may fail if there’s no clear spot to the right of the door.
+- The player may get stuck if they overlap multiple blocks at once.
 
 ## Sprint 5 planning
 
-- **Feature ideas and research:** [Sprint 5 ideas](Documentation/Sprint5-FeatureIdeas.md).
-- **Room revisit behavior:** [Room respawn decision](Documentation/RoomRespawnDecision.md).
-
-## Sprint 3 code quality and reviews
-
-- **Sprint reflection:** [Team progress and next-sprint plans](Documentation/SprintReflection.md).
-- **Code analyzer:** [Sprint 3 summary and October 14–26 history](Documentation/CodeAnalyzer/Sprint3-Summary.md).
-- **Code reviews:** [Sprint 3 review folder](Documentation/CodeReviews/sprint3_reviews).
-
-Run strict analysis and the basic room checks:
-
-```powershell
-dotnet build "3902 proj.sln" -c Strict
-dotnet run --project RegressionChecks -c Strict --no-restore
-```
-
-The basic suite contains 43 room assertions. Extra checks are optional;
-see the [regression guide](RegressionChecks/README.md). Automated reachability
-checks use simplified geometry and do not replace manual playtesting.
-
-## Credits
-
-- The reinforced crate sprites were generated with OpenAI ImageGen and adapted to 32 × 32 tiles.
-
-- Original synthesized music and sound effects are included in `3902 proj/Content/Audio`.
-  No extra audio downloads are needed. See [audio notes](Documentation/Audio.md).
-
-- ChatGPT was used to help draft and organize the basic README documentation.
-- Artwork credits and source links are listed in the [gameplay guide](Documentation/GameplayGuide.md#credits).
+The current rooms have simple layouts. In Sprint 5, we plan to build more complex rooms and update combat, enemies, inventory, the HUD and menus, and Wild West audio.

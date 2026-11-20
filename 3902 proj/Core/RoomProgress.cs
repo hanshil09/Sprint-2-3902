@@ -7,8 +7,15 @@ namespace ArmadilloGame.Core
         private readonly HashSet<string> collectedItemIds = new();
         private readonly HashSet<string> openedCrateIds = new();
         private readonly HashSet<string> collectedCrateDropIds = new();
+        private readonly HashSet<int> unlockedDoorTargets = new();
 
         public bool BossDefeated { get; private set; }
+
+        // Records that the door leading to the given room has been unlocked, so it stays open when
+        // the room is rebuilt (e.g. returning to the hub).
+        public bool IsDoorUnlocked(int targetRoomIndex) => unlockedDoorTargets.Contains(targetRoomIndex);
+
+        public void RecordDoorUnlocked(int targetRoomIndex) => unlockedDoorTargets.Add(targetRoomIndex);
 
         public bool HasCollectedItem(string itemId) => collectedItemIds.Contains(itemId);
 

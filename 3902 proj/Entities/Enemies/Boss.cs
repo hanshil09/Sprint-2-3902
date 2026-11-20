@@ -1,44 +1,33 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ArmadilloGame.Core;
-using ArmadilloGame.Factories;
 using ArmadilloGame.Interfaces;
 using ArmadilloGame.States;
 using ArmadilloGame.UI;
 
 namespace ArmadilloGame.Entities
 {
-        internal sealed class Boss : IEnemy
+    internal sealed class Boss : IEnemy
     {
-        public const int MaximumHealth = 30;
-        public const float HoverY = 96f;
-        public const float FloorY = 540 - BlockSpriteFactory.BlockSize - EnemySpriteFactory.BossSize;
-        public const float MinimumX = 16f;
-        public const float MaximumX = 960 - EnemySpriteFactory.BossSize - 16f;
-        // The open middle of the arena between the side ledges; the boss only rises or dives here.
-        public const float OpenLeft = 208f;
-        public const float OpenRight = 592f;
-        private const int HitboxInset = 14;
-        private const double HitCooldownSeconds = 0.08;
-        private const double FlashSeconds = 0.12;
-        private const float FireballSpeed = 260f;
-        private const int HealthHeartCount = 10;
-        private static readonly Vector2 HealthHeartsPosition = new Vector2(318, 82);
-
+        private readonly BossConfiguration configuration;
         private readonly IProjectileManager projectiles;
         private ISprite sprite;
         private double hitCooldown;
         private double flashTimer;
 
-        public Boss(Vector2 position, IPlayer target, IProjectileManager projectiles)
+        public Boss(Vector2 position, IPlayer target, IProjectileManager projectiles,
+            BossConfiguration configuration = null)
         {
+            this.configuration = configuration ?? BossConfiguration.Warlord;
             Position = position;
             Target = target;
             this.projectiles = projectiles;
-            Health = MaximumHealth;
+            Health = this.configuration.MaximumHealth;
             SetPose(BossPose.Idle);
             State = new BossHoverState(this);
         }
+
+        public BossConfiguration Configuration => configuration;
 
         public IBossState State { get; set; }
 
@@ -47,28 +36,40 @@ namespace ArmadilloGame.Entities
         public Vector2 Position { get; set; }
 
         public int Health { get; private set; }
-        public EnemyKind Kind => EnemyKind.Warlord;
+        public EnemyKind Kind => configuration.Kind;
 
         public bool IsDefeated => Health <= 0;
 
         public bool IsDestroyed { get; private set; }
 
         // Phase 1 above two thirds health, phase 2 above one third, phase 3 (enraged) below that.
-        public int Phase => Health * 3 > MaximumHealth * 2 ? 1 : Health * 3 > MaximumHealth ? 2 : 3;
+        public int Phase
+        {
+            get
+            {
+                if (Health * configuration.PhaseHealthDenominator
+                    > configuration.MaximumHealth * configuration.PhaseOneHealthNumerator)
+                {
+                    return 1;
+                }
+                return Health * configuration.PhaseHealthDenominator
+                    > configuration.MaximumHealth * configuration.PhaseTwoHealthNumerator ? 2 : 3;
+            }
+        }
 
         // A defeated boss has no hitbox while its destruction plays out.
         public Rectangle Bounds => IsDefeated ? Rectangle.Empty : new Rectangle(
-            (int)Position.X + HitboxInset, (int)Position.Y + HitboxInset,
-            EnemySpriteFactory.BossSize - 2 * HitboxInset, EnemySpriteFactory.BossSize - HitboxInset);
+            (int)Position.X + configuration.HitboxInset, (int)Position.Y + configuration.HitboxInset,
+            configuration.Size - 2 * configuration.HitboxInset, configuration.Size - configuration.HitboxInset);
 
-        public Vector2 Center => Position + new Vector2(EnemySpriteFactory.BossSize / 2f);
+        public Vector2 Center => Position + new Vector2(configuration.Size / 2f);
 
         public Vector2 TargetCenter => Target.Position + new Vector2(Target.Width / 2f, Target.Height / 2f);
 
         public void SetPose(BossPose pose)
         {
             Color tint = pose == BossPose.Defeated ? Color.Gray : Color.White;
-            sprite = EnemySpriteFactory.Instance.CreateBossSprite(pose, tint);
+            sprite = configuration.CreateSprite(pose, tint, configuration.Size);
         }
 
         public void TakeDamage(int amount)
@@ -78,12 +79,17 @@ namespace ArmadilloGame.Entities
                 return;
             }
             Health = System.Math.Max(0, Health - amount);
-            hitCooldown = HitCooldownSeconds;
-            flashTimer = FlashSeconds;
+            hitCooldown = configuration.HitCooldownSeconds;
+            flashTimer = configuration.FlashSeconds;
             if (IsDefeated)
             {
                 State = new BossDefeatedState(this);
             }
+        }
+
+        // Too heavy to shove.
+        public void ApplyKnockback(int direction, float distance)
+        {
         }
 
         // Moves toward a point at a fixed speed; returns true once it arrives.
@@ -153,20 +159,22 @@ namespace ArmadilloGame.Entities
             {
                 sprite.Draw(spriteBatch, Position);
             }
-            Color fill = Phase == 3 ? Color.OrangeRed : Color.Gold;
+            Color fill = Phase == 3 ? configuration.EnragedHealthColor : configuration.NormalHealthColor;
             if (!IsDefeated)
             {
                 freeze.Draw(spriteBatch, Bounds);
             }
 
-            HeartMeter.Draw(spriteBatch, HealthHeartsPosition, Health, MaximumHealth, HealthHeartCount, fill);
+            HeartMeter.Draw(spriteBatch, configuration.HealthHeartsPosition, Health,
+                configuration.MaximumHealth, configuration.HealthHeartCount, fill);
         }
 
         private void FireInDirection(float radians)
         {
             Vector2 direction = new Vector2((float)System.Math.Cos(radians), (float)System.Math.Sin(radians));
-            ISprite fireball = ProjectileSpriteFactory.Instance.CreateBossFireballSprite();
-            projectiles.Add(new EnemyProjectile(Center, Center + direction * 100f, fireball, FireballSpeed));
+            ISprite fireball = configuration.CreateProjectileSprite();
+            projectiles.Add(new EnemyProjectile(Center, Center + direction * 100f, fireball,
+                configuration.FireballSpeed));
         }
     }
 }

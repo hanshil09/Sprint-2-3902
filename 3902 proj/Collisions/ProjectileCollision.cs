@@ -18,7 +18,7 @@ namespace ArmadilloGame.Collisions
             }
             if (target is IBlock block)
             {
-                BlockCollision.HandleProjectileImpact(projectile, targetBounds, block);
+                BlockContact.HandleProjectileImpact(projectile, targetBounds, block);
                 return;
             }
 

@@ -27,16 +27,16 @@ internal sealed class RoomMapScreen
     private static readonly Color ButtonColor = new Color(77, 58, 41);
 
     private readonly SpriteFont font;
-    private readonly FireballSelection fireballs;
+    private readonly WeaponSelection weapons;
     private int activeRoomIndex;
     private int previewIndex;
     private Level previewLevel;
     private ButtonState previousLeftButton;
 
-    public RoomMapScreen(SpriteFont font, FireballSelection fireballs)
+    public RoomMapScreen(SpriteFont font, WeaponSelection weapons)
     {
         this.font = font;
-        this.fireballs = fireballs;
+        this.weapons = weapons;
     }
 
     public void Open(int roomIndex)
@@ -47,22 +47,23 @@ internal sealed class RoomMapScreen
         previousLeftButton = Mouse.GetState().LeftButton;
     }
 
-    public void UpdateNavigation(RoomFactory factory)
+    public void UpdateNavigation(RoomFactory factory, IPlayer player)
     {
         MouseState mouse = Mouse.GetState();
+        Point mousePosition = Core.ScreenScale.ToVirtual(mouse.Position);
         if (mouse.LeftButton == ButtonState.Pressed && previousLeftButton == ButtonState.Released)
         {
-            if (PreviousButton.Contains(mouse.Position) && previewIndex > 0)
+            if (PreviousButton.Contains(mousePosition) && previewIndex > 0)
             {
                 ShowRoom(factory, previewIndex - 1);
             }
-            else if (NextButton.Contains(mouse.Position) && previewIndex < factory.RoomCount - 1)
+            else if (NextButton.Contains(mousePosition) && previewIndex < factory.RoomCount - 1)
             {
                 ShowRoom(factory, previewIndex + 1);
             }
             else
             {
-                SelectFireball(mouse.Position);
+                SelectWeapon(mousePosition, player);
             }
         }
 
@@ -97,8 +98,8 @@ internal sealed class RoomMapScreen
         DrawArrow(batch, PreviousButton, "<", previewIndex > 0);
         DrawArrow(batch, NextButton, ">", previewIndex < rooms.RoomCount - 1);
         batch.DrawString(font, title, new Vector2(PreviewLeft, HeaderY), Accent);
-        DrawFireballButtons(batch);
-        batch.DrawString(font, "Click to equip  |  TAB resumes  |  Shift+X aims up", new Vector2(PreviewLeft, FooterY), Color.White);
+        DrawWeaponButtons(batch, player);
+        batch.DrawString(font, "Click to equip  |  1-4 equip  |  TAB resumes", new Vector2(PreviewLeft, FooterY), Color.White);
         batch.End();
 
         Matrix transform = Matrix.CreateTranslation(-world.X, -world.Y, 0f) *
@@ -116,34 +117,44 @@ internal sealed class RoomMapScreen
         }
         batch.End();
     }
-    private void SelectFireball(Point mousePosition)
+    private void SelectWeapon(Point mousePosition, IPlayer player)
     {
-        for (int i = 0; i < FireballSelection.Count; i++)
+        for (int i = 0; i < WeaponSelection.Count; i++)
         {
-            if (FireballButton(i).Contains(mousePosition))
+            if (WeaponButton(i).Contains(mousePosition))
             {
-                fireballs.Select(i);
+                weapons.Select(i, player);
                 return;
             }
         }
     }
 
-    private void DrawFireballButtons(SpriteBatch batch)
+    private void DrawWeaponButtons(SpriteBatch batch, IPlayer player)
     {
-        for (int i = 0; i < FireballSelection.Count; i++)
+        for (int i = 0; i < WeaponSelection.Count; i++)
         {
-            Rectangle bounds = FireballButton(i);
+            Rectangle bounds = WeaponButton(i);
+            WeaponKind kind = WeaponSelection.KindAt(i);
+            bool unlocked = player.IsWeaponUnlocked(kind);
             Color background = ButtonColor;
-            Color textColor = Color.White;
-            if (i == fireballs.SelectedIndex)
+            Color textColor = unlocked ? Color.White : Color.Gray;
+            if (i == weapons.SelectedIndex)
             {
                 background = Accent;
                 textColor = Color.Black;
             }
 
             HudFrame.Fill(batch, bounds, background);
-            string name = FireballSelection.NameAt(i);
-            ISprite preview = fireballs.PreviewAt(i);
+            string name = WeaponSelection.NameAt(i);
+            if (!unlocked)
+            {
+                name += " (LOCKED)";
+            }
+            else if (!player.WeaponHasUnlimitedAmmo(kind))
+            {
+                name += $" x{player.WeaponAmmo(kind)}";
+            }
+            ISprite preview = weapons.PreviewAt(i);
             Vector2 textSize = font.MeasureString(name) * ShotLabelScale;
             float left = bounds.Center.X - (preview.Width + ShotIconGap + textSize.X) / 2f;
             preview.Draw(batch, new Vector2(left, bounds.Center.Y - preview.Height / 2f));
@@ -152,7 +163,7 @@ internal sealed class RoomMapScreen
         }
     }
 
-    private static Rectangle FireballButton(int index) =>
+    private static Rectangle WeaponButton(int index) =>
         new Rectangle(PreviewLeft + index * (ShotButtonWidth + ShotButtonGap), ShotButtonsY, ShotButtonWidth, ShotButtonHeight);
 
     private void DrawArrow(SpriteBatch batch, Rectangle bounds, string arrow, bool enabled)

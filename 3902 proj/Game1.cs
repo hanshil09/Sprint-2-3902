@@ -18,10 +18,14 @@ namespace ArmadilloGame
 {
     internal class Game1 : Game, IPlayerHost
     {
+        // Virtual resolution the whole game renders at; scaled up to the window below.
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
+        private const int WindowWidth = 1280;
+        private const int WindowHeight = 720;
+        private const double DoorCooldownDurationMs = 600;
         private const string MenuTitle = "Armadillo - Press Enter to Start";
-        private const string GameplayTitle = "Armadillo - A/D Move, W Jump, X Fire, Tab Map / Fireball, B Barrel Storm, 7 Boomerang, 2 Bomb, 3/4 Items, R Reset, Q Quit";
+        private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, ` Dev";
 
         private static readonly Color MenuColor = new Color(35, 22, 14);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
@@ -35,16 +39,20 @@ namespace ArmadilloGame
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
+        // Everything renders into this 960x540 target, then it is scaled up to the window.
+        private RenderTarget2D sceneTarget;
         private GameState gameState;
         private IGameState currentState;
         private GameplayState gameplayState;
         private MenuState menuState;
         private IController gameplayController;
+        private IController devController;
+        private bool devMode;
         private CollisionManager collisionManager;
         private RoomManager roomManager;
         private ControlsOverlay controlsOverlay;
         private PlayerHud playerHud;
-        private readonly FireballSelection fireballs = new FireballSelection();
+        private readonly WeaponSelection weapons = new WeaponSelection();
         private MapState mapState;
         private IController selfieShortcut;
         private SelfieState selfieState;
@@ -54,6 +62,10 @@ namespace ArmadilloGame
         private Camera2D camera;
         private IPlayer player;
         private Door pendingDoor;
+
+        // After using a door, ignore door contacts briefly so spawning on top of
+        // another door does not immediately send the player through it.
+        private double doorCooldownMs;
 
         // Targeted locked doors the player has already opened.
         private readonly System.Collections.Generic.HashSet<(int From, int To)> unlockedDoors = new();
@@ -147,13 +159,16 @@ namespace ArmadilloGame
         {
             if (gameState == GameState.Gameplay)
             {
-                KeyboardState keyboard = Keyboard.GetState();
+                weapons.Fire(Player);
+            }
+        }
 
-                bool angled =
-                    keyboard.IsKeyDown(Keys.LeftShift) ||
-                    keyboard.IsKeyDown(Keys.RightShift);
-
-                fireballs.Fire(Player, angled);
+        // Equips weapon slot 0-3 when its weapon is unlocked.
+        public void SelectWeapon(int index)
+        {
+            if (gameState == GameState.Gameplay)
+            {
+                weapons.Select(index, Player);
             }
         }
 
@@ -217,9 +232,11 @@ namespace ArmadilloGame
 
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferWidth = ScreenWidth;
-            graphics.PreferredBackBufferHeight = ScreenHeight;
+            graphics.PreferredBackBufferWidth = WindowWidth;
+            graphics.PreferredBackBufferHeight = WindowHeight;
             graphics.ApplyChanges();
+
+            Core.ScreenScale.Configure(ScreenWidth, ScreenHeight, WindowWidth, WindowHeight);
 
             gameState = GameState.StartMenu;
 
@@ -229,6 +246,8 @@ namespace ArmadilloGame
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            sceneTarget = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
 
             // Load the repeating background.
             backgroundTexture = Content.Load<Texture2D>("Sprites/Brown");
@@ -244,14 +263,15 @@ namespace ArmadilloGame
             EnemySpriteFactory.Instance.LoadAllTextures(Content);
             ProjectileSpriteFactory.Instance.LoadAllTextures(Content);
 
-            fireballs.LoadPreviews();
+            weapons.LoadPreviews();
 
             BlockSpriteFactory.Instance.LoadAllTextures(Content);
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
 
             SpriteFont uiFont = Content.Load<SpriteFont>("Fonts/Controls");
+            SpriteFont uiFontLarge = Content.Load<SpriteFont>("Fonts/Controls-Large");
 
-            controlsOverlay = new ControlsOverlay(uiFont, GraphicsDevice);
+            controlsOverlay = new ControlsOverlay(uiFontLarge, GraphicsDevice);
 
             menuState = new MenuState(
                 controlsOverlay,
@@ -288,12 +308,12 @@ namespace ArmadilloGame
             Texture2D playerPortrait = Content.Load<Texture2D>(
                 "Sprites/dilloSpriteTest2");
 
-            playerHud = new PlayerHud(uiFont, playerPortrait);
+            playerHud = new PlayerHud(uiFontLarge, playerPortrait);
 
             mapState = new MapState(
                 GraphicsDevice,
                 uiFont,
-                fireballs,
+                weapons,
                 roomFactory,
                 CloseMap,
                 ToggleMute,
@@ -349,6 +369,9 @@ namespace ArmadilloGame
                 spriteBatch?.Dispose();
                 spriteBatch = null;
 
+                sceneTarget?.Dispose();
+                sceneTarget = null;
+
                 graphics?.Dispose();
                 graphics = null;
             }
@@ -358,7 +381,16 @@ namespace ArmadilloGame
 
         protected override void Draw(GameTime gameTime)
         {
+            // Render the game at virtual resolution, then scale the result up to the window.
+            GraphicsDevice.SetRenderTarget(sceneTarget);
             currentState.Draw(spriteBatch);
+
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            spriteBatch.Draw(sceneTarget, new Rectangle(0, 0, WindowWidth, WindowHeight), Color.White);
+            spriteBatch.End();
+
             base.Draw(gameTime);
         }
 
@@ -433,7 +465,7 @@ namespace ArmadilloGame
                 Player,
                 room.Level.Name,
                 roomStatus,
-                fireballs);
+                weapons);
 
             controlsOverlay.DrawSmallText(
                 spriteBatch,
@@ -456,19 +488,12 @@ namespace ArmadilloGame
                 100,
                 false);
 
-            controlsOverlay.DrawSmallText(
-                spriteBatch,
-                Shotgun.Status(Player),
-                440,
-                100,
-                true);
-
             if (roomManager.ActiveRoomIndex == 0 &&
                 room.Level.HasIntactReinforcedCrate)
             {
                 controlsOverlay.DrawSmallText(
                     spriteBatch,
-                    "SPACE to transform. Roll into the blue crate.",
+                    "SHIFT to transform. Roll into the blue crate.",
                     26,
                     98,
                     false);
@@ -480,6 +505,11 @@ namespace ArmadilloGame
                 spriteBatch,
                 Player,
                 room.Objective);
+
+            if (devMode)
+            {
+                controlsOverlay.DrawDevControls(spriteBatch, GraphicsDevice.Viewport);
+            }
         }
 
         private void InitializeGameObjects()
@@ -491,7 +521,6 @@ namespace ArmadilloGame
             roomManager = null;
 
             roomFactory.StartNewGame();
-            fireballs.Select(0);
 
             Level initialLevel = roomFactory.LoadLevel(0);
 
@@ -511,6 +540,9 @@ namespace ArmadilloGame
                 collisionManager);
 
             ((Player)player).SoundRequested += audio.Play;
+
+            // Default to the boomerang now that the player (weapon loadout) exists.
+            weapons.Select(0, player);
 
             Room initialRoom = RoomFactory.CreateRoom(
                 initialLevel,
@@ -538,6 +570,7 @@ namespace ArmadilloGame
                 roomManager.ActiveRoom.Level.WorldBounds);
 
             pendingDoor = null;
+            doorCooldownMs = 0;
             unlockedDoors.Clear();
 
             menuState.Open(false);
@@ -549,11 +582,20 @@ namespace ArmadilloGame
         {
             gameplayController.Update();
 
+            if (devMode)
+            {
+                devController.Update();
+            }
+
             if (State == GameState.Gameplay && !Shotgun.Active)
             {
                 UpdateGameplay(gameTime);
             }
         }
+
+        public void ToggleDevMode() => devMode = !devMode;
+
+        public bool IsDevMode => devMode;
 
         private void UpdateActiveGameplay(GameTime gameTime)
         {
@@ -599,11 +641,16 @@ namespace ArmadilloGame
 
             collisionManager.DetectCollision();
 
-            if (pendingDoor != null && Player.Health > 0)
+            Door touchedDoor = pendingDoor;
+            pendingDoor = null;
+
+            if (doorCooldownMs > 0)
             {
-                Door door = pendingDoor;
-                pendingDoor = null;
-                UseDoor(door);
+                doorCooldownMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+            else if (touchedDoor != null && Player.Health > 0)
+            {
+                UseDoor(touchedDoor);
             }
 
             CheckForGameEnd();
@@ -688,7 +735,23 @@ namespace ArmadilloGame
             (int From, int To) id =
                 (roomManager.ActiveRoomIndex, target);
 
-            if (door.IsLocked && !unlockedDoors.Contains(id))
+            if (door.LockedBehind && !unlockedDoors.Contains(id))
+            {
+                // The door was locked behind the player on entry. Passing back through requires
+                // holding a key but does not spend one.
+                if (Player.KeyCount <= 0)
+                {
+                    audio.Play(GameSound.Item);
+                    return;
+                }
+
+                door.LockedBehind = false;
+                door.IsLocked = false;
+                unlockedDoors.Add(id);
+                // Persist so the door stays open (not relocked) on later entries to this level.
+                roomManager.ActiveRoom.Level.UnlockDoorTo(target);
+            }
+            else if (door.IsLocked && !unlockedDoors.Contains(id))
             {
                 if (!Player.TryUseKey())
                 {
@@ -699,6 +762,8 @@ namespace ArmadilloGame
 
                 unlockedDoors.Add(id);
                 door.IsLocked = false;
+                // Persist so this door stays open when its room is rebuilt (e.g. back in the hub).
+                roomManager.ActiveRoom.Level.UnlockDoorTo(target);
             }
 
             GoToRoom(target);
@@ -713,6 +778,10 @@ namespace ArmadilloGame
             selfieNeedsSpace = false;
 
             switchRoom();
+
+            // Arm the door cooldown so the player does not re-trigger a door on arrival.
+            doorCooldownMs = DoorCooldownDurationMs;
+            pendingDoor = null;
 
             collisionManager.SetWorldBounds(
                 roomManager.ActiveRoom.Level.WorldBounds);
@@ -749,6 +818,12 @@ namespace ArmadilloGame
             gameplayController = ControllerFactory.CreateGameplayController(
                 this,
                 Player,
+                showcase.Blocks,
+                showcase.Items,
+                showcase.Enemies);
+
+            devController = ControllerFactory.CreateDevController(
+                this,
                 showcase.Blocks,
                 showcase.Items,
                 showcase.Enemies);
