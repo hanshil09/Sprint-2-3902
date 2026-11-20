@@ -33,6 +33,8 @@ internal sealed class PlayerHud
     private const float LabelScale = 0.52f;
     private const float CountScale = 0.65f;
     private const float RoomStatusScale = 0.42f;
+    // The HUD font is baked at 48pt and drawn smaller so it stays crisp through the window upscale.
+    private const float FontSupersample = 20f / 48f;
     private static readonly Color HeadingColor = new Color(255, 225, 177);
 
     private static readonly Color TextColor = new Color(226, 201, 164);
@@ -111,7 +113,7 @@ internal sealed class PlayerHud
         HudIcon.Draw(spriteBatch, style.Icon, new Point(style.Left, ValueY + 1), style.IconColor);
 
         Point iconSize = HudIcon.Size(style.Icon);
-        float textHeight = font.MeasureString(value).Y * CountScale;
+        float textHeight = font.MeasureString(value).Y * CountScale * FontSupersample;
         int textY = ValueY + (int)Math.Round((iconSize.Y - textHeight) / 2f);
         DrawText(spriteBatch, value, style.Left + iconSize.X + IconTextSpacing, textY,
             valueColor ?? TextColor, CountScale);
@@ -150,6 +152,6 @@ internal sealed class PlayerHud
     private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)
     {
         spriteBatch.DrawString(font, text, new Vector2(x, y), color,
-            0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            0f, Vector2.Zero, scale * FontSupersample, SpriteEffects.None, 0f);
     }
 }

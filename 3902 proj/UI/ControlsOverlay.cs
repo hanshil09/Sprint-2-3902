@@ -180,9 +180,14 @@ namespace ArmadilloGame.UI
             DrawText(spriteBatch, action, x + labelWidth, y, TextColor, 0.62f);
         }
 
+        // The overlay font is baked larger (48pt) than it is drawn so glyphs stay crisp
+        // through the window upscale; every scale is reduced by this factor to compensate.
+        private const float FontSupersample = 20f / 48f;
+
         private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)
         {
-            spriteBatch.DrawString(font, text, new Vector2(x, y), color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(font, text, new Vector2(x, y), color,
+                0f, Vector2.Zero, scale * FontSupersample, SpriteEffects.None, 0f);
         }
     }
 }

@@ -269,8 +269,9 @@ namespace ArmadilloGame
             ItemSpriteFactory.Instance.LoadAllTextures(Content);
 
             SpriteFont uiFont = Content.Load<SpriteFont>("Fonts/Controls");
+            SpriteFont uiFontLarge = Content.Load<SpriteFont>("Fonts/Controls-Large");
 
-            controlsOverlay = new ControlsOverlay(uiFont, GraphicsDevice);
+            controlsOverlay = new ControlsOverlay(uiFontLarge, GraphicsDevice);
 
             menuState = new MenuState(
                 controlsOverlay,
@@ -307,7 +308,7 @@ namespace ArmadilloGame
             Texture2D playerPortrait = Content.Load<Texture2D>(
                 "Sprites/dilloSpriteTest2");
 
-            playerHud = new PlayerHud(uiFont, playerPortrait);
+            playerHud = new PlayerHud(uiFontLarge, playerPortrait);
 
             mapState = new MapState(
                 GraphicsDevice,
