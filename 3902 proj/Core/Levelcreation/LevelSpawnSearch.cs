@@ -10,6 +10,17 @@ internal static class LevelSpawnSearch
     public static Vector2 Find(Vector2 requested, int width, int height, Rectangle roomBounds,
         IReadOnlyList<Rectangle> occupied)
     {
+        if (TryFind(requested, width, height, roomBounds, occupied, out Vector2 position))
+        {
+            return position;
+        }
+        throw new InvalidOperationException("The level has no non-overlapping spawn position for an entity.");
+    }
+
+    // Like Find, but reports failure instead of throwing so callers can fall back.
+    public static bool TryFind(Vector2 requested, int width, int height, Rectangle roomBounds,
+        IReadOnlyList<Rectangle> occupied, out Vector2 position)
+    {
         const int searchStep = 16;
         float bestDistance = float.MaxValue;
         Vector2? best = null;
@@ -26,12 +37,8 @@ internal static class LevelSpawnSearch
                 }
             }
         }
-        if (!best.HasValue)
-        {
-            throw new InvalidOperationException("The level has no non-overlapping spawn position for an entity.");
-        }
-
-        return best.Value;
+        position = best ?? Vector2.Zero;
+        return best.HasValue;
     }
 
     private static bool Overlaps(Rectangle candidate, IReadOnlyList<Rectangle> occupied)

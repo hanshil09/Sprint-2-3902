@@ -56,6 +56,66 @@ namespace ArmadilloGame.Collisions
             return position;
         }
 
+        // Maximum vertical nudge (pixels) corner correction will apply to slip into an opening.
+        private const int CornerCorrectTolerance = 6;
+
+        // When a horizontal move is blocked, see whether nudging up or down by a few pixels lines the
+        // body up with an adjacent opening. Returns the nudged position when one side works and the
+        // nudged body itself is clear of solids; false when no small nudge helps.
+        public static bool TryCornerCorrect(Vector2 position, int width, int height, float distance,
+            IReadOnlyList<IBlock> blocks, out Vector2 corrected)
+        {
+            corrected = position;
+            int direction = Math.Sign(distance);
+            if (direction == 0)
+            {
+                return false;
+            }
+
+            // Probe a thin column just past the leading edge, in the direction of travel.
+            float leadX = direction > 0 ? position.X + width : position.X - 1;
+            for (int offset = 1; offset <= CornerCorrectTolerance; offset++)
+            {
+                foreach (int sign in new[] { -1, 1 })
+                {
+                    float candidateY = position.Y + sign * offset;
+                    // The body at the nudged Y must be clear, and the path ahead at that Y must be open.
+                    Rectangle body = new Rectangle((int)position.X, (int)candidateY, width, height);
+                    Rectangle ahead = new Rectangle((int)leadX, (int)candidateY, 1, height);
+                    if (IsClear(body, blocks) && IsClear(ahead, blocks))
+                    {
+                        corrected = new Vector2(position.X, candidateY);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Jumping into a one-cell gap: when a rising body clips a ceiling, see whether nudging left or
+        // right by a few pixels lines it up with the gap. Returns the nudged position when one side
+        // clears both the body and the ceiling strip it is heading toward.
+        public static bool TryCeilingCornerCorrect(Vector2 position, int width, int height, float desiredY,
+            IReadOnlyList<IBlock> blocks, out Vector2 corrected)
+        {
+            corrected = position;
+            for (int offset = 1; offset <= CornerCorrectTolerance; offset++)
+            {
+                foreach (int sign in new[] { -1, 1 })
+                {
+                    float candidateX = position.X + sign * offset;
+                    Rectangle body = new Rectangle((int)candidateX, (int)position.Y, width, height);
+                    Rectangle above = new Rectangle((int)candidateX, (int)desiredY, width, 1);
+                    if (IsClear(body, blocks) && IsClear(above, blocks))
+                    {
+                        corrected = new Vector2(candidateX, position.Y);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public static Vector2 MoveVertically(Vector2 position, int width, int height, float distance,
             float minimumY, float maximumY, IReadOnlyList<IBlock> blocks)
         {

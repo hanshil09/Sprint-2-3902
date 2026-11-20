@@ -13,6 +13,12 @@ namespace ArmadilloGame.Interfaces
 
         Direction Facing { get; }
 
+        // Unit vector toward the aim point (mouse) in world space.
+        Vector2 AimDirection { get; }
+
+        // Updates the aim from a world-space target point.
+        void SetAimTarget(Vector2 worldTarget);
+
         int Health { get; }
 
         int MaxHealth { get; }

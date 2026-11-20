@@ -14,12 +14,14 @@ namespace ArmadilloGame.Sprites
         // When true each frame is drawn at its true aspect, scaled to the logical height and
         // bottom-center anchored, so animation frames of different sizes do not squish or jitter.
         private readonly bool preserveAspect;
+        private readonly int visualInflate;
         private int currentFrame;
         private int totalFrames;
         private double timeSinceLastFrame;
 
         public AnimatedSprite(Texture2D texture, Rectangle[] frames, int width, int height, Color tint,
-            double millisecondsPerFrame = 90, SpriteEffects effects = SpriteEffects.None, bool preserveAspect = false)
+            double millisecondsPerFrame = 90, SpriteEffects effects = SpriteEffects.None, bool preserveAspect = false,
+            int visualInflate = 0)
         {
             this.texture = texture;
             this.frames = frames;
@@ -27,6 +29,7 @@ namespace ArmadilloGame.Sprites
             this.millisecondsPerFrame = millisecondsPerFrame;
             this.effects = effects;
             this.preserveAspect = preserveAspect;
+            this.visualInflate = visualInflate;
             Width = width;
             Height = height;
             currentFrame = 0;
@@ -53,7 +56,8 @@ namespace ArmadilloGame.Sprites
             Rectangle source = frames[currentFrame];
             Rectangle destination = preserveAspect
                 ? SpriteDraw.BottomCenterFit(source, location, Width, Height)
-                : new Rectangle((int)location.X, (int)location.Y, Width, Height);
+                : new Rectangle((int)location.X - visualInflate, (int)location.Y - visualInflate,
+                    Width + 2 * visualInflate, Height + 2 * visualInflate);
             spriteBatch.Draw(texture, destination, source, tint, 0f, Vector2.Zero, effects, 0f);
         }
     }

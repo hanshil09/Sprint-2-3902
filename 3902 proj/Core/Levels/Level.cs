@@ -95,7 +95,8 @@ namespace ArmadilloGame.Core
             }
         }
 
-        // Return beside the matching hub door when there is space.
+        // Prefer standing just to the right of the door, then just to the left, and finally fall
+        // back to the level's start if neither side has room (e.g. a door against a wall).
         public Vector2 ArrivalFrom(int fromRoomIndex)
         {
             Door door = doors.Find(d => d.TargetRoomIndex == fromRoomIndex);
@@ -108,15 +109,30 @@ namespace ArmadilloGame.Core
             const int gap = 8;
             int y = door.Bounds.Bottom - sprite.Height;
             List<Rectangle> solids = SolidBlockBounds();
-            foreach (Door hubDoor in doors)
+            foreach (Door otherDoor in doors)
             {
-                solids.Add(hubDoor.Bounds);
+                solids.Add(otherDoor.Bounds);
             }
 
             Rectangle bounds = WorldBounds;
+
             int rightStart = door.Bounds.Right + gap;
             Rectangle rightSide = new Rectangle(rightStart, bounds.Top, bounds.Right - rightStart, bounds.Height);
-            return LevelSpawnSearch.Find(new Vector2(rightStart, y), sprite.Width, sprite.Height, rightSide, solids);
+            if (rightSide.Width >= sprite.Width &&
+                LevelSpawnSearch.TryFind(new Vector2(rightStart, y), sprite.Width, sprite.Height, rightSide, solids, out Vector2 right))
+            {
+                return right;
+            }
+
+            int leftEnd = door.Bounds.Left - gap;
+            Rectangle leftSide = new Rectangle(bounds.Left, bounds.Top, leftEnd - bounds.Left, bounds.Height);
+            if (leftSide.Width >= sprite.Width &&
+                LevelSpawnSearch.TryFind(new Vector2(leftEnd - sprite.Width, y), sprite.Width, sprite.Height, leftSide, solids, out Vector2 left))
+            {
+                return left;
+            }
+
+            return PlayerStart;
         }
 
         public string Name => data.Name;
@@ -170,8 +186,12 @@ namespace ArmadilloGame.Core
                     continue;
                 }
                 Point size = EntityFactory.SpawnSize(placement.Kind);
-                Vector2 start = LevelSpawnSearch.Find(CellPosition(placement.Column, placement.Row),
-                    size.X, size.Y, WorldBounds, occupied);
+                // Skip an enemy that has nowhere to stand instead of crashing the whole level.
+                if (!LevelSpawnSearch.TryFind(CellPosition(placement.Column, placement.Row),
+                        size.X, size.Y, WorldBounds, occupied, out Vector2 start))
+                {
+                    continue;
+                }
                 IEnemy enemy = placement.Kind == EnemyKind.Warlord
                     ? new Boss(start, player, projectiles)
                     : new Enemy(start, blocks, EntityFactory.CreateEnemyConfiguration(placement.Kind, DifficultyTier), player,

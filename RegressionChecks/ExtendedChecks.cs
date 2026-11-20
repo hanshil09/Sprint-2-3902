@@ -227,6 +227,8 @@ sealed class StubPlayer : IPlayer
     public int Height => 10;
     public bool IsInBallForm => false;
     public Direction Facing => Direction.Right;
+    public Vector2 AimDirection => new Vector2(1f, 0f);
+    public void SetAimTarget(Vector2 worldTarget) { }
     public int Health => 100;
     public int MaxHealth => 100;
     public PlayerInventoryView Inventory => default;

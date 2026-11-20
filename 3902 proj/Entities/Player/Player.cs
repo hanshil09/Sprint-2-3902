@@ -59,6 +59,17 @@ internal class Player : IPlayer
     public bool IsMoving => movement.IsMoving;
     public bool IsInBallForm => form.IsVehicle;
 
+    // Unit vector toward the aim point (the mouse) in world space, refreshed each frame.
+    // Defaults to facing right until the first aim update.
+    public Vector2 AimDirection { get; private set; } = new Vector2(1f, 0f);
+
+    // Sets the aim from a world-space target point relative to the player's center.
+    public void SetAimTarget(Vector2 worldTarget)
+    {
+        Vector2 delta = worldTarget - Center;
+        AimDirection = delta.LengthSquared() > 0.0001f ? Vector2.Normalize(delta) : AimDirection;
+    }
+
     public PlayerArsenal Arsenal { get; }
 
     public int Health => health.Current;

@@ -12,8 +12,10 @@ namespace ArmadilloGame.Factories
         private const int PlayerWidth = 68;
         private const int PlayerHeight = 80;
 
-        // The ball form is exactly one block wide/tall so it fits level geometry cleanly.
-        private const int BallSize = 32;
+        // The ball collides as a 28px box but draws a little larger so it still reads as a full
+        // block. The smaller collision gives slack in one-block gaps and tunnels.
+        private const int BallCollisionSize = 28;
+        private const int BallVisualInflate = 2;
 
         private const double IdleFrameTime = 250;
         private const double RunFrameTime = 83;
@@ -132,10 +134,12 @@ namespace ArmadilloGame.Factories
             return new TextureRegionSprite(
                 dilloSpriteSheet,
                 BallFrames[0],
-                BallSize,
-                BallSize,
+                BallCollisionSize,
+                BallCollisionSize,
                 Color.White,
-                GetFlipEffect(facingLeft));
+                GetFlipEffect(facingLeft),
+                preserveAspect: false,
+                visualInflate: BallVisualInflate);
         }
 
         public ISprite CreateRollingBallSprite(bool facingLeft)
@@ -143,11 +147,13 @@ namespace ArmadilloGame.Factories
             return new AnimatedSprite(
                 dilloSpriteSheet,
                 BallFrames,
-                BallSize,
-                BallSize,
+                BallCollisionSize,
+                BallCollisionSize,
                 Color.White,
                 RollFrameTime,
-                GetFlipEffect(facingLeft));
+                GetFlipEffect(facingLeft),
+                preserveAspect: false,
+                visualInflate: BallVisualInflate);
         }
     }
 }

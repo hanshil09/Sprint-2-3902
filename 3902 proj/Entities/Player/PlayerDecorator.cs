@@ -29,6 +29,8 @@ namespace ArmadilloGame.Entities
         public virtual int Height => Inner.Height;
         public virtual bool IsInBallForm => Inner.IsInBallForm;
         public virtual Direction Facing => Inner.Facing;
+        public virtual Vector2 AimDirection => Inner.AimDirection;
+        public virtual void SetAimTarget(Vector2 worldTarget) => Inner.SetAimTarget(worldTarget);
         public virtual int Health => Inner.Health;
         public virtual int MaxHealth => Inner.MaxHealth;
         public virtual PlayerInventoryView Inventory => Inner.Inventory;

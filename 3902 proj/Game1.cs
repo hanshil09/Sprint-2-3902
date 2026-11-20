@@ -155,6 +155,14 @@ namespace ArmadilloGame
             RefreshGameplayController();
         }
 
+        // The mouse position in world space: window pixels -> virtual 960x540 -> plus camera offset.
+        private Vector2 AimWorldPosition()
+        {
+            Point virtualMouse = Core.ScreenScale.ToVirtual(Mouse.GetState().Position);
+            Rectangle view = camera.ViewBounds;
+            return new Vector2(virtualMouse.X + view.Left, virtualMouse.Y + view.Top);
+        }
+
         public void FireSelectedShot()
         {
             if (gameState == GameState.Gameplay)
@@ -618,6 +626,9 @@ namespace ArmadilloGame
         private void UpdateGameplay(GameTime gameTime)
         {
             Room activeRoom = roomManager.ActiveRoom;
+
+            // Point the player's aim at the mouse before anything reads it this frame.
+            Player.SetAimTarget(AimWorldPosition());
 
             activeRoom.Update(gameTime);
 

@@ -102,6 +102,23 @@ namespace ArmadilloGame.Collisions
                     worldBounds.Left, worldBounds.Right - width, state.Blocks);
             Vector2 previousPosition = entity.Position;
             Vector2 desiredPosition = physics.Apply(entity.Position, gameTime);
+
+            // Jump-into-gap help: if a rising player clips a ceiling but a small sideways nudge would
+            // line them up with a gap, nudge them so the jump makes it through.
+            if (entity is Player && physics.VerticalVelocity < 0)
+            {
+                Vector2 blocked = BlockCollisionOperations.ResolveVerticalMovement(previousPosition, desiredPosition,
+                    width, height, physics.VerticalVelocity, state.Blocks, 0, out _, out _);
+                if (blocked.Y != desiredPosition.Y &&
+                    BlockCollisionOperations.TryCeilingCornerCorrect(previousPosition, width, height, desiredPosition.Y,
+                        state.Blocks, out Vector2 nudgedUp))
+                {
+                    entity.Position = nudgedUp;
+                    previousPosition = nudgedUp;
+                    desiredPosition = new Vector2(nudgedUp.X, desiredPosition.Y);
+                }
+            }
+
             entity.Position = BlockCollisionOperations.ResolveVerticalMovement(previousPosition, desiredPosition, width, height,
                 physics.VerticalVelocity, state.Blocks, 0, out bool isOnGround, out IBlock supportingBlock);
             if (isOnGround || entity.Position.Y != desiredPosition.Y)
@@ -147,6 +164,17 @@ namespace ArmadilloGame.Collisions
                 player.PlaySound(GameSound.CrateBreak);
                 // Finish the movement against the remaining solid blocks.
                 resolved = BlockCollisionOperations.MoveHorizontally(player.Position, player.Width, player.Height,
+                    distance, minimumX, maximumX, blocks);
+                return resolved;
+            }
+
+            // Corner correction: if the ball is blocked but a small vertical nudge would line it up
+            // with an opening (e.g. a one-block tunnel), slide it in instead of stopping dead.
+            if (player.IsInBallForm && hitBlock != null && distance != 0 &&
+                BlockCollisionOperations.TryCornerCorrect(player.Position, player.Width, player.Height,
+                    distance, blocks, out Vector2 nudged))
+            {
+                resolved = BlockCollisionOperations.MoveHorizontally(nudged, player.Width, player.Height,
                     distance, minimumX, maximumX, blocks);
             }
             return resolved;
