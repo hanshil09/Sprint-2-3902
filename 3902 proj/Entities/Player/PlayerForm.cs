@@ -57,8 +57,6 @@ internal sealed class PlayerForm
                 return;
             }
             
-            //TryTransform(standingSprite.Height, standingSprite.Width);
-            
         }
 
         state = newState;
