@@ -68,6 +68,7 @@ namespace ArmadilloGame.Interfaces
         bool WeaponHasUnlimitedAmmo(WeaponKind kind);
         void UnlockWeapon(WeaponKind kind);
         void AddWeaponAmmo(WeaponKind kind, int amount);
+        void UnlockAllWeapons();
         bool FireWeapon(WeaponKind kind);
 
         // Spends one key to open a locked door; returns false when the player has none.

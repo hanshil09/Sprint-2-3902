@@ -56,6 +56,7 @@ namespace ArmadilloGame.Entities
         public virtual bool WeaponHasUnlimitedAmmo(WeaponKind kind) => Inner.WeaponHasUnlimitedAmmo(kind);
         public virtual void UnlockWeapon(WeaponKind kind) => Inner.UnlockWeapon(kind);
         public virtual void AddWeaponAmmo(WeaponKind kind, int amount) => Inner.AddWeaponAmmo(kind, amount);
+        public virtual void UnlockAllWeapons() => Inner.UnlockAllWeapons();
         public virtual bool FireWeapon(WeaponKind kind) => Inner.FireWeapon(kind);
         public virtual bool TryUseKey() => Inner.TryUseKey();
         public virtual void Draw(SpriteBatch spriteBatch) => Inner.Draw(spriteBatch);

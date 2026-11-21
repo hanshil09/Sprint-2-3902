@@ -601,7 +601,15 @@ namespace ArmadilloGame
             }
         }
 
-        public void ToggleDevMode() => devMode = !devMode;
+        public void ToggleDevMode()
+        {
+            devMode = !devMode;
+            // Entering dev mode grants every weapon so they can be tested without finding pickups.
+            if (devMode)
+            {
+                Player.UnlockAllWeapons();
+            }
+        }
 
         public bool IsDevMode => devMode;
 

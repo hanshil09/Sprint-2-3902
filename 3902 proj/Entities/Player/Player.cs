@@ -17,6 +17,7 @@ internal class Player : IPlayer
     private readonly PlayerHealth health = new PlayerHealth();
     private readonly PlayerShield shield = new PlayerShield();
     private readonly WeaponLoadout weapons = new WeaponLoadout();
+    private readonly PlayerAim aim = new PlayerAim();
 
     private readonly PlayerForm form;
 
@@ -60,14 +61,21 @@ internal class Player : IPlayer
     public bool IsInBallForm => form.IsVehicle;
 
     // Unit vector toward the aim point (the mouse) in world space, refreshed each frame.
-    // Defaults to facing right until the first aim update.
-    public Vector2 AimDirection { get; private set; } = new Vector2(1f, 0f);
+    public Vector2 AimDirection => aim.Direction;
 
-    // Sets the aim from a world-space target point relative to the player's center.
+    // Sets the aim from a world-space target point relative to the player's center,
+    // and turns the player to face the aim's horizontal direction.
     public void SetAimTarget(Vector2 worldTarget)
     {
-        Vector2 delta = worldTarget - Center;
-        AimDirection = delta.LengthSquared() > 0.0001f ? Vector2.Normalize(delta) : AimDirection;
+        aim.SetTarget(Center, worldTarget);
+        if (!IsInBallForm)
+        {
+            Direction facing = aim.Direction.X < 0f ? Direction.Left : Direction.Right;
+            if (movement.FaceToward(facing))
+            {
+                form.RefreshSprite();
+            }
+        }
     }
 
     public PlayerArsenal Arsenal { get; }
@@ -176,6 +184,15 @@ internal class Player : IPlayer
     public void UnlockWeapon(WeaponKind kind) => weapons.Unlock(kind);
     public void AddWeaponAmmo(WeaponKind kind, int amount) => weapons.AddAmmo(kind, amount);
 
+    // Unlocks and stocks every weapon. Used by dev mode for testing.
+    public void UnlockAllWeapons()
+    {
+        foreach (WeaponKind kind in System.Enum.GetValues<WeaponKind>())
+        {
+            weapons.Unlock(kind);
+        }
+    }
+
     // Fires the given weapon when it is unlocked and loaded, spending one shot.
     public bool FireWeapon(WeaponKind kind)
     {
@@ -189,7 +206,7 @@ internal class Player : IPlayer
                 Arsenal.ThrowBoomerang();
                 break;
             case WeaponKind.Pistol:
-                Arsenal.FireShot(false);
+                Arsenal.FirePistol();
                 break;
             case WeaponKind.Shotgun:
                 Arsenal.FireShotgun(false);

@@ -61,6 +61,21 @@ namespace ArmadilloGame.Entities
             collisionManager.MovePlayerRecoil(player, recoil);
         }
 
+        // Fires the pistol along the player's aim (free angle). The shot leaves from a muzzle offset
+        // toward the aim and travels in a straight line; recoil pushes opposite the shot.
+        public void FirePistol()
+        {
+            player.PlaySound(GameSound.Shoot);
+
+            Vector2 aim = player.AimDirection;
+            ISprite shot = ProjectileSpriteFactory.Instance.CreateShotSprite(aim.X < 0f);
+            Vector2 velocity = aim * ShotSpeed;
+
+            projectiles.Add(new EnergyProjectile(AimedMuzzlePosition(shot, aim), velocity, false, aim.X < 0f, shot));
+
+            collisionManager.MovePlayerRecoil(player, -aim.X * ShotRecoilDistance);
+        }
+
         public void FireShotgun(bool aimUp)
         {
             ISprite shot = ProjectileSpriteFactory.Instance.CreateShotSprite(player.FacingLeft);
@@ -145,6 +160,15 @@ namespace ArmadilloGame.Entities
             float x = player.FacingLeft ? player.Position.X - projectileSprite.Width : player.Position.X + player.Width;
             float y = player.Position.Y + player.Height * MuzzleHeight;
             return new Vector2(x, y);
+        }
+
+        // Spawns a projectile just outside the player's body along the aim direction, centered on the
+        // player, so aimed shots leave from the muzzle regardless of angle.
+        private Vector2 AimedMuzzlePosition(ISprite projectileSprite, Vector2 aim)
+        {
+            float radius = MathF.Max(player.Width, player.Height) * 0.5f;
+            Vector2 muzzle = player.Center + aim * radius;
+            return new Vector2(muzzle.X - projectileSprite.Width / 2f, muzzle.Y - projectileSprite.Height / 2f);
         }
     }
 }

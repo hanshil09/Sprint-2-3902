@@ -251,6 +251,7 @@ sealed class StubPlayer : IPlayer
     public bool WeaponHasUnlimitedAmmo(WeaponKind kind) => WeaponLoadout.HasUnlimitedAmmo(kind);
     public void UnlockWeapon(WeaponKind kind) { }
     public void AddWeaponAmmo(WeaponKind kind, int amount) { }
+    public void UnlockAllWeapons() { }
     public bool FireWeapon(WeaponKind kind) => false;
     public bool TryUseKey() => false;
     public void Move(Direction direction) { }

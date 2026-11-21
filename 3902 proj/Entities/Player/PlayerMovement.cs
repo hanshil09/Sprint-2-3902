@@ -69,4 +69,19 @@ internal sealed class PlayerMovement
     public void Bounce(float speed) => collisions.Launch(player, physics, speed);
     public void ApplyKnockback() => collisions.TryGroundedJump(player, physics, KnockbackSpeed);
     public void SetGravity(float gravity) => physics.SetGravity(gravity);
+
+    // Turns the player to face a horizontal direction without moving (used to face the aim).
+    public bool FaceToward(Direction direction)
+    {
+        if (direction != Direction.Left && direction != Direction.Right)
+        {
+            return false;
+        }
+        if (Facing == direction)
+        {
+            return false;
+        }
+        Facing = direction;
+        return true;
+    }
 }
