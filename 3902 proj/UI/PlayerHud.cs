@@ -1,51 +1,82 @@
-using System;
-using System.Globalization;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ArmadilloGame.Core;
 using ArmadilloGame.Entities;
 using ArmadilloGame.Interfaces;
+using ArmadilloGame.Sprites;
 
 namespace ArmadilloGame.UI;
 
 internal sealed class PlayerHud
 {
-    private const int PanelLeft = 12;
     private const int PanelTop = 8;
-    private const int PanelWidth = 936;
-    private const int PanelHeight = 52;
+
+    // Player status panel.
+    private const int StatusLeft = 12;
+    private const int StatusWidth = 210;
+    private const int StatusHeight = 76;
+
+    private const int PortraitX = 24;
+    private const int PortraitY = 16;
+    private const int PortraitSize = 52;
+
+    // Original portrait crop from the previous HUD.
+    private static readonly Rectangle PortraitSource =
+        new Rectangle(878, 78, 78, 78);
+
+    private const int HealthLeft = 88;
+    private const int HealthTop = 17;
+    private const int HeartsTop = 35;
+    private const int KeyTop = 57;
     private const int HealthHeartCount = 5;
-    private const int ContentLeft = 80;
-    private const int LabelY = 13;
-    private const int ValueY = 33;
-    private const int MedkitsLeft = 260;
-    private const int ShieldsLeft = 390;
-    private const int GemsLeft = 520;
-    private const int BombPacksLeft = 650;
-    private const int FireballLeft = 790;
-    private const int PreviewAlignmentHeight = 16;
-    private const int RoomStatusY = 66;
-    private const int HelpStatusLeft = 440;
-    private const int PowerStatusLeft = 790;
-    private const int IconTextSpacing = 6;
-    private const int DividerOffset = 15;
-    private const int DividerInset = 7;
-    private const float LabelScale = 0.52f;
-    private const float CountScale = 0.65f;
-    private const float RoomStatusScale = 0.42f;
-    // The HUD font is baked at 48pt and drawn smaller so it stays crisp through the window upscale.
+
+    // Horizontal equipment panel.
+    private const int EquipmentLeft = 730;
+    private const int EquipmentWidth = 218;
+    private const int EquipmentHeight = 76;
+
+    private const int SlotSize = 44;
+    private const int SlotGap = 5;
+    private const int SlotStartX = EquipmentLeft + 9;
+    private const int SlotTop = PanelTop + 15;
+
     private const float FontSupersample = 20f / 48f;
-    private static readonly Color HeadingColor = new Color(255, 225, 177);
 
-    private static readonly Color TextColor = new Color(226, 201, 164);
+    private static readonly Color PanelColor =
+        new Color(0, 0, 0, 220);
 
-    private static readonly Color PowerColor = new Color(231, 181, 76);
+    private static readonly Color HeadingColor =
+        new Color(255, 225, 177);
 
-    private static readonly Color AccentColor = new Color(169, 115, 57);
+    private static readonly Color TextColor =
+        new Color(226, 201, 164);
 
-    private static readonly Color DividerColor = new Color(210, 160, 100, 75);
-    private static readonly Color ShieldColor = Color.Cyan;
-    private static readonly Color GemColor = Color.HotPink;
+    private static readonly Color AccentColor =
+        new Color(169, 115, 57);
+
+    private static readonly Color SelectedColor =
+        new Color(235, 177, 77);
+
+    private static readonly Color LockedColor =
+        new Color(100, 88, 77);
+
+    private static readonly Color KeyOffColor =
+        new Color(75, 75, 75);
+
+    private static readonly Color KeyOnColor =
+        new Color(235, 181, 65);
+
+    private static readonly string[] KeyIcon =
+    {
+        ".XXXX...",
+        "XX..XX..",
+        "XX..XX..",
+        ".XXXX...",
+        "...XX...",
+        "...XX.XX",
+        "...XX.XX",
+        "....XXXX"
+    };
 
     private readonly SpriteFont font;
     private readonly Texture2D portraitTexture;
@@ -56,102 +87,309 @@ internal sealed class PlayerHud
         this.portraitTexture = portraitTexture;
     }
 
-    public void Draw(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus, WeaponSelection weapons)
+    public void Draw(
+        SpriteBatch spriteBatch,
+        IPlayer player,
+        WeaponSelection weapons)
     {
-        Rectangle panel = new Rectangle(PanelLeft, PanelTop, PanelWidth, PanelHeight);
-        HudFrame.Draw(spriteBatch, panel, portraitTexture, AccentColor);
-        DrawHealth(spriteBatch, player);
-        DrawInventory(spriteBatch, player, weapons);
-        DrawRoomStatus(spriteBatch, player, roomName, roomStatus);
+        DrawPlayerStatus(spriteBatch, player);
+        DrawEquipment(spriteBatch, player, weapons);
     }
 
-    private void DrawHealth(SpriteBatch spriteBatch, IPlayer player)
+    private void DrawPlayerStatus(
+        SpriteBatch spriteBatch,
+        IPlayer player)
     {
-        DrawText(spriteBatch, $"HEALTH {player.Health}/{player.MaxHealth}", ContentLeft, LabelY, HeadingColor, LabelScale);
-        HeartMeter.Draw(spriteBatch, new Vector2(ContentLeft, ValueY), player.Health,
-            player.MaxHealth, HealthHeartCount, Color.Crimson);
+        Rectangle panel = new Rectangle(
+            StatusLeft,
+            PanelTop,
+            StatusWidth,
+            StatusHeight);
+
+        DrawPanel(spriteBatch, panel);
+
+        // Portrait frame.
+        Rectangle portrait = new Rectangle(
+            PortraitX,
+            PortraitY,
+            PortraitSize,
+            PortraitSize);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                portrait.X - 2,
+                portrait.Y - 2,
+                portrait.Width + 4,
+                portrait.Height + 4),
+            Color.Black);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                portrait.X - 1,
+                portrait.Y - 1,
+                portrait.Width + 2,
+                portrait.Height + 2),
+            AccentColor);
+
+        // Draw the original portrait sprite from its spritesheet.
+        spriteBatch.Draw(
+            portraitTexture,
+            portrait,
+            PortraitSource,
+            Color.White);
+
+        // Health to the right of the portrait.
+  
+
+        HeartMeter.Draw(
+            spriteBatch,
+            new Vector2(HealthLeft, HeartsTop),
+            player.Health,
+            player.MaxHealth,
+            HealthHeartCount,
+            Color.Crimson);
+
+        // Key silhouette: empty when not owned, gold when owned.
+        bool hasKey = player.KeyCount > 0;
+
+        DrawKeyIcon(
+            spriteBatch,
+            new Point(HealthLeft, KeyTop),
+            hasKey ? KeyOnColor : KeyOffColor);
     }
 
-    private readonly record struct CounterStyle(string Label, int Left, Color LabelColor, Color IconColor, string[] Icon);
-
-    private static readonly CounterStyle Medkits = new("MED KITS", MedkitsLeft, HeadingColor, AccentColor, HudIcon.MedkitIcon);
-    private static readonly CounterStyle Shields = new("SHIELDS", ShieldsLeft, ShieldColor, ShieldColor, HudIcon.ShieldIcon);
-    private static readonly CounterStyle Gems = new("PINK GEMS", GemsLeft, GemColor, GemColor, HudIcon.GemIcon);
-    private static readonly CounterStyle BombPacks = new("BOMB PACKS", BombPacksLeft, PowerColor, PowerColor, HudIcon.BombIcon);
-
-    private void DrawInventory(SpriteBatch spriteBatch, IPlayer player, WeaponSelection weapons)
+    private void DrawEquipment(
+        SpriteBatch spriteBatch,
+        IPlayer player,
+        WeaponSelection weapons)
     {
-        DrawCounter(spriteBatch, Medkits, player.Inventory.MedkitCount.ToString(CultureInfo.InvariantCulture));
-        string shieldStatus = player.Inventory.ShieldCount.ToString(CultureInfo.InvariantCulture);
-        Color shieldStatusColor = TextColor;
-        if (player.IsShieldActive)
-        {
-            shieldStatus += " ACTIVE";
-            shieldStatusColor = ShieldColor;
-        }
+        Rectangle panel = new Rectangle(
+            EquipmentLeft,
+            PanelTop,
+            EquipmentWidth,
+            EquipmentHeight);
 
-        DrawCounter(spriteBatch, Shields, shieldStatus, shieldStatusColor);
-        DrawCounter(spriteBatch, Gems, player.Inventory.EnergonCount.ToString(CultureInfo.InvariantCulture));
-        DrawCounter(spriteBatch, BombPacks, $"{player.Inventory.BombLevel}/{PlayerInventory.MaximumBombLevel}");
-        DrawDivider(spriteBatch, FireballLeft);
-        DrawText(spriteBatch, "WEAPON", FireballLeft, LabelY, PowerColor, LabelScale);
-        ISprite preview = weapons.SelectedPreview;
-        preview.Draw(spriteBatch, new Vector2(FireballLeft, ValueY - (preview.Height - PreviewAlignmentHeight) / 2));
-        string label = weapons.SelectedName;
-        if (!player.WeaponHasUnlimitedAmmo(weapons.SelectedKind))
+        DrawPanel(spriteBatch, panel);
+
+
+        for (int i = 0; i < WeaponSelection.Count; i++)
         {
-            label += $" x{player.WeaponAmmo(weapons.SelectedKind)}";
+            Rectangle slot = new Rectangle(
+                SlotStartX + i * (SlotSize + SlotGap),
+                SlotTop,
+                SlotSize,
+                SlotSize);
+
+            bool selected = weapons.SelectedIndex == i;
+
+            bool unlocked = player.IsWeaponUnlocked(
+                WeaponSelection.KindAt(i));
+
+            Color background = selected
+                ? new Color(45, 45, 45)
+                : new Color(15, 15, 15);
+
+            Color border = selected
+                ? SelectedColor
+                : new Color(100, 85, 70);
+
+            DrawSlot(
+                spriteBatch,
+                slot,
+                background,
+                border,
+                selected);
+
+            if (unlocked)
+            {
+                ISprite preview = weapons.PreviewAt(i);
+
+                int previewX = slot.X +
+                    (slot.Width - preview.Width) / 2;
+
+                int previewY = slot.Y +
+                    (slot.Height - preview.Height) / 2;
+
+                preview.Draw(
+                    spriteBatch,
+                    new Vector2(previewX, previewY));
+            }
+            else
+            {
+                DrawCenteredText(
+                    spriteBatch,
+                    "LOCK",
+                    slot,
+                    LockedColor,
+                    0.30f);
+            }
+
+            // Small slot number in the upper-right corner.
+            DrawText(
+                spriteBatch,
+                (i + 1).ToString(),
+                slot.Right - 9,
+                slot.Y + 2,
+                selected ? SelectedColor : TextColor,
+                0.22f);
         }
-        DrawText(spriteBatch, label, FireballLeft + preview.Width + IconTextSpacing,
-            ValueY, TextColor, CountScale);
     }
 
-    private void DrawCounter(SpriteBatch spriteBatch, CounterStyle style, string value, Color? valueColor = null)
+    private static void DrawKeyIcon(
+        SpriteBatch spriteBatch,
+        Point position,
+        Color color)
     {
-        DrawDivider(spriteBatch, style.Left);
-        DrawText(spriteBatch, style.Label, style.Left, LabelY, style.LabelColor, LabelScale);
-        HudIcon.Draw(spriteBatch, style.Icon, new Point(style.Left, ValueY + 1), style.IconColor);
+        const int pixelSize = 2;
 
-        Point iconSize = HudIcon.Size(style.Icon);
-        float textHeight = font.MeasureString(value).Y * CountScale * FontSupersample;
-        int textY = ValueY + (int)Math.Round((iconSize.Y - textHeight) / 2f);
-        DrawText(spriteBatch, value, style.Left + iconSize.X + IconTextSpacing, textY,
-            valueColor ?? TextColor, CountScale);
-    }
-
-    private static void DrawDivider(SpriteBatch batch, int left) =>
-        HudFrame.Fill(batch, new Rectangle(left - DividerOffset, PanelTop + DividerInset,
-            1, PanelHeight - 2 * DividerInset), DividerColor);
-
-    private void DrawRoomStatus(SpriteBatch spriteBatch, IPlayer player, string roomName, string roomStatus)
-    {
-        string status = $"{roomStatus}  {roomName}";
-        if (player.KeyCount > 0)
+        for (int row = 0; row < KeyIcon.Length; row++)
         {
-            status += $"  |  KEYS {player.KeyCount}";
-        }
-        DrawText(spriteBatch, status, ContentLeft, RoomStatusY, TextColor, RoomStatusScale);
-        DrawText(spriteBatch, "TAB MAP / FIREBALL  |  F1 / H HELP", HelpStatusLeft, RoomStatusY, AccentColor, RoomStatusScale);
+            for (int column = 0; column < KeyIcon[row].Length; column++)
+            {
+                if (KeyIcon[row][column] != 'X')
+                    continue;
 
-        string powerStatus = string.Empty;
-        if (player.IsInvincible)
-        {
-            powerStatus = "INVINCIBLE ";
-        }
+                Rectangle pixel = new Rectangle(
+                    position.X + column * pixelSize,
+                    position.Y + row * pixelSize,
+                    pixelSize,
+                    pixelSize);
 
-        if (player.SpeedScale > 1f)
-        {
-            powerStatus += "TURBO ";
-        }
-        if (powerStatus.Length > 0)
-        {
-            DrawText(spriteBatch, powerStatus, PowerStatusLeft, RoomStatusY, PowerColor, RoomStatusScale);
+                Fill(spriteBatch, pixel, color);
+            }
         }
     }
 
-    private void DrawText(SpriteBatch spriteBatch, string text, int x, int y, Color color, float scale)
+    private static void DrawPanel(
+        SpriteBatch spriteBatch,
+        Rectangle bounds)
     {
-        spriteBatch.DrawString(font, text, new Vector2(x, y), color,
-            0f, Vector2.Zero, scale * FontSupersample, SpriteEffects.None, 0f);
+        Fill(spriteBatch, bounds, PanelColor);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(bounds.X, bounds.Y, bounds.Width, 2),
+            AccentColor);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                bounds.X,
+                bounds.Bottom - 2,
+                bounds.Width,
+                2),
+            AccentColor);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(bounds.X, bounds.Y, 2, bounds.Height),
+            AccentColor);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                bounds.Right - 2,
+                bounds.Y,
+                2,
+                bounds.Height),
+            AccentColor);
+    }
+
+    private static void DrawSlot(
+        SpriteBatch spriteBatch,
+        Rectangle bounds,
+        Color background,
+        Color border,
+        bool selected)
+    {
+        Fill(spriteBatch, bounds, background);
+
+        int thickness = selected ? 2 : 1;
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                bounds.X,
+                bounds.Y,
+                bounds.Width,
+                thickness),
+            border);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                bounds.X,
+                bounds.Bottom - thickness,
+                bounds.Width,
+                thickness),
+            border);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                bounds.X,
+                bounds.Y,
+                thickness,
+                bounds.Height),
+            border);
+
+        Fill(
+            spriteBatch,
+            new Rectangle(
+                bounds.Right - thickness,
+                bounds.Y,
+                thickness,
+                bounds.Height),
+            border);
+    }
+
+    private void DrawText(
+        SpriteBatch spriteBatch,
+        string text,
+        int x,
+        int y,
+        Color color,
+        float scale)
+    {
+        spriteBatch.DrawString(
+            font,
+            text,
+            new Vector2(x, y),
+            color,
+            0f,
+            Vector2.Zero,
+            scale * FontSupersample,
+            SpriteEffects.None,
+            0f);
+    }
+
+    private void DrawCenteredText(
+        SpriteBatch spriteBatch,
+        string text,
+        Rectangle bounds,
+        Color color,
+        float scale)
+    {
+        Vector2 size = font.MeasureString(text) *
+            (scale * FontSupersample);
+
+        int x = (int)(bounds.X + (bounds.Width - size.X) / 2f);
+        int y = (int)(bounds.Y + (bounds.Height - size.Y) / 2f);
+
+        DrawText(spriteBatch, text, x, y, color, scale);
+    }
+
+    private static void Fill(
+        SpriteBatch spriteBatch,
+        Rectangle bounds,
+        Color color)
+    {
+        spriteBatch.Draw(
+            SpriteAtlas.Texture,
+            bounds,
+            SpriteAtlas.WhitePixel,
+            color);
     }
 }
