@@ -471,8 +471,6 @@ namespace ArmadilloGame
             playerHud.Draw(
                 spriteBatch,
                 Player,
-                room.Level.Name,
-                roomStatus,
                 weapons);
 
             controlsOverlay.DrawSmallText(
