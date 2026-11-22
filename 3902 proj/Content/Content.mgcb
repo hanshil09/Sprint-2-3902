@@ -90,14 +90,6 @@
 /processorParam:Version=3.8.5.1
 /build:Audio/Victory.wav
 
-#begin Fonts/Controls.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/processorParam:Version=3.8.5.1
-/build:Fonts/Controls.spritefont
-
 #begin Fonts/Controls-Large.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -105,6 +97,14 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Fonts/Controls-Large.spritefont
+
+#begin Fonts/Controls.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/processorParam:Version=3.8.5.1
+/build:Fonts/Controls.spritefont
 
 #begin Sprites/additionalItemSprites.png
 /importer:TextureImporter
@@ -118,6 +118,32 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Sprites/additionalItemSprites.png
+
+#begin Sprites/background-sky.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Sprites/background-sky.png
+
+#begin Sprites/backgrounds/dilloStartTest.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Sprites/backgrounds/dilloStartTest.png
 
 #begin Sprites/blocks2.png
 /importer:TextureImporter

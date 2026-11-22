@@ -8,11 +8,12 @@ namespace ArmadilloGame.UI
 {
     internal sealed class ControlsOverlay : IDisposable
     {
-        private static readonly Color AccentColor = new Color(156, 104, 55);
-        private static readonly Color HeadingColor = new Color(255, 232, 190);
-        private static readonly Color TextColor = new Color(220, 194, 151);
-        private static readonly Color PowerColor = new Color(231, 181, 76);
-        private const float SmallTextScale = 0.42f;
+        // Armadillo Western palette
+        private static readonly Color AccentColor = new Color(160, 85, 65);    // Muted red
+        private static readonly Color HeadingColor = new Color(250, 225, 195); // Warm ivory
+        private static readonly Color TextColor = new Color(218, 190, 160);    // Parchment
+        private static readonly Color PowerColor = new Color(205, 150, 85);    // Dusty gold
+        private const float SmallTextScale = 0.65f;
 
         private readonly SpriteFont font;
         private readonly Texture2D pixel;
@@ -29,23 +30,25 @@ namespace ArmadilloGame.UI
 
         public void DrawMenu(SpriteBatch spriteBatch, Viewport viewport, GameState screen, IPlayer player)
         {
-            const int width = 820;
-            const int height = 524;
+            const int width = 1100;
+            const int height = 650;
             int left = (viewport.Width - width) / 2;
             int top = (viewport.Height - height) / 2;
             DrawPanel(spriteBatch, new Rectangle(left, top, width, height));
-            DrawText(spriteBatch, MenuTitle(screen), left + 28, top + 16, HeadingColor, 1.15f);
+            DrawText(spriteBatch, MenuTitle(screen), left + 30, top + 20, HeadingColor, 1.5f);
             if (screen == GameState.Victory)
             {
                 DrawText(spriteBatch, $"The Warlord is defeated and the beacon is lit. Energon collected: {player.Inventory.EnergonCount}", left + 30, top + 54, PowerColor, 0.52f);
             }
-            DrawText(spriteBatch, "Climb to the GOLD exit. Defeat the boss in the last room, then touch the beacon.", left + 30, top + 76, TextColor, 0.5f);
+            DrawText(spriteBatch,
+                "Climb to the GOLD exit. Defeat the boss in the last room, then touch the beacon.",
+                left + 30, top + 82, TextColor, 0.68f);
 
             bool ended = screen != GameState.StartMenu;
             int x = left + 30;
-            int y = top + 104;
-            const int row = 23;
-            const int gap = 4;
+            int y = top + 125;
+            const int row = 30;
+            const int gap = 7;
 
             DrawSection(spriteBatch, "GET STARTED", x, ref y);
             DrawKeyLine(spriteBatch, ended ? "R" : "ENTER", ended ? "Reset to start menu" : "Start game", x, y); y += row;
@@ -111,7 +114,7 @@ namespace ArmadilloGame.UI
             spriteBatch.Draw(
                 pixel,
                 new Rectangle(bounds.X + 5, bounds.Y + 5, bounds.Width, bounds.Height),
-                new Color(20, 12, 8, 100));
+                new Color(12, 5, 5, 180));
 
             spriteBatch.Draw(
                 pixel,
@@ -121,7 +124,7 @@ namespace ArmadilloGame.UI
             spriteBatch.Draw(
                 pixel,
                 new Rectangle(bounds.X, bounds.Bottom - 2, bounds.Width, 2),
-                new Color(156, 104, 55, 120));
+                new Color(160, 85, 65, 180));
         }
 
         public void DrawSmallText(SpriteBatch spriteBatch, string text, int x, int y, bool accent)
@@ -164,8 +167,8 @@ namespace ArmadilloGame.UI
 
         private void DrawSection(SpriteBatch spriteBatch, string title, int x, ref int y)
         {
-            DrawText(spriteBatch, title, x, y, PowerColor, 0.52f);
-            y += 22;
+            DrawText(spriteBatch, title, x, y, PowerColor, 0.68f);
+            y += 28;
         }
 
         private void DrawHelpLine(SpriteBatch spriteBatch, string label, string text, int y)
@@ -176,8 +179,8 @@ namespace ArmadilloGame.UI
 
         private void DrawKeyLine(SpriteBatch spriteBatch, string key, string action, int x, int y, int labelWidth = 220)
         {
-            DrawText(spriteBatch, key, x, y, AccentColor, 0.62f);
-            DrawText(spriteBatch, action, x + labelWidth, y, TextColor, 0.62f);
+            DrawText(spriteBatch, key, x, y, AccentColor, 0.78f);
+            DrawText(spriteBatch, action, x + labelWidth, y, TextColor, 0.78f);
         }
 
         // The overlay font is baked larger (48pt) than it is drawn so glyphs stay crisp

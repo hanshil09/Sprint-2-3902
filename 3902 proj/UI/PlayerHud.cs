@@ -51,11 +51,13 @@ internal sealed class PlayerHud
     private static readonly Color TextColor =
         new Color(226, 201, 164);
 
+    // Muted Western red, matching the title screen.
     private static readonly Color AccentColor =
-        new Color(169, 115, 57);
+        new Color(190, 105, 80);
 
+    // Brighter red for the currently selected weapon.
     private static readonly Color SelectedColor =
-        new Color(235, 177, 77);
+        new Color(220, 125, 100);
 
     private static readonly Color LockedColor =
         new Color(100, 88, 77);
@@ -68,14 +70,10 @@ internal sealed class PlayerHud
 
     private static readonly string[] KeyIcon =
     {
-        ".XXXX...",
-        "XX..XX..",
-        "XX..XX..",
-        ".XXXX...",
-        "...XX...",
-        "...XX.XX",
-        "...XX.XX",
-        "....XXXX"
+        ".XXXX.....",
+        "XX..XXXXXX",
+        "XX..XXXXXX",
+        ".XXXX....."
     };
 
     private readonly SpriteFont font;

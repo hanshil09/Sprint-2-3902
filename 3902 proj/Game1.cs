@@ -27,7 +27,7 @@ namespace ArmadilloGame
         private const string MenuTitle = "Armadillo - Press Enter to Start";
         private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, ` Dev";
 
-        private static readonly Color MenuColor = new Color(35, 22, 14);
+        private static readonly Color MenuColor = new Color(48, 22, 19);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
 
         private readonly RoomFactory roomFactory = new RoomFactory(
@@ -77,6 +77,8 @@ namespace ArmadilloGame
         // Repeating gameplay background texture.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "ContentManager owns and disposes loaded assets.")]
         private Texture2D backgroundTexture;
+        private Texture2D titleTexture;
+        private TitleScreenState titleScreenState;
 
         public Game1()
         {
@@ -257,6 +259,8 @@ namespace ArmadilloGame
 
             sceneTarget = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
 
+            titleTexture = Content.Load<Texture2D>("Sprites/backgrounds/dilloStartTest");
+
             // Load the repeating background.
             backgroundTexture = Content.Load<Texture2D>("Sprites/Brown");
 
@@ -291,6 +295,16 @@ namespace ArmadilloGame
                 () => State,
                 () => Player,
                 MenuColor);
+
+            titleScreenState = new TitleScreenState(
+                titleTexture,
+                GraphicsDevice,
+                uiFontLarge,
+                () =>
+                {
+                    menuState.Open(false);
+                    SetState(GameState.StartMenu, menuState);
+                });
 
             selfieState = new SelfieState(
                 new SelfieScreen(
@@ -345,7 +359,7 @@ namespace ArmadilloGame
 
             InitializeGameObjects();
 
-            SetState(GameState.StartMenu, menuState);
+            SetState(GameState.StartMenu, titleScreenState);
         }
 
         protected override void Update(GameTime gameTime)
@@ -388,19 +402,37 @@ namespace ArmadilloGame
         }
 
         protected override void Draw(GameTime gameTime)
-        {
-            // Render the game at virtual resolution, then scale the result up to the window.
-            GraphicsDevice.SetRenderTarget(sceneTarget);
-            currentState.Draw(spriteBatch);
+{
+    // Title and menu screens render directly at window resolution.
+    if (State == GameState.StartMenu ||
+        State == GameState.GameOver ||
+        State == GameState.Victory)
+    {
+        GraphicsDevice.SetRenderTarget(null);
+        GraphicsDevice.Clear(Color.Black);
 
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            spriteBatch.Draw(sceneTarget, new Rectangle(0, 0, WindowWidth, WindowHeight), Color.White);
-            spriteBatch.End();
+        currentState.Draw(spriteBatch);
 
-            base.Draw(gameTime);
-        }
+        base.Draw(gameTime);
+        return;
+    }
+
+    // Gameplay and other screens retain virtual-resolution rendering.
+    GraphicsDevice.SetRenderTarget(sceneTarget);
+    currentState.Draw(spriteBatch);
+
+    GraphicsDevice.SetRenderTarget(null);
+    GraphicsDevice.Clear(Color.Black);
+
+    spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+    spriteBatch.Draw(
+        sceneTarget,
+        new Rectangle(0, 0, WindowWidth, WindowHeight),
+        Color.White);
+    spriteBatch.End();
+
+    base.Draw(gameTime);
+}
 
         private void SetState(GameState state, IGameState screen)
         {
@@ -579,7 +611,7 @@ namespace ArmadilloGame
             doorCooldownMs = 0;
             unlockedDoors.Clear();
 
-            menuState.Open(false);
+            //menuState.Open(false);
 
             RefreshGameplayController();
         }
