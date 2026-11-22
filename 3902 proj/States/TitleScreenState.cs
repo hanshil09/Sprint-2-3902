@@ -92,7 +92,7 @@ namespace ArmadilloGame.States
             Color buttonText = isHovering ? Color.Black : Color.White;
             Color buttonBorder = isHovering ? Color.Black : Color.White;
 
-            int borderThickness = 2;
+            int borderThickness = 5;
 
             Rectangle top = new Rectangle(
                 startButton.X,
