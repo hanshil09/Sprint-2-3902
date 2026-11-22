@@ -1,9 +1,10 @@
 
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using ArmadilloGame.Entities;
 using ArmadilloGame.Interfaces;
 using ArmadilloGame.Sprites;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace ArmadilloGame.UI;
 
@@ -20,25 +21,23 @@ internal sealed class PlayerHud
     private const int PortraitY = 16;
     private const int PortraitSize = 52;
 
-    // Original portrait crop from the previous HUD.
     private static readonly Rectangle PortraitSource =
         new Rectangle(878, 78, 78, 78);
 
     private const int HealthLeft = 88;
-    private const int HealthTop = 17;
-    private const int HeartsTop = 35;
-    private const int KeyTop = 57;
+    private const int HeartsTop = 16;
+    private const int KeyTop = 39;
     private const int HealthHeartCount = 5;
 
     // Horizontal equipment panel.
     private const int EquipmentLeft = 730;
-    private const int EquipmentWidth = 218;
-    private const int EquipmentHeight = 76;
+    private const int EquipmentWidth = 207;
+    private const int EquipmentHeight = 68;
 
     private const int SlotSize = 44;
     private const int SlotGap = 5;
-    private const int SlotStartX = EquipmentLeft + 9;
-    private const int SlotTop = PanelTop + 15;
+    private const int SlotStartX = EquipmentLeft + 8;
+    private const int SlotTop = PanelTop + 12;
 
     private const float FontSupersample = 20f / 48f;
 
@@ -51,13 +50,13 @@ internal sealed class PlayerHud
     private static readonly Color TextColor =
         new Color(226, 201, 164);
 
-    // Muted Western red, matching the title screen.
+    // Muted red used for HUD borders.
     private static readonly Color AccentColor =
-        new Color(190, 105, 80);
+        new Color(170, 55, 60);
 
-    // Brighter red for the currently selected weapon.
+    // Brighter red for the selected weapon.
     private static readonly Color SelectedColor =
-        new Color(220, 125, 100);
+        new Color(220, 75, 80);
 
     private static readonly Color LockedColor =
         new Color(100, 88, 77);
@@ -70,10 +69,10 @@ internal sealed class PlayerHud
 
     private static readonly string[] KeyIcon =
     {
-        ".XXXX.....",
-        "XX..XXXXXX",
-        "XX..XXXXXX",
-        ".XXXX....."
+        ".XXXX......",
+        "XX....XXXXXX",
+        "XX....XXXXXX",
+        ".XXXX......"
     };
 
     private readonly SpriteFont font;
@@ -261,86 +260,58 @@ internal sealed class PlayerHud
     }
 
     private static void DrawPanel(
-        SpriteBatch spriteBatch,
-        Rectangle bounds)
+    SpriteBatch spriteBatch,
+    Rectangle bounds)
     {
-        Fill(spriteBatch, bounds, PanelColor);
+        const int cornerRadius = 5;
+        const int borderThickness = 2;
 
-        Fill(
+        FillRoundedRectangle(
             spriteBatch,
-            new Rectangle(bounds.X, bounds.Y, bounds.Width, 2),
-            AccentColor);
+            bounds,
+            AccentColor,
+            cornerRadius);
 
-        Fill(
-            spriteBatch,
-            new Rectangle(
-                bounds.X,
-                bounds.Bottom - 2,
-                bounds.Width,
-                2),
-            AccentColor);
+        Rectangle innerBounds = new Rectangle(
+            bounds.X + borderThickness,
+            bounds.Y + borderThickness,
+            bounds.Width - borderThickness * 2,
+            bounds.Height - borderThickness * 2);
 
-        Fill(
+        FillRoundedRectangle(
             spriteBatch,
-            new Rectangle(bounds.X, bounds.Y, 2, bounds.Height),
-            AccentColor);
-
-        Fill(
-            spriteBatch,
-            new Rectangle(
-                bounds.Right - 2,
-                bounds.Y,
-                2,
-                bounds.Height),
-            AccentColor);
+            innerBounds,
+            PanelColor,
+            cornerRadius - borderThickness);
     }
 
     private static void DrawSlot(
-        SpriteBatch spriteBatch,
-        Rectangle bounds,
-        Color background,
-        Color border,
-        bool selected)
+    SpriteBatch spriteBatch,
+    Rectangle bounds,
+    Color background,
+    Color border,
+    bool selected)
     {
-        Fill(spriteBatch, bounds, background);
-
         int thickness = selected ? 2 : 1;
+        const int cornerRadius = 4;
 
-        Fill(
+        FillRoundedRectangle(
             spriteBatch,
-            new Rectangle(
-                bounds.X,
-                bounds.Y,
-                bounds.Width,
-                thickness),
-            border);
+            bounds,
+            border,
+            cornerRadius);
 
-        Fill(
-            spriteBatch,
-            new Rectangle(
-                bounds.X,
-                bounds.Bottom - thickness,
-                bounds.Width,
-                thickness),
-            border);
+        Rectangle innerBounds = new Rectangle(
+            bounds.X + thickness,
+            bounds.Y + thickness,
+            bounds.Width - thickness * 2,
+            bounds.Height - thickness * 2);
 
-        Fill(
+        FillRoundedRectangle(
             spriteBatch,
-            new Rectangle(
-                bounds.X,
-                bounds.Y,
-                thickness,
-                bounds.Height),
-            border);
-
-        Fill(
-            spriteBatch,
-            new Rectangle(
-                bounds.Right - thickness,
-                bounds.Y,
-                thickness,
-                bounds.Height),
-            border);
+            innerBounds,
+            background,
+            Math.Max(1, cornerRadius - thickness));
     }
 
     private void DrawText(
@@ -379,6 +350,43 @@ internal sealed class PlayerHud
         DrawText(spriteBatch, text, x, y, color, scale);
     }
 
+    private static void FillRoundedRectangle(
+    SpriteBatch spriteBatch,
+    Rectangle bounds,
+    Color color,
+    int radius)
+    {
+        radius = Math.Clamp(
+            radius,
+            0,
+            Math.Min(bounds.Width, bounds.Height) / 2);
+
+        for (int y = 0; y < bounds.Height; y++)
+        {
+            int distanceFromCorner = Math.Min(
+                y,
+                bounds.Height - 1 - y);
+
+            int inset = 0;
+
+            if (distanceFromCorner < radius)
+            {
+                float dy = radius - distanceFromCorner - 0.5f;
+
+                inset = radius - (int)Math.Floor(
+                    Math.Sqrt(radius * radius - dy * dy));
+            }
+
+            Fill(
+                spriteBatch,
+                new Rectangle(
+                    bounds.X + inset,
+                    bounds.Y + y,
+                    bounds.Width - inset * 2,
+                    1),
+                color);
+        }
+    }
     private static void Fill(
         SpriteBatch spriteBatch,
         Rectangle bounds,

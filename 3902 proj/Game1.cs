@@ -13,6 +13,7 @@ using ArmadilloGame.Interfaces;
 using ArmadilloGame.Sprites;
 using ArmadilloGame.States;
 using ArmadilloGame.UI;
+using ArmadilloGame.Rendering;
 
 namespace ArmadilloGame
 {
@@ -29,6 +30,9 @@ namespace ArmadilloGame
 
         private static readonly Color MenuColor = new Color(48, 22, 19);
         private static readonly Color GameplayColor = new Color(42, 55, 70);
+        private ShadowRenderer shadowRenderer;
+
+
 
         private readonly RoomFactory roomFactory = new RoomFactory(
             "Content/Levels/hub-00.room",
@@ -285,6 +289,15 @@ namespace ArmadilloGame
 
             controlsOverlay = new ControlsOverlay(uiFontLarge, GraphicsDevice);
 
+            shadowRenderer = new ShadowRenderer(
+            GraphicsDevice,
+            spriteBatch,
+            ScreenWidth,
+            ScreenHeight);
+            shadowRenderer.Opacity = 0.02f; // Not used by this temporary Draw() implementation
+            shadowRenderer.Spread = 10;
+            shadowRenderer.Offset = new Vector2(0f, 5f);
+
             menuState = new MenuState(
                 controlsOverlay,
                 GraphicsDevice,
@@ -368,6 +381,36 @@ namespace ArmadilloGame
             base.Update(gameTime);
         }
 
+        private void CaptureGameplayShadows(Room room)
+        {
+            shadowRenderer.Capture(spriteBatch =>
+            {
+                // Blocks
+                foreach (IBlock block in room.Level.Blocks)
+                {
+                    block.Draw(spriteBatch);
+                }
+
+                // Items
+                foreach (IItem item in room.Level.Items)
+                {
+                    item.Draw(spriteBatch);
+                }
+
+                // Enemies
+                foreach (IGameObject enemy in room.Enemies.Objects)
+                {
+                    if (enemy is not IEnemy combatant || !combatant.IsDestroyed)
+                    {
+                        enemy.Draw(spriteBatch);
+                    }
+                }
+
+                // Player
+                Player.Draw(spriteBatch);
+
+            }, camera.GetViewMatrix());
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -388,6 +431,9 @@ namespace ArmadilloGame
                 controlsOverlay?.Dispose();
                 controlsOverlay = null;
 
+                shadowRenderer?.Dispose();
+                shadowRenderer = null;
+
                 spriteBatch?.Dispose();
                 spriteBatch = null;
 
@@ -396,6 +442,8 @@ namespace ArmadilloGame
 
                 graphics?.Dispose();
                 graphics = null;
+
+
             }
 
             base.Dispose(disposing);
@@ -446,19 +494,31 @@ namespace ArmadilloGame
             DrawGameplay();
         }
 
+
         private void DrawGameplay()
         {
             Room room = roomManager.ActiveRoom;
 
-            // World pass: scrolls with the camera.
+            // Capture shadows using the camera's world transformation.
+            CaptureGameplayShadows(room);
+
+            // Draw the background first.
             spriteBatch.Begin(
                 samplerState: SamplerState.PointClamp,
                 transformMatrix: camera.GetViewMatrix());
 
-            // Draw the repeating background first.
             DrawTiledBackground(camera.ViewBounds, GetRoomBackgroundTint());
 
-            // Draw the world on top of the background.
+            spriteBatch.End();
+
+            // Composite shadows over the background, but beneath the objects.
+            shadowRenderer.Draw();
+
+            // Draw the actual world objects over their shadows.
+            spriteBatch.Begin(
+                samplerState: SamplerState.PointClamp,
+                transformMatrix: camera.GetViewMatrix());
+
             room.Draw(spriteBatch);
             barrelStorm.DrawParticles(spriteBatch);
             Player.Draw(spriteBatch);
@@ -466,7 +526,7 @@ namespace ArmadilloGame
 
             spriteBatch.End();
 
-            // UI pass: fixed to the screen, drawn without the camera transform.
+            // UI pass: fixed to the screen, without the camera transform.
             spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             barrelStorm.DrawOverlay(spriteBatch);
@@ -474,6 +534,7 @@ namespace ArmadilloGame
 
             spriteBatch.End();
         }
+
 
         private void DrawTiledBackground(Rectangle viewBounds, Color tint)
         {
