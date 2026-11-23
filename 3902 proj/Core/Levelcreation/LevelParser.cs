@@ -61,7 +61,9 @@ namespace ArmadilloGame.Core
             // Weapon pickups: g = pistol, n = shotgun, o = molotov.
             ['g'] = ItemKind.PistolPickup,
             ['n'] = ItemKind.ShotgunPickup,
-            ['o'] = ItemKind.MolotovPickup
+            ['o'] = ItemKind.MolotovPickup,
+            ['p'] = ItemKind.PistolAmmo,
+            ['s'] = ItemKind.ShotgunAmmo
         };
 
         private static readonly Dictionary<char, EnemyKind> EnemySymbols = new Dictionary<char, EnemyKind>

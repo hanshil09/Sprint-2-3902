@@ -10,6 +10,7 @@ namespace ArmadilloGame.Factories
     internal class ItemSpriteFactory
     {
         public const int ItemSize = 32;
+        public const int AmmoHeight = 16;
         private const double ItemFrameTime = 140;
         private const double AuraFrameTime = 90;
         private const int AuraSize = 96;
@@ -23,6 +24,7 @@ namespace ArmadilloGame.Factories
         private Texture2D ShotgunCall;
         private Texture2D keySprite;
         private Texture2D shotgunWeapon;
+        private Texture2D ammoSpriteSheet;
 
         private ItemSpriteFactory()
         {
@@ -43,6 +45,7 @@ namespace ArmadilloGame.Factories
             ShotgunCall = content.Load<Texture2D>("Sprites/Shotgun-call");
             keySprite = content.Load<Texture2D>("Sprites/key");
             shotgunWeapon = content.Load<Texture2D>("Sprites/Shotgun-weapon");
+            ammoSpriteSheet = content.Load<Texture2D>("Sprites/ammo_packs");
         }
 
         public ISprite CreateItemSprite(ItemKind kind)
@@ -54,6 +57,14 @@ namespace ArmadilloGame.Factories
             if (kind == ItemKind.Key)
             {
                 return new TextureRegionSprite(keySprite, new Rectangle(0, 0, 32, 32), ItemSize, ItemSize, Color.White);
+            }
+            if(kind == ItemKind.PistolAmmo)
+            {
+                return new TextureRegionSprite(ammoSpriteSheet, new Rectangle(0, 0, 32, 16), ItemSize, AmmoHeight, Color.White);
+            }
+            if(kind == ItemKind.ShotgunAmmo)
+            {
+                return new TextureRegionSprite(ammoSpriteSheet, new Rectangle(0, 16, 32, 16), ItemSize, AmmoHeight, Color.White);
             }
             ISprite weaponSprite = CreateWeaponPickupSprite(kind);
             if (weaponSprite != null)
