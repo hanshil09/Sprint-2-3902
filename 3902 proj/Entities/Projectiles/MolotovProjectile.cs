@@ -15,6 +15,8 @@ namespace ArmadilloGame.Entities
     internal sealed class MolotovProjectile : IPlayerWeapon
     {
         private const double FireTime = 700;
+        // Safety cap so a throw that never meets ground or a wall still bursts instead of flying off.
+        private const double MaxFlightMs = 3000;
         private const int FireDamage = 15;
         private const int BaseBlastLevel = 1;
         private const int BarrelBlastLevel = 3;
@@ -27,6 +29,7 @@ namespace ArmadilloGame.Entities
         private ISprite sprite;
         private float horizontalVelocity;   // pixels/sec; gravity drives the vertical arc.
         private double timer;
+        private double flightMs;
         private bool hasBurst;
         private bool hitBarrel;
 
@@ -102,13 +105,25 @@ namespace ArmadilloGame.Entities
         private void Fly(GameTime gameTime)
         {
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Vector2 next = collisionManager.MoveHorizontally(this, Position, sprite.Width, sprite.Height,
+
+            // Move horizontally against walls (HitSolid bursts it on a wall), then apply gravity with
+            // vertical collision resolution so it settles on the ground and the ground state is set.
+            Vector2 afterHorizontal = collisionManager.MoveHorizontally(this, Position, sprite.Width, sprite.Height,
                 horizontalVelocity * elapsed, float.NegativeInfinity, float.PositiveInfinity);
-            Vector2 fallen = physics.Apply(new Vector2(next.X, Position.Y), gameTime);
-            Position = fallen;
+            Position = afterHorizontal;
+            Position = collisionManager.ApplyGravityAndResolveVerticalCollisions(this, physics, Position,
+                sprite.Width, sprite.Height, gameTime);
             sprite.Update(gameTime);
 
             if (collisionManager.IsOnGround(this))
+            {
+                Burst();
+                return;
+            }
+
+            // Burst anyway if the throw has been in the air too long (e.g. flew off a ledge).
+            flightMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (flightMs >= MaxFlightMs)
             {
                 Burst();
             }
