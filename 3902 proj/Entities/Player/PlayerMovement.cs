@@ -8,6 +8,8 @@ internal sealed class PlayerMovement
 {
     private const float JumpSpeed = 650f;
     private const float KnockbackSpeed = 250f;
+    // Walking opposite the way the player faces (backpedaling) is slower than walking forward.
+    private const float BackpedalSpeedScale = 0.55f;
 
     private readonly Player player;
     private readonly CollisionManager collisions;
@@ -21,17 +23,26 @@ internal sealed class PlayerMovement
         physics = new Physics(gravity);
     }
 
+    // Where the player looks (driven by aim); controls the sprite flip.
     public Direction Facing { get; private set; } = Direction.Right;
+
+    // Where the player is walking this frame (driven by input); controls travel.
+    public Direction MoveDirection { get; private set; } = Direction.Right;
+
     public bool IsMoving { get; private set; }
     public float Gravity => physics.Gravity;
 
-    // Report changes so Player can refresh its sprite before collision checks.
+    // Records the walk input for this frame. Returns true when the animation-relevant state changed
+    // so Player can refresh its sprite before collision checks.
     public bool Move(Direction direction)
     {
         bool horizontal = direction == Direction.Left || direction == Direction.Right;
-        bool changed = Facing != direction || IsMoving != horizontal;
+        bool changed = IsMoving != horizontal || (horizontal && MoveDirection != direction);
         movedThisFrame = true;
-        Facing = direction;
+        if (horizontal)
+        {
+            MoveDirection = direction;
+        }
         IsMoving = horizontal;
         return changed;
     }
@@ -53,13 +64,10 @@ internal sealed class PlayerMovement
         float distance = 0f;
         if (IsMoving)
         {
-            float direction = 1f;
-            if (Facing == Direction.Left)
-            {
-                direction = -1f;
-            }
-
-            distance = direction * speed * speedScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float direction = MoveDirection == Direction.Left ? -1f : 1f;
+            // Slower when walking against the facing direction (backpedaling).
+            float facingScale = MoveDirection == Facing ? 1f : BackpedalSpeedScale;
+            distance = direction * speed * speedScale * facingScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         collisions.ResolveFrameMovement(player, player.Width, player.Height, physics, gameTime, distance);

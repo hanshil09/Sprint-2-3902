@@ -103,7 +103,13 @@ internal class Player : IPlayer
 
     public void Move(Direction direction)
     {
-        if (movement.Move(direction))
+        bool changed = movement.Move(direction);
+        // In ball form there is no aiming, so the ball faces the way it rolls.
+        if (IsInBallForm && (direction == Direction.Left || direction == Direction.Right))
+        {
+            changed |= movement.FaceToward(direction);
+        }
+        if (changed)
         {
             form.RefreshSprite();
         }
