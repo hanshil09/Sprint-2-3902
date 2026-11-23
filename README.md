@@ -1,5 +1,7 @@
 # Sprint 4 — Armadillo Platformer
 
+Title music: [“Bama Country” by Kevin MacLeod](https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN1100359), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Converted from MP3 to mono WAV for the game.
+
 Start in Command Hub, collect keys to unlock rooms, and defeat the Warlord.
 Touch the final beacon to win.
 

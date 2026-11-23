@@ -236,6 +236,7 @@ namespace ArmadilloGame
             barrelStorm?.Reset();
             InitializeGameObjects();
             SetState(GameState.StartMenu, menuState);
+            audio.StartTitleMusic();
             Window.Title = MenuTitle;
         }
 
@@ -398,6 +399,7 @@ namespace ArmadilloGame
             InitializeGameObjects();
 
             SetState(GameState.StartMenu, titleScreenState);
+            audio.StartTitleMusic();
         }
 
         protected override void Update(GameTime gameTime)

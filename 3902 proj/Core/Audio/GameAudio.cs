@@ -11,6 +11,7 @@ namespace ArmadilloGame.Core
     {
         private readonly Dictionary<GameSound, SoundEffect> effects = new();
         private SoundEffectInstance music;
+        private SoundEffectInstance titleMusic;
         private SoundEffect shutter;
         private float unmutedVolume;
 
@@ -25,6 +26,9 @@ namespace ArmadilloGame.Core
             music = content.Load<SoundEffect>("Audio/Background").CreateInstance();
             music.IsLooped = true;
             music.Volume = 0.22f;
+            titleMusic = content.Load<SoundEffect>("Audio/Title").CreateInstance();
+            titleMusic.IsLooped = true;
+            titleMusic.Volume = 0.22f;
 
             // A short PCM WAV can be loaded directly without the audio content processor.
             using Stream shutterFile = TitleContainer.OpenStream(Path.Combine(content.RootDirectory, "Audio", "Shutter.wav"));
@@ -44,7 +48,17 @@ namespace ArmadilloGame.Core
             if (!IsMuted) shutter.Play(0.65f, 0f, 0f);
         }
 
-        public void StartMusic() => music.Play();
+        public void StartTitleMusic()
+        {
+            music.Stop();
+            titleMusic.Play();
+        }
+
+        public void StartMusic()
+        {
+            titleMusic.Stop();
+            music.Play();
+        }
 
         public void StopMusic() => music.Stop();
 
@@ -67,6 +81,8 @@ namespace ArmadilloGame.Core
         {
             music?.Dispose();
             music = null;
+            titleMusic?.Dispose();
+            titleMusic = null;
             shutter?.Dispose();
             shutter = null;
             if (IsMuted)
