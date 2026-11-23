@@ -15,13 +15,20 @@ namespace ArmadilloGame.Entities
         private Vector2 velocity;
         private double lifetime;
         private bool isAngled;
+        private readonly int damage;
+        // Travel limit in pixels; 0 or less means unlimited (bounded only by lifetime/world edges).
+        private readonly float maxRange;
+        private float traveled;
 
-        public EnergyProjectile(Vector2 position, Vector2 velocity, bool angled, bool isLeft, ISprite sprite)
+        public EnergyProjectile(Vector2 position, Vector2 velocity, bool angled, bool isLeft, ISprite sprite,
+            int damage = 1, float maxRange = 0f)
         {
             Position = position;
             PreviousPosition = position;
             isAngled = angled;
             this.sprite = sprite;
+            this.damage = damage;
+            this.maxRange = maxRange;
             lifetime = 0;
             IsActive = true;
 
@@ -52,8 +59,19 @@ namespace ArmadilloGame.Entities
         public void Update(GameTime gameTime)
         {
             PreviousPosition = Position;
-            Position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            Vector2 step = velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            Position += step;
             lifetime += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            // Expire once the pellet has flown its maximum range (shotgun), or by lifetime otherwise.
+            if (maxRange > 0f)
+            {
+                traveled += step.Length();
+                if (traveled >= maxRange)
+                {
+                    IsActive = false;
+                }
+            }
             if (lifetime >= MaximumLifetime)
             {
                 IsActive = false;
@@ -70,7 +88,7 @@ namespace ArmadilloGame.Entities
         {
             if (!enemy.IsDestroyed)
             {
-                enemy.TakeDamage(1);
+                enemy.TakeDamage(damage);
             }
             Deactivate();
         }

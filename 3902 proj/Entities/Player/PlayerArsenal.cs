@@ -13,11 +13,20 @@ namespace ArmadilloGame.Entities
     {
         private const float ShotSpeed = 520f;
         private const float ShotRecoilDistance = 10f;
+        private const int PistolDamage = 3;
         private const float OrbSpeed = 300f;
         private const float PiercingSpeed = 420f;
         private const float SpreadSpeed = 420f;
         private const float SpreadAngleDegrees = 18f;
         private const float MuzzleHeight = 0.3f;
+
+        // Shotgun: a tight spread of pellets fired toward the aim, short range, with recoil.
+        private const int ShotgunPelletCount = 5;
+        private const int ShotgunPelletDamage = 2;      // 5 pellets x 2 = 10 at point blank; less as they spread.
+        private const float ShotgunPelletSpeed = 600f;
+        private const float ShotgunSpreadHalfAngleDegrees = 11f;
+        private const float ShotgunRange = WeaponTuning.ShotgunRange;
+        private const float ShotgunRecoilDistance = 22f;
 
         private readonly Player player;
         private readonly CollisionManager collisionManager;
@@ -71,9 +80,33 @@ namespace ArmadilloGame.Entities
             ISprite shot = ProjectileSpriteFactory.Instance.CreateShotSprite(aim.X < 0f);
             Vector2 velocity = aim * ShotSpeed;
 
-            projectiles.Add(new EnergyProjectile(AimedMuzzlePosition(shot, aim), velocity, false, aim.X < 0f, shot));
+            projectiles.Add(new EnergyProjectile(AimedMuzzlePosition(shot, aim), velocity, false, aim.X < 0f, shot, PistolDamage));
 
             collisionManager.MovePlayerRecoil(player, -aim.X * ShotRecoilDistance);
+        }
+
+        // Fires a spread of pellets toward the aim: full damage point-blank, naturally less at range
+        // as the pellets diverge. Short range, and recoil shoves the player opposite the shot.
+        public void FireShotgunSpread()
+        {
+            player.PlaySound(GameSound.Explosion);
+
+            Vector2 aim = player.AimDirection;
+            float baseAngle = MathF.Atan2(aim.Y, aim.X);
+            float spread = MathHelper.ToRadians(ShotgunSpreadHalfAngleDegrees);
+
+            for (int i = 0; i < ShotgunPelletCount; i++)
+            {
+                // Evenly spaced angles from -spread to +spread across the pellet count.
+                float t = ShotgunPelletCount == 1 ? 0.5f : i / (float)(ShotgunPelletCount - 1);
+                float angle = baseAngle + MathHelper.Lerp(-spread, spread, t);
+                Vector2 direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+                ISprite pellet = ProjectileSpriteFactory.Instance.CreateSpreadPelletSprite();
+                projectiles.Add(new EnergyProjectile(AimedMuzzlePosition(pellet, direction),
+                    direction * ShotgunPelletSpeed, false, direction.X < 0f, pellet, ShotgunPelletDamage, ShotgunRange));
+            }
+
+            collisionManager.MovePlayerRecoil(player, -aim.X * ShotgunRecoilDistance);
         }
 
         public void FireShotgun(bool aimUp)
@@ -120,16 +153,19 @@ namespace ArmadilloGame.Entities
             }
         }
 
-        // Only one boomerang can be out at a time, like the boomerang in Zelda.
+        // Only one boomerang can be out at a time, like the boomerang in Zelda. It flies along the
+        // aim snapped to the nearest 45 degrees.
         public void ThrowBoomerang()
         {
             if (activeBoomerang != null && activeBoomerang.IsActive)
             {
                 return;
             }
+            Vector2 direction = PlayerAim.SnapToOctant(player.AimDirection);
             ISprite sprite = ProjectileSpriteFactory.Instance.CreateBoomerangSprite();
             player.PlaySound(GameSound.Shoot);
-            activeBoomerang = new BoomerangProjectile(MuzzlePosition(sprite), (int)Direction, () => player.Center, sprite);
+            activeBoomerang = new BoomerangProjectile(AimedMuzzlePosition(sprite, direction), direction,
+                () => player.Center, sprite);
             projectiles.Add(activeBoomerang);
         }
 
@@ -143,12 +179,15 @@ namespace ArmadilloGame.Entities
                 player.IsInBallForm, () => player.PlaySound(GameSound.Explosion)));
         }
 
-        public void ThrowMolotov(float gravity)
+        public void ThrowMolotov(float charge)
         {
             ISprite sprite = ProjectileSpriteFactory.Instance.CreateBombSprite();
             player.PlaySound(GameSound.Shoot);
-            projectiles.Add(new MolotovProjectile(MuzzlePosition(sprite), (int)Direction, sprite,
-                blocks, gravity, collisionManager, () => player.PlaySound(GameSound.Explosion)));
+            Vector2 aim = player.AimDirection;
+            float speed = WeaponTuning.MolotovSpeed(charge);
+            Vector2 launch = aim * speed;
+            projectiles.Add(new MolotovProjectile(AimedMuzzlePosition(sprite, aim), launch, sprite,
+                blocks, player.Gravity, collisionManager, () => player.PlaySound(GameSound.Explosion)));
         }
 
         private float Direction => player.FacingLeft ? -1f : 1f;

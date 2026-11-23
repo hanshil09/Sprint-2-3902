@@ -22,6 +22,7 @@ namespace ArmadilloGame.Factories
         private Texture2D objectSpriteSheet;
         private Texture2D ShotgunCall;
         private Texture2D keySprite;
+        private Texture2D shotgunWeapon;
 
         private ItemSpriteFactory()
         {
@@ -41,6 +42,7 @@ namespace ArmadilloGame.Factories
             objectSpriteSheet = content.Load<Texture2D>(SpriteAtlas.AssetName);
             ShotgunCall = content.Load<Texture2D>("Sprites/Shotgun-call");
             keySprite = content.Load<Texture2D>("Sprites/key");
+            shotgunWeapon = content.Load<Texture2D>("Sprites/Shotgun-weapon");
         }
 
         public ISprite CreateItemSprite(ItemKind kind)
@@ -52,6 +54,11 @@ namespace ArmadilloGame.Factories
             if (kind == ItemKind.Key)
             {
                 return new TextureRegionSprite(keySprite, new Rectangle(0, 0, 32, 32), ItemSize, ItemSize, Color.White);
+            }
+            ISprite weaponSprite = CreateWeaponPickupSprite(kind);
+            if (weaponSprite != null)
+            {
+                return weaponSprite;
             }
             Rectangle[] atlasFrames = AtlasFrames(kind);
             if (atlasFrames != null)
@@ -73,6 +80,23 @@ namespace ArmadilloGame.Factories
         {
             SpriteEffects effects = facingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             return new TextureRegionSprite(objectSpriteSheet, SpriteAtlas.SpeedTrail, TrailWidth, TrailHeight, Color.White, effects);
+        }
+
+        // Weapon pickups: the shotgun has its own sprite; the pistol and molotov reuse projectile
+        // art as placeholders until dedicated pickup sprites exist.
+        private ISprite CreateWeaponPickupSprite(ItemKind kind)
+        {
+            switch (kind)
+            {
+                case ItemKind.ShotgunPickup:
+                    return new TextureRegionSprite(shotgunWeapon, new Rectangle(0, 0, 64, 32), ItemSize, ItemSize, Color.White);
+                case ItemKind.PistolPickup:
+                    return ProjectileSpriteFactory.Instance.CreateShotSprite(false);
+                case ItemKind.MolotovPickup:
+                    return ProjectileSpriteFactory.Instance.CreateBombSprite();
+                default:
+                    return null;
+            }
         }
 
         // New Sprint 3 items are animated frames on the shared sprite sheet; older items keep items.png.

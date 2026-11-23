@@ -9,39 +9,39 @@ using ArmadilloGame.Interfaces;
 
 namespace ArmadilloGame.Entities
 {
-    // Arcing throw that bursts into a short-lived fire pool on impact.
-    // Hitting a barrel widens the burst.
+    // Arcing throw that bursts into a short-lived fire pool on impact. The launch velocity comes from
+    // the player's aim and charge, so holding longer throws it farther. Hitting a barrel widens the
+    // burst. Enemies caught in the fire take damage once each.
     internal sealed class MolotovProjectile : IPlayerWeapon
     {
         private const double FireTime = 700;
+        private const int FireDamage = 15;
         private const int BaseBlastLevel = 1;
         private const int BarrelBlastLevel = 3;
-        private const float LobSpeed = 300f;
-        private const float LobLift = 520f;
 
         private readonly Physics physics;
         private readonly CollisionManager collisionManager;
-        private readonly int direction;
         private readonly Action onBurst;
         private readonly HashSet<IEnemy> burned = new HashSet<IEnemy>();
 
         private ISprite sprite;
+        private float horizontalVelocity;   // pixels/sec; gravity drives the vertical arc.
         private double timer;
         private bool hasBurst;
         private bool hitBarrel;
 
-        public MolotovProjectile(Vector2 position, int direction, ISprite sprite,
+        public MolotovProjectile(Vector2 position, Vector2 launchVelocity, ISprite sprite,
             IReadOnlyList<IBlock> blocks, float gravity, CollisionManager collisionManager, Action onBurst = null)
         {
             Position = position;
             PreviousPosition = position;
             this.sprite = sprite;
-            this.direction = Math.Sign(direction) == 0 ? 1 : Math.Sign(direction);
+            horizontalVelocity = launchVelocity.X;
             this.collisionManager = collisionManager ?? new CollisionManager(960, 540);
             this.collisionManager.SetBlocks(this, blocks ?? Array.Empty<IBlock>());
             this.onBurst = onBurst;
             physics = new Physics(gravity);
-            physics.Launch(LobLift);
+            physics.VerticalVelocity = launchVelocity.Y;
             IsActive = true;
         }
 
@@ -77,7 +77,7 @@ namespace ArmadilloGame.Entities
         {
             if (IsBurning && !enemy.IsDestroyed && burned.Add(enemy))
             {
-                enemy.TakeDamage(1);
+                enemy.TakeDamage(FireDamage);
             }
         }
 
@@ -103,7 +103,7 @@ namespace ArmadilloGame.Entities
         {
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Vector2 next = collisionManager.MoveHorizontally(this, Position, sprite.Width, sprite.Height,
-                direction * LobSpeed * elapsed, float.NegativeInfinity, float.PositiveInfinity);
+                horizontalVelocity * elapsed, float.NegativeInfinity, float.PositiveInfinity);
             Vector2 fallen = physics.Apply(new Vector2(next.X, Position.Y), gameTime);
             Position = fallen;
             sprite.Update(gameTime);

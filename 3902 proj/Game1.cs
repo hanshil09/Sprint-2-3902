@@ -89,6 +89,8 @@ namespace ArmadilloGame
         // UI
         private ControlsOverlay controlsOverlay;
         private PlayerHud playerHud;
+        private AimPreview aimPreview;
+        private Controllers.FirePhase lastFirePhase;
         private ObjectShowcase showcase;
 
         // Gameplay tracking
@@ -183,11 +185,13 @@ namespace ArmadilloGame
             return new Vector2(virtualMouse.X + view.Left, virtualMouse.Y + view.Top);
         }
 
-        public void FireSelectedShot()
+        // Routes the left mouse button's fire phase to the equipped weapon each frame.
+        public void HandleFire(Controllers.FirePhase phase)
         {
             if (gameState == GameState.Gameplay)
             {
-                weapons.Fire(Player);
+                lastFirePhase = phase;
+                weapons.SetFirePhase(phase);
             }
         }
 
@@ -364,6 +368,7 @@ namespace ArmadilloGame
                 "Sprites/dilloSpriteTest2");
 
             playerHud = new PlayerHud(uiFontLarge, playerPortrait);
+            aimPreview = new AimPreview(GraphicsDevice);
 
             mapState = new MapState(
                 GraphicsDevice,
@@ -450,6 +455,7 @@ namespace ArmadilloGame
                 barrelStorm?.Dispose();
                 audio.Dispose();
                 controlsOverlay?.Dispose();
+                aimPreview?.Dispose();
 
                 // Graphics resources
                 sceneTarget?.Dispose();
@@ -533,6 +539,7 @@ namespace ArmadilloGame
 
             room.Draw(spriteBatch);
             barrelStorm.DrawParticles(spriteBatch);
+            DrawAimPreview();
             Player.Draw(spriteBatch);
             shotgun.Draw(spriteBatch, Player);
 
@@ -551,6 +558,34 @@ namespace ArmadilloGame
 
             spriteBatch.End();
         }
+        private void DrawAimPreview()
+        {
+            bool active = lastFirePhase == Controllers.FirePhase.Pressed
+                || lastFirePhase == Controllers.FirePhase.Held;
+            aimPreview.Draw(spriteBatch, Player, weapons.SelectedKind, weapons.MolotovCharge, active, IsAimPointBlocked);
+        }
+
+        // True when a world point sits inside a solid block or a live enemy; the aim guide stops there.
+        private bool IsAimPointBlocked(Point worldPoint)
+        {
+            Room room = roomManager.ActiveRoom;
+            foreach (IBlock block in room.Level.Blocks)
+            {
+                if (block.IsSolid && block.Bounds.Contains(worldPoint))
+                {
+                    return true;
+                }
+            }
+            foreach (IGameObject gameObject in room.Enemies.Objects)
+            {
+                if (gameObject is IEnemy { IsDestroyed: false } enemy && enemy.Bounds.Contains(worldPoint))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private void DrawHud(Room room)
         {
             playerHud.Draw(spriteBatch, Player, weapons);
@@ -710,6 +745,9 @@ namespace ArmadilloGame
 
             // Point the player's aim at the mouse before anything reads it this frame.
             Player.SetAimTarget(AimWorldPosition());
+
+            // Advance the equipped weapon's fire behavior (windup, charge, autofire).
+            weapons.Update(Player, gameTime);
 
             activeRoom.Update(gameTime);
 

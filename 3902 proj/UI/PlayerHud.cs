@@ -226,7 +226,7 @@ internal sealed class PlayerHud
             // Small slot number in the upper-right corner.
             DrawText(
                 spriteBatch,
-                (i + 1).ToString(),
+                (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), //weird warning had to ask ai :(
                 slot.Right - 9,
                 slot.Y + 2,
                 selected ? SelectedColor : TextColor,

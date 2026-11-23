@@ -19,6 +19,12 @@ namespace ArmadilloGame.Interfaces
         // Updates the aim from a world-space target point.
         void SetAimTarget(Vector2 worldTarget);
 
+        // Center of the player in world space.
+        Vector2 Center { get; }
+
+        // Current fall gravity, used by thrown-weapon arcs.
+        float Gravity { get; }
+
         int Health { get; }
 
         int MaxHealth { get; }
@@ -70,6 +76,12 @@ namespace ArmadilloGame.Interfaces
         void AddWeaponAmmo(WeaponKind kind, int amount);
         void UnlockAllWeapons();
         bool FireWeapon(WeaponKind kind);
+
+        // Throws a molotov with a charge fraction (0..1); longer charge throws farther.
+        bool FireMolotov(float charge);
+
+        // When true the player is rooted (used while charging a throw).
+        bool MovementLocked { get; set; }
 
         // Spends one key to open a locked door; returns false when the player has none.
         bool TryUseKey();

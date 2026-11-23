@@ -80,6 +80,12 @@ internal class Player : IPlayer
 
     public PlayerArsenal Arsenal { get; }
 
+    // Current fall gravity, used by thrown weapons (bomb, molotov) for their arc.
+    public float Gravity => movement.Gravity;
+
+    // While charging a throw the player is rooted; Move is ignored.
+    public bool MovementLocked { get; set; }
+
     public int Health => health.Current;
 
     public int MaxHealth => health.Maximum;
@@ -103,6 +109,10 @@ internal class Player : IPlayer
 
     public void Move(Direction direction)
     {
+        if (MovementLocked)
+        {
+            return;
+        }
         bool changed = movement.Move(direction);
         // In ball form there is no aiming, so the ball faces the way it rolls.
         if (IsInBallForm && (direction == Direction.Left || direction == Direction.Right))
@@ -186,17 +196,18 @@ internal class Player : IPlayer
 
     public bool IsWeaponUnlocked(WeaponKind kind) => weapons.IsUnlocked(kind);
     public int WeaponAmmo(WeaponKind kind) => weapons.Ammo(kind);
-    public bool WeaponHasUnlimitedAmmo(WeaponKind kind) => WeaponLoadout.HasUnlimitedAmmo(kind);
+    public bool WeaponHasUnlimitedAmmo(WeaponKind kind) => weapons.IsAmmoFree(kind);
     public void UnlockWeapon(WeaponKind kind) => weapons.Unlock(kind);
     public void AddWeaponAmmo(WeaponKind kind, int amount) => weapons.AddAmmo(kind, amount);
 
-    // Unlocks and stocks every weapon. Used by dev mode for testing.
+    // Unlocks every weapon and removes ammo limits. Used by dev mode for testing.
     public void UnlockAllWeapons()
     {
         foreach (WeaponKind kind in System.Enum.GetValues<WeaponKind>())
         {
             weapons.Unlock(kind);
         }
+        weapons.UnlimitedAmmo = true;
     }
 
     // Fires the given weapon when it is unlocked and loaded, spending one shot.
@@ -215,12 +226,24 @@ internal class Player : IPlayer
                 Arsenal.FirePistol();
                 break;
             case WeaponKind.Shotgun:
-                Arsenal.FireShotgun(false);
+                Arsenal.FireShotgunSpread();
                 break;
             case WeaponKind.Molotov:
-                Arsenal.ThrowMolotov(movement.Gravity);
+                // Molotovs are thrown with a charge; default to a full throw here.
+                Arsenal.ThrowMolotov(1f);
                 break;
         }
+        return true;
+    }
+
+    // Throws a molotov with a charge fraction (0..1): longer charge = farther. Spends one molotov.
+    public bool FireMolotov(float charge)
+    {
+        if (IsInBallForm || !weapons.TryConsume(WeaponKind.Molotov))
+        {
+            return false;
+        }
+        Arsenal.ThrowMolotov(charge);
         return true;
     }
 

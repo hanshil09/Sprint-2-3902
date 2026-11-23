@@ -40,4 +40,18 @@ internal sealed class PlayerAim
         float side = aim.X >= 0f ? 1f : -1f;
         return new Vector2(MathF.Sin(DeadZoneHalfAngle) * side, -MathF.Cos(DeadZoneHalfAngle));
     }
+
+    // Rounds a direction to the nearest 45 degrees (eight compass directions). Used by the boomerang,
+    // which only flies along those axes.
+    public static Vector2 SnapToOctant(Vector2 aim)
+    {
+        if (aim.LengthSquared() <= float.Epsilon)
+        {
+            return new Vector2(1f, 0f);
+        }
+        float step = MathHelper.PiOver4; // 45 degrees
+        float angle = MathF.Atan2(aim.Y, aim.X);
+        float snapped = MathF.Round(angle / step) * step;
+        return new Vector2(MathF.Cos(snapped), MathF.Sin(snapped));
+    }
 }

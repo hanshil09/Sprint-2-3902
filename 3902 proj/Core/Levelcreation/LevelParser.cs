@@ -57,7 +57,11 @@ namespace ArmadilloGame.Core
             ['@'] = ItemKind.Energon,
             ['%'] = ItemKind.BombPack,
             ['?'] = ItemKind.MaxHealthUp,
-            ['K'] = ItemKind.Key
+            ['K'] = ItemKind.Key,
+            // Weapon pickups: g = pistol, n = shotgun, o = molotov.
+            ['g'] = ItemKind.PistolPickup,
+            ['n'] = ItemKind.ShotgunPickup,
+            ['o'] = ItemKind.MolotovPickup
         };
 
         private static readonly Dictionary<char, EnemyKind> EnemySymbols = new Dictionary<char, EnemyKind>

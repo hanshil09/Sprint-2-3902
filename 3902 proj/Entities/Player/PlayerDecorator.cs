@@ -31,6 +31,8 @@ namespace ArmadilloGame.Entities
         public virtual Direction Facing => Inner.Facing;
         public virtual Vector2 AimDirection => Inner.AimDirection;
         public virtual void SetAimTarget(Vector2 worldTarget) => Inner.SetAimTarget(worldTarget);
+        public virtual Vector2 Center => Inner.Center;
+        public virtual float Gravity => Inner.Gravity;
         public virtual int Health => Inner.Health;
         public virtual int MaxHealth => Inner.MaxHealth;
         public virtual PlayerInventoryView Inventory => Inner.Inventory;
@@ -58,6 +60,8 @@ namespace ArmadilloGame.Entities
         public virtual void AddWeaponAmmo(WeaponKind kind, int amount) => Inner.AddWeaponAmmo(kind, amount);
         public virtual void UnlockAllWeapons() => Inner.UnlockAllWeapons();
         public virtual bool FireWeapon(WeaponKind kind) => Inner.FireWeapon(kind);
+        public virtual bool FireMolotov(float charge) => Inner.FireMolotov(charge);
+        public virtual bool MovementLocked { get => Inner.MovementLocked; set => Inner.MovementLocked = value; }
         public virtual bool TryUseKey() => Inner.TryUseKey();
         public virtual void Draw(SpriteBatch spriteBatch) => Inner.Draw(spriteBatch);
 

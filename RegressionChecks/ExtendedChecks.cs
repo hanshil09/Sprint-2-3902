@@ -92,21 +92,24 @@ internal static class ExtendedChecks
         collisions.BuildTree(new List<IGameObject> { shot });
         collisions.DetectCollision();
         Check("immediate boundary cleanup", !shot.IsActive);
-        var previous = new CounterCommand();
         var next = new CounterCommand();
         MouseState mouse = default;
-        var controller = new MouseController(previous, next, () => mouse);
+        FirePhase lastFirePhase = FirePhase.Up;
+        var controller = new MouseController(phase => lastFirePhase = phase, next, () => mouse);
         MouseState Buttons(ButtonState left, ButtonState right) => new(0, 0, 0, left, ButtonState.Released, right, ButtonState.Released, ButtonState.Released);
         mouse = Buttons(ButtonState.Pressed, ButtonState.Released);
-        controller.Update(); controller.Update();
-        Check("hold left triggers once", previous.Count == 1 && next.Count == 0);
+        controller.Update();
+        Check("first left frame reports Pressed", lastFirePhase == FirePhase.Pressed);
+        controller.Update();
+        Check("held left reports Held", lastFirePhase == FirePhase.Held);
         mouse = default; controller.Update();
+        Check("releasing left reports Released", lastFirePhase == FirePhase.Released);
         mouse = Buttons(ButtonState.Released, ButtonState.Pressed);
         controller.Update(); controller.Update();
-        Check("hold right triggers once", next.Count == 1);
-        var rebuilt = new MouseController(previous, next, () => mouse);
+        Check("right click triggers once", next.Count == 1);
+        var rebuilt = new MouseController(phase => lastFirePhase = phase, next, () => mouse);
         rebuilt.Update();
-        Check("controller rebuild does not repeat held click", next.Count == 1);
+        Check("controller rebuild does not repeat held right click", next.Count == 1);
         Check("every enemy kind appears in a room", roomData.SelectMany(d => d.Enemies).Select(e => e.Kind).Distinct().Count() == Enum.GetValues<EnemyKind>().Length);
         Check("every pickup kind appears in a room", roomData.SelectMany(d => d.Items).Select(e => e.Kind).Distinct().Count() == Enum.GetValues<ItemKind>().Length);
         Check("every interactive object kind appears in a room", roomData.SelectMany(d => d.Objects).Select(o => o.Kind).Distinct().Count() == Enum.GetValues<ObjectKind>().Length);
@@ -229,6 +232,8 @@ sealed class StubPlayer : IPlayer
     public Direction Facing => Direction.Right;
     public Vector2 AimDirection => new Vector2(1f, 0f);
     public void SetAimTarget(Vector2 worldTarget) { }
+    public Vector2 Center => new Vector2(Position.X + Width / 2f, Position.Y + Height / 2f);
+    public float Gravity => Physics.DefaultGravity;
     public int Health => 100;
     public int MaxHealth => 100;
     public PlayerInventoryView Inventory => default;
@@ -253,6 +258,8 @@ sealed class StubPlayer : IPlayer
     public void AddWeaponAmmo(WeaponKind kind, int amount) { }
     public void UnlockAllWeapons() { }
     public bool FireWeapon(WeaponKind kind) => false;
+    public bool FireMolotov(float charge) => false;
+    public bool MovementLocked { get; set; }
     public bool TryUseKey() => false;
     public void Move(Direction direction) { }
     public void Jump() { }

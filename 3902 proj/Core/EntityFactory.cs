@@ -16,6 +16,10 @@ namespace ArmadilloGame.Core
         public static IItem CreateItem(ItemKind kind, Vector2 position)
         {
             ISprite sprite = ItemSpriteFactory.Instance.CreateItemSprite(kind);
+            if (WeaponPickup.IsWeaponPickup(kind))
+            {
+                return new WeaponPickup(position, sprite, kind);
+            }
             if (PowerUps.Contains(kind))
             {
                 return new PowerUpPickup(position, sprite, kind);

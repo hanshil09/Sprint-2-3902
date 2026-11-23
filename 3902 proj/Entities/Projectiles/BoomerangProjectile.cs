@@ -6,27 +6,28 @@ using ArmadilloGame.Interfaces;
 
 namespace ArmadilloGame.Entities
 {
-       internal sealed class BoomerangProjectile : IPlayerWeapon
+    internal sealed class BoomerangProjectile : IPlayerWeapon
     {
         private const float LaunchSpeed = 560f;
         private const float Deceleration = 900f;
         private const float ReturnSpeed = 520f;
         private const float CatchDistance = 28f;
         private const double MaximumLifetime = 4000;
-        private const int ScreenWidth = 960;
+        private const int Damage = 3;
 
         private readonly Func<Vector2> ownerCenter;
         private readonly ISprite sprite;
         private readonly HashSet<IEnemy> hitThisPass = new HashSet<IEnemy>();
-        private readonly int direction;
+        // Unit vector the boomerang flies out along (one of the eight 45-degree directions).
+        private readonly Vector2 direction;
         private float outwardSpeed;
         private double lifetime;
 
-        public BoomerangProjectile(Vector2 position, int direction, Func<Vector2> ownerCenter, ISprite sprite)
+        public BoomerangProjectile(Vector2 position, Vector2 direction, Func<Vector2> ownerCenter, ISprite sprite)
         {
             Position = position;
             PreviousPosition = position;
-            this.direction = direction;
+            this.direction = direction.LengthSquared() > float.Epsilon ? Vector2.Normalize(direction) : new Vector2(1f, 0f);
             this.ownerCenter = ownerCenter;
             this.sprite = sprite;
             outwardSpeed = LaunchSpeed;
@@ -64,7 +65,7 @@ namespace ArmadilloGame.Entities
         {
             if (!enemy.IsDestroyed && hitThisPass.Add(enemy))
             {
-                enemy.TakeDamage(1);
+                enemy.TakeDamage(Damage);
             }
         }
 
@@ -83,10 +84,9 @@ namespace ArmadilloGame.Entities
 
         private void FlyOut(float elapsed)
         {
-            Position += new Vector2(direction * outwardSpeed * elapsed, 0);
+            Position += direction * outwardSpeed * elapsed;
             outwardSpeed -= Deceleration * elapsed;
-            bool atScreenEdge = Position.X <= 0 || Position.X >= ScreenWidth - sprite.Width;
-            if (outwardSpeed <= 0 || atScreenEdge)
+            if (outwardSpeed <= 0)
             {
                 StartReturn();
             }
