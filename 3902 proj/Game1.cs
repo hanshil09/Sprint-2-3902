@@ -19,70 +19,84 @@ namespace ArmadilloGame
 {
     internal class Game1 : Game, IPlayerHost
     {
-        // Virtual resolution the whole game renders at; scaled up to the window below.
+        // Screen configuration
         private const int ScreenWidth = 960;
         private const int ScreenHeight = 540;
         private const int WindowWidth = 1280;
         private const int WindowHeight = 720;
         private const double DoorCooldownDurationMs = 600;
+
+        // Window titles
         private const string MenuTitle = "Armadillo - Press Enter to Start";
-        private const string GameplayTitle = "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, ` Dev";
+        private const string GameplayTitle =
+            "Armadillo - A/D Move, W/SPACE Jump, SHIFT Ball, 1-4 Weapon, Click Fire, C/V Items, Tab Map, ` Dev";
 
-        private static readonly Color MenuColor = new Color(48, 22, 19);
-        private static readonly Color GameplayColor = new Color(42, 55, 70);
-        private ShadowRenderer shadowRenderer;
+        // UI and screen colors
+        private static readonly Color MenuColor = new(48, 22, 19);
+        private static readonly Color GameplayColor = new(42, 55, 70);
 
-
-
-        private readonly RoomFactory roomFactory = new RoomFactory(
-            "Content/Levels/hub-00.room",
-            "Content/Levels/desert-01.room", "Content/Levels/laboratory-02.room",
-            "Content/Levels/stone-03.room", "Content/Levels/metal-04.room",
-            "Content/Levels/crates-05.room", "Content/Levels/hazards-06.room",
-            "Content/Levels/fortress-07.room");
-
+        // Graphics
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        // Everything renders into this 960x540 target, then it is scaled up to the window.
         private RenderTarget2D sceneTarget;
+
+        private Texture2D backgroundTexture;
+        private Texture2D titleTexture;
+
+        private ShadowRenderer shadowRenderer;
+        private FilmGrainRenderer gameplayFilmGrain;
+        private BackgroundRenderer backgroundRenderer;
+
+        // Game states
         private GameState gameState;
         private IGameState currentState;
-        private GameplayState gameplayState;
+
+        private TitleScreenState titleScreenState;
         private MenuState menuState;
-        private IController gameplayController;
-        private IController devController;
-        private bool devMode;
-        private CollisionManager collisionManager;
-        private RoomManager roomManager;
-        private ControlsOverlay controlsOverlay;
-        private PlayerHud playerHud;
-        private readonly WeaponSelection weapons = new WeaponSelection();
+        private GameplayState gameplayState;
         private MapState mapState;
-        private IController selfieShortcut;
         private SelfieState selfieState;
         private GalleryState galleryState;
-        private bool selfieNeedsSpace;
-        private ObjectShowcase showcase;
+
+        // Gameplay systems
+        private readonly RoomFactory roomFactory = new(
+            "Content/Levels/hub-00.room",
+            "Content/Levels/desert-01.room",
+            "Content/Levels/laboratory-02.room",
+            "Content/Levels/stone-03.room",
+            "Content/Levels/metal-04.room",
+            "Content/Levels/crates-05.room",
+            "Content/Levels/hazards-06.room",
+            "Content/Levels/fortress-07.room");
+
+        private CollisionManager collisionManager;
+        private RoomManager roomManager;
         private Camera2D camera;
+
         private IPlayer player;
         private Door pendingDoor;
 
-        // After using a door, ignore door contacts briefly so spawning on top of
-        // another door does not immediately send the player through it.
+        private readonly WeaponSelection weapons = new();
+        private ShotgunAbility shotgun;
+        private BarrelStorm barrelStorm;
+        private readonly GameAudio audio = new();
+
+        // Controllers
+        private IController gameplayController;
+        private IController devController;
+        private IController selfieShortcut;
+
+        // UI
+        private ControlsOverlay controlsOverlay;
+        private PlayerHud playerHud;
+        private ObjectShowcase showcase;
+
+        // Gameplay tracking
+        private bool devMode;
+        private bool selfieNeedsSpace;
         private double doorCooldownMs;
 
-        // Targeted locked doors the player has already opened.
-        private readonly System.Collections.Generic.HashSet<(int From, int To)> unlockedDoors = new();
-
-        private readonly GameAudio audio = new GameAudio();
-        private BarrelStorm barrelStorm;
-        private ShotgunAbility Shotgun;
-
-        // Repeating gameplay background texture.
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "ContentManager owns and disposes loaded assets.")]
-        private Texture2D backgroundTexture;
-        private Texture2D titleTexture;
-        private TitleScreenState titleScreenState;
+        private readonly HashSet<(int From, int To)> unlockedDoors = new();
 
         public Game1()
         {
@@ -190,7 +204,7 @@ namespace ArmadilloGame
         {
             if (gameState == GameState.Gameplay)
             {
-                Shotgun.Call(
+                shotgun.Call(
                     Player,
                     camera.ViewBounds,
                     ActiveRoom.Level.Blocks);
@@ -201,7 +215,7 @@ namespace ArmadilloGame
         {
             if (gameState == GameState.Gameplay)
             {
-                Shotgun.Fire(Player);
+                shotgun.Fire(Player);
             }
         }
 
@@ -265,10 +279,16 @@ namespace ArmadilloGame
 
             titleTexture = Content.Load<Texture2D>("Sprites/backgrounds/dilloStartTest");
 
+            gameplayFilmGrain = new FilmGrainRenderer(GraphicsDevice)
+            {
+                Intensity = 0.02f
+            };
+
             // Load the repeating background.
             backgroundTexture = Content.Load<Texture2D>("Sprites/Brown");
+            backgroundRenderer = new BackgroundRenderer(backgroundTexture);
 
-            Shotgun = new ShotgunAbility(
+            shotgun = new ShotgunAbility(
                 Content.Load<Texture2D>("Sprites/Shotgun-helper"),
                 Content.Load<Texture2D>("Sprites/Shotgun-weapon"));
 
@@ -294,7 +314,7 @@ namespace ArmadilloGame
             spriteBatch,
             ScreenWidth,
             ScreenHeight);
-            shadowRenderer.Opacity = 0.02f; // Not used by this temporary Draw() implementation
+            shadowRenderer.Opacity = 0.02f;
             shadowRenderer.Spread = 10;
             shadowRenderer.Offset = new Vector2(0f, 5f);
 
@@ -417,33 +437,23 @@ namespace ArmadilloGame
             {
                 roomManager?.Unload();
 
+                // States
                 selfieState?.Dispose();
-                selfieState = null;
-
                 galleryState?.Dispose();
-                galleryState = null;
+                titleScreenState?.Dispose();
 
-                barrelStorm?.Dispose();
-                barrelStorm = null;
-
-                audio.Dispose();
-
-                controlsOverlay?.Dispose();
-                controlsOverlay = null;
-
+                // Rendering
                 shadowRenderer?.Dispose();
-                shadowRenderer = null;
+                gameplayFilmGrain?.Dispose();
 
-                spriteBatch?.Dispose();
-                spriteBatch = null;
+                // Gameplay systems
+                barrelStorm?.Dispose();
+                audio.Dispose();
+                controlsOverlay?.Dispose();
 
+                // Graphics resources
                 sceneTarget?.Dispose();
-                sceneTarget = null;
-
-                graphics?.Dispose();
-                graphics = null;
-
-
+                spriteBatch?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -499,22 +509,24 @@ namespace ArmadilloGame
         {
             Room room = roomManager.ActiveRoom;
 
-            // Capture shadows using the camera's world transformation.
             CaptureGameplayShadows(room);
 
-            // Draw the background first.
+            // Background
             spriteBatch.Begin(
                 samplerState: SamplerState.PointClamp,
                 transformMatrix: camera.GetViewMatrix());
 
-            DrawTiledBackground(camera.ViewBounds, GetRoomBackgroundTint());
+            backgroundRenderer.Draw(
+                spriteBatch,
+                camera.ViewBounds,
+                roomManager.ActiveRoomIndex);
 
             spriteBatch.End();
 
-            // Composite shadows over the background, but beneath the objects.
+            // Shadows
             shadowRenderer.Draw();
 
-            // Draw the actual world objects over their shadows.
+            // World objects
             spriteBatch.Begin(
                 samplerState: SamplerState.PointClamp,
                 transformMatrix: camera.GetViewMatrix());
@@ -522,11 +534,16 @@ namespace ArmadilloGame
             room.Draw(spriteBatch);
             barrelStorm.DrawParticles(spriteBatch);
             Player.Draw(spriteBatch);
-            Shotgun.Draw(spriteBatch, Player);
+            shotgun.Draw(spriteBatch, Player);
 
             spriteBatch.End();
 
-            // UI pass: fixed to the screen, without the camera transform.
+            // Screen effects
+            gameplayFilmGrain.Draw(
+                spriteBatch,
+                new Rectangle(0, 0, ScreenWidth, ScreenHeight));
+
+            // HUD and overlays
             spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             barrelStorm.DrawOverlay(spriteBatch);
@@ -534,58 +551,24 @@ namespace ArmadilloGame
 
             spriteBatch.End();
         }
-
-
-        private void DrawTiledBackground(Rectangle viewBounds, Color tint)
-        {
-            const int tileSize = 8;
-
-            int startX = (int)Math.Floor(viewBounds.Left / (double)tileSize) * tileSize;
-            int startY = (int)Math.Floor(viewBounds.Top / (double)tileSize) * tileSize;
-
-            for (int y = startY; y < viewBounds.Bottom + tileSize; y += tileSize)
-            {
-                for (int x = startX; x < viewBounds.Right + tileSize; x += tileSize)
-                {
-                    spriteBatch.Draw(
-                        backgroundTexture,
-                        new Rectangle(x, y, tileSize, tileSize),
-                        tint
-                    );
-                }
-            }
-        }
-
         private void DrawHud(Room room)
         {
-            string roomStatus =
-                $"{roomManager.ActiveRoomIndex + 1}/{roomManager.RoomCount}";
-
-            playerHud.Draw(
-                spriteBatch,
-                Player,
-                weapons);
+            playerHud.Draw(spriteBatch, Player, weapons);
 
             controlsOverlay.DrawSmallText(
                 spriteBatch,
                 selfieNeedsSpace ? "F2: Need space" : "F2: Selfie",
-                728,
-                86,
-                false);
+                728, 86, false);
 
             controlsOverlay.DrawSmallText(
                 spriteBatch,
                 audio.IsMuted ? "M: Audio OFF" : "M: Audio ON",
-                820,
-                86,
-                false);
+                820, 86, false);
 
             controlsOverlay.DrawSmallText(
                 spriteBatch,
                 "F3: Gallery",
-                728,
-                100,
-                false);
+                728, 100, false);
 
             if (roomManager.ActiveRoomIndex == 0 &&
                 room.Level.HasIntactReinforcedCrate)
@@ -593,9 +576,7 @@ namespace ArmadilloGame
                 controlsOverlay.DrawSmallText(
                     spriteBatch,
                     "SHIFT to transform. Roll into the blue crate.",
-                    26,
-                    98,
-                    false);
+                    26, 98, false);
             }
 
             showcase.Draw(spriteBatch, controlsOverlay);
@@ -607,13 +588,15 @@ namespace ArmadilloGame
 
             if (devMode)
             {
-                controlsOverlay.DrawDevControls(spriteBatch, GraphicsDevice.Viewport);
+                controlsOverlay.DrawDevControls(
+                    spriteBatch,
+                    GraphicsDevice.Viewport);
             }
         }
 
         private void InitializeGameObjects()
         {
-            Shotgun.Reset();
+            shotgun.Reset();
             selfieNeedsSpace = false;
 
             roomManager?.Unload();
@@ -672,8 +655,6 @@ namespace ArmadilloGame
             doorCooldownMs = 0;
             unlockedDoors.Clear();
 
-            //menuState.Open(false);
-
             RefreshGameplayController();
         }
 
@@ -686,7 +667,7 @@ namespace ArmadilloGame
                 devController.Update();
             }
 
-            if (State == GameState.Gameplay && !Shotgun.Active)
+            if (State == GameState.Gameplay && !shotgun.Active)
             {
                 UpdateGameplay(gameTime);
             }
@@ -706,11 +687,12 @@ namespace ArmadilloGame
 
         private void UpdateActiveGameplay(GameTime gameTime)
         {
-            Shotgun.SetAim(Keyboard.GetState());
+            gameplayFilmGrain.Update(gameTime);
+            shotgun.SetAim(Keyboard.GetState());
 
-            if (Shotgun.Active)
+            if (shotgun.Active)
             {
-                Shotgun.Update(gameTime);
+                shotgun.Update(gameTime);
                 return;
             }
 
@@ -881,7 +863,7 @@ namespace ArmadilloGame
 
         private void SwitchRoom(System.Action switchRoom)
         {
-            Shotgun.ClearSpaceWarning();
+            shotgun.ClearSpaceWarning();
 
             barrelStorm.CancelRoomEffect();
 
@@ -960,29 +942,11 @@ namespace ArmadilloGame
                 maximum);
         }
 
-        private Rectangle PlayerBounds()
-        {
-            return new Rectangle(
+        private Rectangle PlayerBounds() =>
+            new Rectangle(
                 (int)Player.Position.X,
                 (int)Player.Position.Y,
                 Player.Width,
                 Player.Height);
-        }
-
-        private Color GetRoomBackgroundTint()
-        {
-            return roomManager.ActiveRoomIndex switch
-            {
-                0 => new Color(190, 150, 110), // Frontier Hub - warm brown
-                1 => new Color(220, 145, 90),  // Dusty orange
-                2 => new Color(130, 165, 110), // Muted green
-                3 => new Color(105, 145, 190), // Blue
-                4 => new Color(155, 120, 180), // Purple
-                6 => new Color(185, 105, 100), // Red
-                5 => new Color(105, 165, 160), // Teal
-                7 => new Color(95, 90, 85),    // Fortress - charcoal
-                _ => Color.White
-            };
-        }
     }
 }

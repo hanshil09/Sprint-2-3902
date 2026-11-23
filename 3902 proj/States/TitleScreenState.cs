@@ -1,11 +1,12 @@
 ﻿
-using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using ArmadilloGame.Commands;
 using ArmadilloGame.Controllers;
 using ArmadilloGame.Interfaces;
+using ArmadilloGame.Rendering;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace ArmadilloGame.States
 {
@@ -18,6 +19,7 @@ namespace ArmadilloGame.States
         private readonly IController controller;
         private readonly SpriteFont font;
         private readonly Texture2D pixel;
+        private readonly FilmGrainRenderer filmGrain;
         private Rectangle startButton;
         private bool isHovering;
         private MouseState previousMouseState;
@@ -32,6 +34,7 @@ namespace ArmadilloGame.States
             this.graphics = graphics;
             this.font = font;
             this.continueToMenu = continueToMenu;
+            this.filmGrain = new FilmGrainRenderer(graphics);
 
             pixel = new Texture2D(graphics, 1, 1);
             pixel.SetData(new[] { Color.White });
@@ -53,6 +56,7 @@ namespace ArmadilloGame.States
         public void Update(GameTime gameTime)
         {
             controller.Update();
+            filmGrain.Update(gameTime);
 
             MouseState mouse = Mouse.GetState();
 
@@ -145,10 +149,12 @@ namespace ArmadilloGame.States
                 SpriteEffects.None,
                 0f);
             batch.End();
+            filmGrain.Draw(batch, graphics.Viewport.Bounds);
         }
         public void Dispose()
         {
             pixel.Dispose();
+            filmGrain.Dispose();
         }
     }
 
