@@ -20,7 +20,8 @@ namespace ArmadilloGame.Collisions
         }
 
         public static bool StopsProjectileTraversal(IGameObject target, IProjectile projectile) =>
-            target is IBlock { IsSolid: true } && projectile is not Bomb;
+            target is IBlock { IsSolid: true } && projectile is not Bomb
+            && projectile is not MolotovProjectile { IsBurning: true };
 
         public static Vector2 MoveHorizontally(Vector2 position, int width, int height, float distance,
             float minimumX, float maximumX, IReadOnlyList<IBlock> blocks) =>
