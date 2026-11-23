@@ -97,6 +97,7 @@ namespace ArmadilloGame
         private bool devMode;
         private bool selfieNeedsSpace;
         private double doorCooldownMs;
+        private double lockedDoorSoundCooldownMs;
 
         private readonly HashSet<(int From, int To)> unlockedDoors = new();
 
@@ -690,6 +691,7 @@ namespace ArmadilloGame
 
             pendingDoor = null;
             doorCooldownMs = 0;
+            lockedDoorSoundCooldownMs = 0;
             unlockedDoors.Clear();
 
             RefreshGameplayController();
@@ -776,6 +778,10 @@ namespace ArmadilloGame
             Door touchedDoor = pendingDoor;
             pendingDoor = null;
 
+            if (lockedDoorSoundCooldownMs > 0)
+            {
+                lockedDoorSoundCooldownMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
             if (doorCooldownMs > 0)
             {
                 doorCooldownMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -790,18 +796,19 @@ namespace ArmadilloGame
 
         private void ApplyPowerUps(IReadOnlyList<IItem> collected)
         {
-            if (collected.Count > 0)
-            {
-                audio.Play(GameSound.Pickup);
-            }
-
+            bool keyCollected = false;
+            bool otherCollected = false;
             foreach (IItem item in collected)
             {
+                if (item is ResourcePickup { Kind: ItemKind.Key }) keyCollected = true;
+                else otherCollected = true;
                 if (item is IPowerUp powerUp)
                 {
                     Player = powerUp.Apply(Player, this);
                 }
             }
+            if (keyCollected) audio.Play(GameSound.KeyPickup);
+            if (otherCollected) audio.Play(GameSound.Pickup);
         }
 
         private void CheckForGameEnd()
@@ -873,7 +880,7 @@ namespace ArmadilloGame
                 // holding a key but does not spend one.
                 if (Player.KeyCount <= 0)
                 {
-                    audio.Play(GameSound.Item);
+                    PlayLockedDoorSound();
                     return;
                 }
 
@@ -882,13 +889,14 @@ namespace ArmadilloGame
                 unlockedDoors.Add(id);
                 // Persist so the door stays open (not relocked) on later entries to this level.
                 roomManager.ActiveRoom.Level.UnlockDoorTo(target);
+                audio.Play(GameSound.DoorUnlock);
             }
             else if (door.IsLocked && !unlockedDoors.Contains(id))
             {
                 if (!Player.TryUseKey())
                 {
                     // No key: leave the door shut.
-                    audio.Play(GameSound.Item);
+                    PlayLockedDoorSound();
                     return;
                 }
 
@@ -896,9 +904,17 @@ namespace ArmadilloGame
                 door.IsLocked = false;
                 // Persist so this door stays open when its room is rebuilt (e.g. back in the hub).
                 roomManager.ActiveRoom.Level.UnlockDoorTo(target);
+                audio.Play(GameSound.DoorUnlock);
             }
 
             GoToRoom(target);
+        }
+
+        private void PlayLockedDoorSound()
+        {
+            if (lockedDoorSoundCooldownMs > 0) return;
+            audio.Play(GameSound.DoorLocked);
+            lockedDoorSoundCooldownMs = DoorCooldownDurationMs;
         }
 
         private void SwitchRoom(System.Action switchRoom)

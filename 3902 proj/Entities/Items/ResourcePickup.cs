@@ -22,6 +22,8 @@ namespace ArmadilloGame.Entities
 
         public Vector2 Position { get; set; }
 
+        public ItemKind Kind => kind;
+
         public Rectangle Bounds => new Rectangle((int)Position.X, (int)Position.Y, sprite.Width, sprite.Height);
 
         public bool TryCollect(IPlayer player)
