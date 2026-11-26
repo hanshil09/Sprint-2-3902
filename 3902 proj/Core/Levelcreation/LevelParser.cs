@@ -98,8 +98,32 @@ namespace ArmadilloGame.Core
 
             List<string> errors = new List<string>();
             List<string> warnings = new List<string>();
-            List<string> rows = new List<string>();
-            List<int> rowLineNumbers = new List<int>();
+            HeaderData header = CollectHeaderAndRows(lines, warnings, errors);
+            int columns = GetColumnCount(header.Rows);
+            ValidateDimensions(columns, header.Rows.Count, errors);
+
+            if (errors.Count > 0)
+            {
+                return CreateFailedResult(errors, warnings);
+            }
+
+            AddScreenSizeWarning(columns, header.Rows.Count, warnings);
+
+            GridPlacements placements = PlaceGridTiles(header.Rows, header.RowLineNumbers, columns, warnings);
+            ReportUnknownSymbols(placements.UnknownTiles, warnings);
+            ValidatePlayerSpawns(placements.SpawnLocations, errors);
+
+            if (errors.Count > 0)
+            {
+                return CreateFailedResult(errors, warnings);
+            }
+
+            return BuildLevelParseResult(header, columns, placements, errors, warnings);
+        }
+
+        private static HeaderData CollectHeaderAndRows(IEnumerable<string> lines, List<string> warnings, List<string> errors)
+        {
+            HeaderData header = new HeaderData();
             string name = null;
             float gravity = Physics.DefaultGravity;
             bool sawTiles = false;
@@ -134,8 +158,8 @@ namespace ArmadilloGame.Core
 
                 if (sawTiles)
                 {
-                    rows.Add(line);
-                    rowLineNumbers.Add(lineNumber);
+                    header.Rows.Add(line);
+                    header.RowLineNumbers.Add(lineNumber);
                 }
                 else
                 {
@@ -147,43 +171,49 @@ namespace ArmadilloGame.Core
             {
                 errors.Add($"missing {TilesSection} section");
             }
-            else if (rows.Count == 0)
+            else if (header.Rows.Count == 0)
             {
                 errors.Add($"the {TilesSection} section has no rows");
             }
 
+            header.Name = name;
+            header.Gravity = gravity;
+            return header;
+        }
+
+        private static int GetColumnCount(List<string> rows)
+        {
             int columns = 0;
             foreach (string row in rows)
             {
                 columns = Math.Max(columns, row.Length);
             }
+            return columns;
+        }
 
-            if (columns > MaxColumns || rows.Count > MaxRows)
+        private static void ValidateDimensions(int columns, int rowCount, List<string> errors)
+        {
+            if (columns > MaxColumns || rowCount > MaxRows)
             {
-                errors.Add($"room is {columns} x {rows.Count} tiles; the maximum is {MaxColumns} x {MaxRows}");
+                errors.Add($"room is {columns} x {rowCount} tiles; the maximum is {MaxColumns} x {MaxRows}");
             }
+        }
 
-            if (errors.Count > 0)
+        private static void AddScreenSizeWarning(int columns, int rowCount, List<string> warnings)
+        {
+            if (columns > ScreenColumns || rowCount > ScreenRows)
             {
-                return new LevelParseResult(null, errors, warnings);
+                warnings.Add($"room is {columns} x {rowCount} tiles, larger than the {ScreenColumns} x {ScreenRows} screen; the camera will scroll to follow the player");
             }
+        }
 
-            if (columns > ScreenColumns || rows.Count > ScreenRows)
-            {
-                warnings.Add($"room is {columns} x {rows.Count} tiles, larger than the {ScreenColumns} x {ScreenRows} screen; the camera will scroll to follow the player");
-            }
-
-            List<Placement<BlockKind>> blocks = new List<Placement<BlockKind>>();
-            List<Placement<ItemKind>> items = new List<Placement<ItemKind>>();
-            List<Placement<ItemKind>> crateDrops = new List<Placement<ItemKind>>();
-            List<Placement<EnemyKind>> enemies = new List<Placement<EnemyKind>>();
-            List<Placement<DoorSpec>> doors = new();
-            List<Placement<ObjectKind>> objects = new();
-            List<string> spawnLocations = new List<string>();
-            Dictionary<char, UnknownTile> unknownTiles = new Dictionary<char, UnknownTile>();
-            int playerColumn = 0;
-            int playerRow = 0;
-
+        private static GridPlacements PlaceGridTiles(
+            List<string> rows,
+            List<int> rowLineNumbers,
+            int columns,
+            List<string> warnings)
+        {
+            GridPlacements placements = new GridPlacements();
             for (int r = 0; r < rows.Count; r++)
             {
                 string row = rows[r];
@@ -196,67 +226,77 @@ namespace ArmadilloGame.Core
 
                 for (int c = 0; c < row.Length; c++)
                 {
-                    char symbol = row[c];
-
-                    if (symbol == EmptySymbol)
-                    {
-                        continue;
-                    }
-
-                    if (symbol == PlayerSymbol)
-                    {
-                        spawnLocations.Add($"line {rowLine} column {c + 1}");
-                        playerColumn = c;
-                        playerRow = r;
-                    }
-                    else if (symbol == '<' || symbol == '>')
-                    {
-                        doors.Add(new Placement<DoorSpec>(DoorSpec.Relative(symbol == '<' ? -1 : 1), c, r));
-                    }
-                    else if (symbol >= '0' && symbol <= '9')
-                    {
-                        // Digit = unlocked door to that room index (hub-and-spoke navigation).
-                        doors.Add(new Placement<DoorSpec>(DoorSpec.ToRoom(symbol - '0', false), c, r));
-                    }
-                    else if (LockedDoorSymbols.TryGetValue(symbol, out int lockedTarget))
-                    {
-                        // Dedicated locked-door letters map to room indices; they need a key.
-                        doors.Add(new Placement<DoorSpec>(DoorSpec.ToRoom(lockedTarget, true), c, r));
-                    }
-                    else if (BlockSymbols.TryGetValue(symbol, out BlockKind block))
-                    {
-                        blocks.Add(new Placement<BlockKind>(block, c, r));
-                        AddCrateDrop(symbol, c, r, crateDrops);
-                    }
-                    else if (ItemSymbols.TryGetValue(symbol, out ItemKind item))
-                    {
-                        items.Add(new Placement<ItemKind>(item, c, r));
-                    }
-                    else if (EnemySymbols.TryGetValue(symbol, out EnemyKind enemy))
-                    {
-                        enemies.Add(new Placement<EnemyKind>(enemy, c, r));
-                    }
-                    else if (ObjectSymbols.TryGetValue(symbol, out ObjectKind levelObject))
-                    {
-                        objects.Add(new Placement<ObjectKind>(levelObject, c, r));
-                    }
-                    else if (unknownTiles.TryGetValue(symbol, out UnknownTile seen))
-                    {
-                        seen.Count++;
-                    }
-                    else
-                    {
-                        unknownTiles[symbol] = new UnknownTile(rowLine, c + 1);
-                    }
+                    PlaceTile(row[c], c, r, rowLine, placements);
                 }
             }
+            return placements;
+        }
 
+        private static void PlaceTile(char symbol, int column, int row, int rowLine, GridPlacements placements)
+        {
+            if (symbol == EmptySymbol)
+            {
+                return;
+            }
+
+            if (symbol == PlayerSymbol)
+            {
+                placements.SpawnLocations.Add($"line {rowLine} column {column + 1}");
+                placements.PlayerColumn = column;
+                placements.PlayerRow = row;
+            }
+            else if (symbol == '<' || symbol == '>')
+            {
+                placements.Doors.Add(new Placement<DoorSpec>(DoorSpec.Relative(symbol == '<' ? -1 : 1), column, row));
+            }
+            else if (symbol >= '0' && symbol <= '9')
+            {
+                // Digit = unlocked door to that room index (hub-and-spoke navigation).
+                placements.Doors.Add(new Placement<DoorSpec>(DoorSpec.ToRoom(symbol - '0', false), column, row));
+            }
+            else if (LockedDoorSymbols.TryGetValue(symbol, out int lockedTarget))
+            {
+                // Dedicated locked-door letters map to room indices; they need a key.
+                placements.Doors.Add(new Placement<DoorSpec>(DoorSpec.ToRoom(lockedTarget, true), column, row));
+            }
+            else if (BlockSymbols.TryGetValue(symbol, out BlockKind block))
+            {
+                placements.Blocks.Add(new Placement<BlockKind>(block, column, row));
+                AddCrateDrop(symbol, column, row, placements.CrateDrops);
+            }
+            else if (ItemSymbols.TryGetValue(symbol, out ItemKind item))
+            {
+                placements.Items.Add(new Placement<ItemKind>(item, column, row));
+            }
+            else if (EnemySymbols.TryGetValue(symbol, out EnemyKind enemy))
+            {
+                placements.Enemies.Add(new Placement<EnemyKind>(enemy, column, row));
+            }
+            else if (ObjectSymbols.TryGetValue(symbol, out ObjectKind levelObject))
+            {
+                placements.Objects.Add(new Placement<ObjectKind>(levelObject, column, row));
+            }
+            else if (placements.UnknownTiles.TryGetValue(symbol, out UnknownTile seen))
+            {
+                seen.Count++;
+            }
+            else
+            {
+                placements.UnknownTiles[symbol] = new UnknownTile(rowLine, column + 1);
+            }
+        }
+
+        private static void ReportUnknownSymbols(Dictionary<char, UnknownTile> unknownTiles, List<string> warnings)
+        {
             foreach (KeyValuePair<char, UnknownTile> entry in unknownTiles)
             {
                 UnknownTile tile = entry.Value;
                 warnings.Add($"line {tile.Line} column {tile.Column}: unknown tile '{entry.Key}' ({tile.Count} total); treated as empty");
             }
+        }
 
+        private static void ValidatePlayerSpawns(List<string> spawnLocations, List<string> errors)
+        {
             if (spawnLocations.Count == 0)
             {
                 errors.Add($"no player spawn: put exactly one '{PlayerSymbol}' in the {TilesSection} grid");
@@ -265,24 +305,34 @@ namespace ArmadilloGame.Core
             {
                 errors.Add($"found {spawnLocations.Count} player spawns ({string.Join("; ", spawnLocations)}); a room needs exactly one '{PlayerSymbol}'");
             }
+        }
 
-            if (errors.Count > 0)
-            {
-                return new LevelParseResult(null, errors, warnings);
-            }
-
+        private static LevelParseResult BuildLevelParseResult(
+            HeaderData header,
+            int columns,
+            GridPlacements placements,
+            List<string> errors,
+            List<string> warnings)
+        {
+            string name = header.Name;
             if (string.IsNullOrWhiteSpace(name))
             {
                 warnings.Add($"no 'name:' header; using '{DefaultName}'");
                 name = DefaultName;
             }
 
-            LevelData data = new LevelData(name, columns, rows.Count, playerColumn, playerRow, blocks, items, enemies, doors, gravity)
+            LevelData data = new LevelData(name, columns, header.Rows.Count, placements.PlayerColumn, placements.PlayerRow,
+                placements.Blocks, placements.Items, placements.Enemies, placements.Doors, header.Gravity)
             {
-                Objects = objects,
-                CrateDrops = crateDrops
+                Objects = placements.Objects,
+                CrateDrops = placements.CrateDrops
             };
             return new LevelParseResult(data, errors, warnings);
+        }
+
+        private static LevelParseResult CreateFailedResult(List<string> errors, List<string> warnings)
+        {
+            return new LevelParseResult(null, errors, warnings);
         }
 
         private static void AddCrateDrop(char symbol, int column, int row, List<Placement<ItemKind>> drops)
@@ -327,6 +377,40 @@ namespace ArmadilloGame.Core
             {
                 warnings.Add($"line {lineNumber}: unknown header '{key}' ignored");
             }
+        }
+
+        private sealed class HeaderData
+        {
+            public List<string> Rows { get; } = new List<string>();
+
+            public List<int> RowLineNumbers { get; } = new List<int>();
+
+            public string Name { get; set; }
+
+            public float Gravity { get; set; }
+        }
+
+        private sealed class GridPlacements
+        {
+            public List<Placement<BlockKind>> Blocks { get; } = new List<Placement<BlockKind>>();
+
+            public List<Placement<ItemKind>> Items { get; } = new List<Placement<ItemKind>>();
+
+            public List<Placement<ItemKind>> CrateDrops { get; } = new List<Placement<ItemKind>>();
+
+            public List<Placement<EnemyKind>> Enemies { get; } = new List<Placement<EnemyKind>>();
+
+            public List<Placement<DoorSpec>> Doors { get; } = new List<Placement<DoorSpec>>();
+
+            public List<Placement<ObjectKind>> Objects { get; } = new List<Placement<ObjectKind>>();
+
+            public List<string> SpawnLocations { get; } = new List<string>();
+
+            public Dictionary<char, UnknownTile> UnknownTiles { get; } = new Dictionary<char, UnknownTile>();
+
+            public int PlayerColumn { get; set; }
+
+            public int PlayerRow { get; set; }
         }
 
         private sealed class UnknownTile
