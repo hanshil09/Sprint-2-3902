@@ -6,11 +6,21 @@ using ArmadilloGame.Interfaces;
 
 namespace ArmadilloGame.Core
 {
+    /// <summary>
+    /// Coordinates runtime activity for one room, including enemy and projectile updates,
+    /// objective and boss progress, collision objects, and unloading. <see cref="Level"/> owns the
+    /// room's content and state, such as blocks, items, doors, triggers, gravity, and player placement.
+    /// <see cref="RoomManager"/> selects the active room and unloads it when switching rooms.
+    /// </summary>
     internal sealed class Room
     {
         // Only one key drops per room lifetime; this flags once that key has been handed out.
         private bool keyDropped;
 
+        /// <summary>Creates a room around its level and runtime enemy and projectile managers.</summary>
+        /// <param name="level">The content and state for this room.</param>
+        /// <param name="projectiles">The room's projectile manager.</param>
+        /// <param name="enemies">The room's enemy cycler.</param>
         public Room(Level level, IProjectileManager projectiles, GameObjectCycler enemies)
         {
             Level = level;
@@ -18,14 +28,19 @@ namespace ArmadilloGame.Core
             Enemies = enemies;
         }
 
+        /// <summary>Gets the room content and state.</summary>
         public Level Level { get; }
 
+        /// <summary>Gets the manager for projectiles active in this room.</summary>
         public IProjectileManager Projectiles { get; }
 
+        /// <summary>Gets the cycler for enemies active in this room.</summary>
         public GameObjectCycler Enemies { get; }
 
+        /// <summary>Gets whether this room's goal has been reached.</summary>
         public bool IsGoalReached => Level.Goal != null && Level.Goal.IsReached;
 
+        /// <summary>Gets the current objective text for this room.</summary>
         public string Objective
         {
             get
@@ -40,6 +55,8 @@ namespace ArmadilloGame.Core
             }
         }
 
+        /// <summary>Updates the level, enemies, projectiles, boss progress, and goal state for this frame.</summary>
+        /// <param name="gameTime">The elapsed game time.</param>
         public void Update(GameTime gameTime)
         {
             Level.Update(gameTime);
@@ -94,6 +111,8 @@ namespace ArmadilloGame.Core
             return false;
         }
 
+        /// <summary>Draws the level and the active enemies and projectiles.</summary>
+        /// <param name="spriteBatch">The sprite batch used for drawing.</param>
         public void Draw(SpriteBatch spriteBatch)
         {
             Level.Draw(spriteBatch);
@@ -107,11 +126,17 @@ namespace ArmadilloGame.Core
             Projectiles.Draw(spriteBatch);
         }
 
+        /// <summary>Collects items from the level for the player.</summary>
+        /// <param name="player">The player collecting items.</param>
+        /// <returns>The items collected during this call.</returns>
         public IReadOnlyList<IItem> CollectItems(IPlayer player)
         {
             return Level.CollectItems(player);
         }
 
+        /// <summary>Combines level, player, enemy, and active projectile objects for collision checks.</summary>
+        /// <param name="player">The player to include in the collision objects.</param>
+        /// <returns>A read-only list of objects used for collision checks.</returns>
         public IReadOnlyList<IGameObject> GetCollisionObjects(IPlayer player)
         {
             List<IGameObject> objects = new List<IGameObject>(Level.GetCollisionObjects())
@@ -129,6 +154,7 @@ namespace ArmadilloGame.Core
             return objects.AsReadOnly();
         }
 
+        /// <summary>Records pending crate and boss progress, then clears projectiles before leaving.</summary>
         public void Unload()
         {
             Level.RecordPendingCrateDrops();
